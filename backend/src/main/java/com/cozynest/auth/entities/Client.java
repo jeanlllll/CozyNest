@@ -31,7 +31,6 @@ public class Client {
     @Column(nullable = false)
     private ClientProvider provider;
 
-    @Column(nullable = false)
     private UUID stripeId;
 
     @OneToOne(cascade = CascadeType.ALL)

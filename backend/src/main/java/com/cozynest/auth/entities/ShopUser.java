@@ -40,8 +40,7 @@ public class ShopUser {
     private String lastName;
 
     @NotBlank(message = "Password cannot be blank")
-    @Size(min =8, max = 25, message = "Password must be between 8 and 25 characters")
-    @Column(nullable = false, length = 25)
+    @Column(nullable = false)
     private String password;
 
     @NotBlank(message = "Email cannot be blank")
@@ -52,15 +51,14 @@ public class ShopUser {
     @Column(nullable = false, columnDefinition = "TIMESTAMP(0)")
     private LocalDateTime createdOn;
 
-    @Column(nullable = false, columnDefinition = "TIMESTAMP(0)")
+    @Column(columnDefinition = "TIMESTAMP(0)")
     private LocalDateTime updatedOn;
-
 
     @Column(nullable = false)
     private String verificationCode;
 
     @Column(nullable = false)
-    private Boolean isVerified;
+    private Boolean isVerified = false;
 
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
