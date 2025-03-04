@@ -1,6 +1,6 @@
 package com.cozynest.auth.services;
 
-import com.cozynest.auth.dts.EmailDetails;
+import com.cozynest.auth.dtos.EmailDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
@@ -27,7 +27,7 @@ public class EmailService{
             mailMessage.setSubject(details.getSubject());
 
             javaMailSender.send(mailMessage);
-            return 200; //send verification successfully
+            return 200; //send verification mail successfully
         } catch (Exception e) {
             return 400;
         }

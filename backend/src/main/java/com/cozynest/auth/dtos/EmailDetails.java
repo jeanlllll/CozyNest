@@ -1,4 +1,4 @@
-package com.cozynest.auth.dts;
+package com.cozynest.auth.dtos;
 
 import lombok.Data;
 

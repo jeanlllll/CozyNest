@@ -1,7 +1,10 @@
 package com.cozynest.auth.helper;
 
+import org.springframework.stereotype.Component;
+
 import java.security.SecureRandom;
 
+@Component
 public class VerificationCodeGenerator {
 
     public static String generateVerificationCode() {

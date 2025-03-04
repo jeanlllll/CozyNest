@@ -1,8 +1,8 @@
 package com.cozynest.auth.services;
 
-import com.cozynest.auth.dts.EmailDetails;
-import com.cozynest.auth.dts.RegistrationRequest;
-import com.cozynest.auth.dts.RegistrationResponse;
+import com.cozynest.auth.dtos.EmailDetails;
+import com.cozynest.auth.dtos.RegistrationRequest;
+import com.cozynest.auth.dtos.RegistrationResponse;
 import com.cozynest.auth.entities.Client;
 import com.cozynest.auth.entities.ClientProvider;
 import com.cozynest.auth.entities.ShopUser;

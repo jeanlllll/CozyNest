@@ -1,4 +1,4 @@
-package com.cozynest.auth.dts;
+package com.cozynest.auth.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,9 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class LoginRequest {
+public class UserToken {
 
-    private String userName;
-    private String password;
-
+    private String token;
 }

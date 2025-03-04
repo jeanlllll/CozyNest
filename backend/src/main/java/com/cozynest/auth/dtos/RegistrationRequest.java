@@ -1,4 +1,4 @@
-package com.cozynest.auth.dts;
+package com.cozynest.auth.dtos;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
