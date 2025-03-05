@@ -8,8 +8,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -40,7 +44,6 @@ public class ShopUser {
     private String lastName;
 
     @NotBlank(message = "Password cannot be blank")
-    @Column(nullable = false)
     private String password;
 
     @NotBlank(message = "Email cannot be blank")
@@ -54,17 +57,35 @@ public class ShopUser {
     @Column(columnDefinition = "TIMESTAMP(0)")
     private LocalDateTime updatedOn;
 
-    @Column(nullable = false)
-    private String verificationCode;
+    @OneToOne(mappedBy = "shopUser", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Verification verification;
 
     @Column(nullable = false)
+    @Builder.Default
     private Boolean isVerified = false;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @Builder.Default
+    private Integer loginFailedAttempts = 0;
+
+    @Column(columnDefinition = "TIMESTAMP(0)")
+    private LocalDateTime lastLoginAttemptsDate;
+
+    @Builder.Default
+    private Boolean isLocked = false;
+
+    @Column(columnDefinition = "TIMESTAMP(0)")
+    private LocalDateTime lockExpiresAt;
+
+    @ManyToMany(cascade = CascadeType.PERSIST) //auto  save new authAuthority when saving shopUser
     @JoinTable(
             name="auth_user_authority",
             joinColumns = @JoinColumn(name="shop_user_id"),
             inverseJoinColumns = @JoinColumn(name="auth_authority_id")
     )
+    @OnDelete(action = OnDeleteAction.CASCADE) //if shopUser delete, the entity in auth_user_authority will delete without affect the auth_authority table
     private Set<AuthAuthority> authorities;
+
+    @OneToOne(mappedBy = "shopUser", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Client client;
+
 }

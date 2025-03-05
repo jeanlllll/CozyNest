@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 import com.cozynest.auth.exceptions.JwtException;
@@ -15,8 +16,11 @@ import com.cozynest.auth.exceptions.JwtException;
 @Component
 public class JwtUtil {
 
-    @Value("${jwt.secret_key}")
-    private String secret_key;
+    @Value("${jwt.access_token.secret_key}")
+    private String accessToken_Secret_key;
+
+    @Value("${jwt.refresh_token.secret_key}")
+    private String refreshToken_secret_key;
 
     @Value("${jwt.access_token.expiration_time}")
     private long access_token_expiration;
@@ -24,22 +28,24 @@ public class JwtUtil {
     @Value("${jwt.refresh_token.expiration_time}")
     private long refresh_token_expiration;
 
-    private SecretKey key;
+    private SecretKey accessKey;
+    private SecretKey refreshKey;
 
     @PostConstruct
     private void generateKey() {
-        key = Keys.hmacShaKeyFor(secret_key.getBytes());
+        accessKey = Keys.hmacShaKeyFor(accessToken_Secret_key.getBytes());
+        refreshKey = Keys.hmacShaKeyFor(refreshToken_secret_key.getBytes());
     }
 
-    public String generateAccessToken(String username, Set<String> rolesList) {
-        return generateTokenHelper(username, rolesList, access_token_expiration);
+    public String generateAccessToken(String username, List<String> rolesList) {
+        return generateTokenHelper(username, rolesList, access_token_expiration, accessKey);
     }
 
-    public String generateRefreshToken(String username, Set<String> rolesList) {
-        return generateTokenHelper(username, rolesList, refresh_token_expiration);
+    public String generateRefreshToken(String username, List<String> rolesList) {
+        return generateTokenHelper(username, rolesList, refresh_token_expiration, refreshKey);
     }
 
-    public String generateTokenHelper(String username, Set<String> rolesList, long expirationTime) {
+    public String generateTokenHelper(String username, List<String> rolesList, long expirationTime, SecretKey key) {
         return Jwts.builder()
                 .issuer("CozyNest")
                 .subject(username)
@@ -50,8 +56,16 @@ public class JwtUtil {
                 .compact();
     }
 
-    private Jws<Claims> getJwtClaims(String token) {
+    private Jws<Claims> getJwtClaims(String token, String keyType) {
         try {
+            SecretKey key;
+            if (keyType.equals("accessKey")) {
+                key = accessKey;
+            } else if (keyType.equals("refreshKey")) {
+                key = refreshKey;
+            } else {
+                throw new JwtException();
+            }
             return Jwts.parser()
                 .verifyWith(key)
                 .build()
@@ -69,27 +83,28 @@ public class JwtUtil {
     }
     ----------------------------------  */
 
-    public Boolean isValidateToken(String token) {
+    public Boolean isValidateToken(String token, String keyType) {
         try {
-            getJwtClaims(token);
-            return true;
+            Jws<Claims> claims = getJwtClaims(token, keyType);
+            return claims.getPayload().getExpiration().after(new Date());
         } catch (Exception e) {
             return false;
         }
     }
 
-    public String getUserName(String token) {
-        Jws<Claims> claimsJws = getJwtClaims(token);
+    public String getUserName(String token, String keyType) {
+        Jws<Claims> claimsJws = getJwtClaims(token, keyType);
         return claimsJws.getPayload().getSubject();
     }
 
-    public Set<String> getUserRoleSet(String token) {
-        Jws<Claims> claimsJws = getJwtClaims(token);
-        return (Set<String>) claimsJws.getPayload().get("roles", Set.class);
+    public List<String> getUserRoleList(String token, String keyType) {
+        Jws<Claims> claimsJws = getJwtClaims(token, keyType);
+        return claimsJws.getPayload().get("roles", List.class);
     }
 
-    public Date getExpirationDate(String token) {
-        Jws<Claims> claimsJws = getJwtClaims(token);
+    public Date getExpirationDate(String token, String keyType) {
+        Jws<Claims> claimsJws = getJwtClaims(token, keyType);
         return claimsJws.getPayload().getExpiration();
     }
+
 }

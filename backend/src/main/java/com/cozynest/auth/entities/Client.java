@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -27,17 +29,16 @@ public class Client {
 
     private String phoneNumber;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private ClientProvider provider;
-
     private UUID stripeId;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name="shop_user_id")
     @MapsId
-    private ShopUser user;
+    private ShopUser shopUser;
 
-    @OneToMany(mappedBy = "client")
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Order> orders;
+
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ClientProviders> clientProviders;
 }

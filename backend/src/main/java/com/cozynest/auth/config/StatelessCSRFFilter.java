@@ -1,5 +1,6 @@
 package com.cozynest.auth.config;
 
+import com.cozynest.auth.helper.CookieGenerateHelper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -7,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -18,6 +20,9 @@ import java.util.Set;
 
 @Component
 public class StatelessCSRFFilter extends OncePerRequestFilter {
+
+    @Autowired
+    private CookieGenerateHelper cookieGenerateHelper;
 
     private static final Logger logger = LoggerFactory.getLogger(StatelessCSRFFilter.class);
 
@@ -43,12 +48,7 @@ public class StatelessCSRFFilter extends OncePerRequestFilter {
         // 2. if csrf token in cookie is null, generate a csrf token to cookie
         if (csrfTokenInCookie == null) {
             csrfTokenInCookie = generateCSRFToken();
-            Cookie csrfCookie = new Cookie("CSRF_TOKEN", csrfTokenInCookie);
-            csrfCookie.setPath("/");
-            csrfCookie.setHttpOnly(false);
-            csrfCookie.setSecure(true);
-            csrfCookie.setMaxAge(-1); // Session-based cookie (expires when browser closes)
-            response.addCookie(csrfCookie);
+            cookieGenerateHelper.generateCookieToResponse("CSRF_TOKEN", csrfTokenInCookie, -1, false, response);
         }
 
         /* 3. if the request method is put, post, delete, path, or connect,

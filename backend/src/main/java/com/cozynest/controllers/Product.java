@@ -14,7 +14,7 @@ public class Product {
 
     @GetMapping
     public ResponseEntity<String> getProduct() {
-        return new ResponseEntity<>("sucess", HttpStatus.OK);
+        return new ResponseEntity<>("success", HttpStatus.OK);
     }
 
     @PostMapping("/add")

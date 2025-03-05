@@ -45,6 +45,7 @@ public class Order {
 
     private LocalDateTime expectedDeliveryDate;
 
+    @Builder.Default
     private float discountAmount = 0;
 
     @ManyToOne

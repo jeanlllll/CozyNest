@@ -1,5 +1,6 @@
 package com.cozynest.auth.entities;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -21,6 +22,7 @@ public class AuthAuthority {
     @Id
     private UUID id;
 
+    @Column(unique = true)
     private String roleCode;
 
     private String roleDescription;

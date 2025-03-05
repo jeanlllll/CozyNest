@@ -1,5 +1,6 @@
 package com.cozynest.auth.config;
 
+import com.cozynest.auth.helper.CookieGenerateHelper;
 import com.cozynest.auth.helper.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -15,7 +16,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Date;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -27,6 +28,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
     private JwtUtil jwtUtil;
+
+    @Autowired
+    private CookieGenerateHelper cookieGenerateHelper;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -55,17 +59,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         // 3. if access Token is valid
-        if (isTokenValid(accessToken)) {
-            setAuthentication(accessToken);
+        if (isTokenValid(accessToken, "accessKey")) {
+            setAuthentication(accessToken, "accessKey");
             filterChain.doFilter(request, response);
             return;
         }
 
         // 4. if access token is invalid, refresh token is valid
-        if (!isTokenValid(accessToken) && isTokenValid(refreshToken)) {
-            setAuthentication(refreshToken);
-            String userName = jwtUtil.getUserName(refreshToken);
-            Set<String> roleList = jwtUtil.getUserRoleSet(refreshToken);
+        if (!isTokenValid(accessToken, "accessKey") && isTokenValid(refreshToken, "refreshKey")) {
+            setAuthentication(refreshToken, "refreshKey");
+            String userName = jwtUtil.getUserName(refreshToken, "refreshKey");
+            List<String> roleList = jwtUtil.getUserRoleList(refreshToken, "refreshKey");
             addAccessTokenToResponse(response, userName, roleList);
             filterChain.doFilter(request, response);
             return;
@@ -79,28 +83,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     }
 
-    private boolean isTokenValid(String token) { //token not null, not expired, and verify success
-        return token != null && jwtUtil.isValidateToken(token) && jwtUtil.getExpirationDate(token).after(new Date());
+    private boolean isTokenValid(String token, String tokenType) { //token not null, not expired, and verify success
+        return token != null && jwtUtil.isValidateToken(token, tokenType);
     }
 
-    private void setAuthentication(String token) {
-        String userName = jwtUtil.getUserName(token);
-        Set<String> userRoles = jwtUtil.getUserRoleSet(token);
+    private void setAuthentication(String token, String keyType) {
+        String userName = jwtUtil.getUserName(token, keyType);
+        List<String> userRoles = jwtUtil.getUserRoleList(token, keyType);
 
-        Set<SimpleGrantedAuthority> authorities = userRoles.stream()
+        List<SimpleGrantedAuthority> authorities = userRoles.stream()
                 .map(role -> new SimpleGrantedAuthority(role))
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
 
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userName, null, authorities);
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
-    private void addAccessTokenToResponse(HttpServletResponse response, String userName, Set<String> roleList) {
+    private void addAccessTokenToResponse(HttpServletResponse response, String userName, List<String> roleList) {
         String accessToken = jwtUtil.generateAccessToken(userName, roleList);
-        Cookie accessTokenCookie = new Cookie("access_token", accessToken);
-        accessTokenCookie.setHttpOnly(true);
-        accessTokenCookie.setSecure(true);
-        accessTokenCookie.setMaxAge(access_token_expiration);
-        response.addCookie(accessTokenCookie);
+        cookieGenerateHelper.generateCookieToResponse("access_token", accessToken, access_token_expiration/1000, true, response);
     }
 }
