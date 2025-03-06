@@ -5,22 +5,20 @@ import com.cozynest.auth.dtos.RegistrationRequest;
 import com.cozynest.auth.dtos.RegistrationResponse;
 import com.cozynest.auth.entities.*;
 import com.cozynest.auth.exceptions.RegistrationException;
+import com.cozynest.auth.helper.PasswordValidator;
 import com.cozynest.auth.helper.VerificationCodeGenerator;
 import com.cozynest.auth.repositories.*;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.servlet.ServletComponentScan;
-import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Service
+@Transactional
 public class RegistrationService {
 
     /*
@@ -54,6 +52,9 @@ public class RegistrationService {
     @Autowired
     ClientProvidersRepository clientProvidersRepository;
 
+    @Autowired
+    PasswordValidator passwordValidator;
+
     public RegistrationResponse createUser(RegistrationRequest request, ClientProvider clientProvider) {
 
         String firstName = request.getFirstName();
@@ -62,17 +63,20 @@ public class RegistrationService {
         String password = request.getPassword();
         String confirmedPassword = request.getConfirmPassword();
 
+        // for manual register type
         if (clientProvider.equals(ClientProvider.MANUAL)) {
-            if (firstName == null || lastName == null || email == null || password == null || confirmedPassword == null) {
-                return new RegistrationResponse(400, "First name, last name, email, passowrd, confirmed password cannot be blank");
+            // for manual registration, registration request info cannot be blank
+            if (isBlank(firstName) || isBlank(lastName) || isBlank(email) || isBlank(password) || isBlank(confirmedPassword)) {
+                return new RegistrationResponse(400, "First name, last name, email, password, confirmed password cannot be blank");
             }
+            // if password and confirmed password not matched, reject request
             if (!password.equals(confirmedPassword)) {
                 return new RegistrationResponse(400, "Passwords do not match."); //400 bad request
             }
+            if (!passwordValidator.isValidPassword(password)) {
+                return new RegistrationResponse(400, "Password format not matched.");
+            }
         }
-
-        //TODO check password length and strength
-
 
         //if email has been registered before
         if (shopUserRepository.findByEmail(email) != null) {
@@ -87,51 +91,71 @@ public class RegistrationService {
             shopUser.setUserType(ShopUserUserType.CLIENT);
             shopUser.setFirstName(request.getFirstName());
             shopUser.setLastName(request.getLastName());
+            shopUser.setEmail(email);
+            shopUser.setCreatedOn(LocalDateTime.now());
 
+            // for manual register type, only manual registration has password, oauth2 register does not have, and only manual register
+            // need to verify email
             if (clientProvider.equals(ClientProvider.MANUAL)) {
+                //set password
                 String encryptedPassword = bCryptPasswordEncoder.encode(request.getPassword());
                 shopUser.setPassword(encryptedPassword);
             }
 
-            shopUser.setEmail(email);
-            Client client = new Client();
-            shopUser.setCreatedOn(LocalDateTime.now());
-
-
-            String verificationCode = VerificationCodeGenerator.generateVerificationCode();
-            String encryptedCode = bCryptPasswordEncoder.encode(verificationCode);
-            Verification verification = new Verification();
-            verification.setCode(encryptedCode);
-            verification.setExpiresAt(LocalDateTime.now().plusMinutes(verificationCodeExpireTime));
-            verification.setType(VerificationType.EMAIL);
-            shopUser.setVerification(verification);
-            verificationRepository.save(verification);
-
-
-            AuthAuthority authority = authorityRepository.findByRoleCode("NORMAL_CUSTOMER");
-            if (authority == null) {
-                return new RegistrationResponse(500, "Role not found"); // Internal Server Error
-            }
-            shopUser.setAuthorities(new HashSet<>());
-            shopUser.getAuthorities().add(authority);
             shopUserRepository.save(shopUser);
 
+            if (clientProvider.equals(ClientProvider.MANUAL)) {
+                //set verification code
+                String verificationCode = VerificationCodeGenerator.generateVerificationCode();
+                Verification verification = createNewVerificationObject(shopUser, verificationCode);
+                shopUser.setVerification(verification);
+                shopUserRepository.save(shopUser);
+
+                //send verification code via email
+                EmailDetails emailDetails = new EmailDetails(email, verificationCode, request.getFirstName());
+                int returnStatus = emailService.sendSimpleMail(emailDetails);
+                if (returnStatus != 200) {
+                    return new RegistrationResponse(400, "Oops. Seems like something went wrong. Please contact us via email " + ourEmail);
+                }
+            }
+
+            //assign role
+            AuthAuthority authority = authorityRepository.findByRoleCode("NORMAL_CUSTOMER");
+            if (authority == null) {
+                return new RegistrationResponse(500, "Role not found"); // Prevent saving a user without roles
+            }
+
+            // set authorities
+            Set<AuthAuthority> authorities = new HashSet<>();
+            authorities.add(authority);
+            shopUser.setAuthorities(authorities);
+            shopUserRepository.save(shopUser);
+
+            // create client and link to shopUser
+            Client client = new Client();
             client.setShopUser(shopUser);
             clientRepository.save(client);
 
-            ClientProviders clientProviders = new ClientProviders();
-            clientProviders.setId(new ClientProvidersId(client.getId(), clientProvider));
-            clientProviders.setClient(client);
-            clientProvidersRepository.save(clientProviders);
+            // register client provider
+            ClientProviders newClientProvider = new ClientProviders();
+            newClientProvider.setId(new ClientProvidersId(client.getId(), clientProvider));
+            newClientProvider.setClient(client);
+            clientProvidersRepository.save(newClientProvider);
 
-            /* 2. send verification code to client email*/
-            EmailDetails emailDetails = new EmailDetails(email, verificationCode, request.getFirstName());
-            int returnStatus = emailService.sendSimpleMail(emailDetails);
-            if (returnStatus == 200) {
+            Set<ClientProviders> clientProviderSet = new HashSet<>();
+            clientProviderSet.add(newClientProvider);
+            client.setClientProviders(clientProviderSet);
+            clientRepository.save(client);
+
+            // Return success messages
+            if (clientProvider.equals(ClientProvider.MANUAL)) {
+                // Manual: user needs to verify
                 return new RegistrationResponse(200, "User created. Please verify your code");
             } else {
-                return new RegistrationResponse(400, "Oops. Seems like something went wrong. Please contact us via email " + ourEmail);
+                // OAuth or other
+                return new RegistrationResponse(200, "User registered successfully.");
             }
+
         } catch (Exception e) {
             throw new RegistrationException(e.getMessage(), e);
         }
@@ -139,5 +163,19 @@ public class RegistrationService {
 
     public boolean isRegistered(String email) {
         return shopUserRepository.findByEmail(email) != null;
+    }
+
+    private boolean isBlank(String str) {
+        return str == null || str.trim().isEmpty();
+    }
+
+    private Verification createNewVerificationObject(ShopUser user, String verificationCode) {
+        Verification verification = new Verification();
+        String bcryptCode = bCryptPasswordEncoder.encode(verificationCode);
+        verification.setCode(bcryptCode);
+        verification.setExpiresAt(LocalDateTime.now().plusMinutes(verificationCodeExpireTime));
+        verification.setShopUser(user);
+        verificationRepository.save(verification);
+        return verification;
     }
 }

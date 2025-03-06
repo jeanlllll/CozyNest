@@ -19,5 +19,5 @@ public class ClientProvidersId implements Serializable {
     private UUID clientId;
 
     @Enumerated(EnumType.STRING)
-    private ClientProvider provider;
+    private ClientProvider clientProvider;
 }

@@ -1,13 +1,12 @@
 package com.cozynest.auth.services;
 
-import com.cozynest.auth.dtos.LoginRequest;
-import com.cozynest.auth.entities.AuthAuthority;
-import com.cozynest.auth.entities.ClientProvider;
-import com.cozynest.auth.entities.ShopUser;
+import com.cozynest.auth.entities.*;
 import com.cozynest.auth.helper.CookieGenerateHelper;
 import com.cozynest.auth.helper.JwtUtil;
 import com.cozynest.auth.repositories.ShopUserRepository;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -16,6 +15,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -52,84 +53,108 @@ public class LoginService {
     @Value("${jwt.refresh_token.expiration_time}")
     private int refresh_token_expiration;
 
-    public ResponseEntity<?> login(String email, String password, HttpServletResponse response, ClientProvider clientProvider) {
+    @Transactional
+    public ResponseEntity<?> login(String email, String password, HttpServletResponse response, ClientProvider loginProvider) {
         ShopUser user = shopUserRepository.findByEmail(email);
 
-        // 1. if user not exist in database, maybe deleted, but still with valid jwt
+        // 1. Check if the user exists
         if (user == null) {
             return new ResponseEntity<>("User not found", HttpStatus.UNAUTHORIZED);
         }
 
-//        // 2. if user's actual provider does not match this incoming provider, we link their account;
-//        Set<ClientProvider> storedProvider = user.getClient().getClientProviders();
-//        if (!storedProvider.contains("GOOGLE")) {
-//            return new ResponseEntity<>("We found an existing account with this email. Do you want to link Google sign-in?", HttpStatus.CONFLICT);
-//        }
-
-        // 2. user not verify
-        if (!user.getIsVerified()) {
-            return new ResponseEntity<>("Please verify your email first", HttpStatus.FORBIDDEN);
+        // 2. if user's actual provider does not match this incoming provider
+        String providerMismatchMessage = getProviderMismatchMessage(user, loginProvider);
+        if (providerMismatchMessage != null) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(providerMismatchMessage);
         }
 
-        //only loginType is manual has password, for Google oauth2 login, no need password
-        if (clientProvider.equals(ClientProvider.MANUAL)) {
-            // 3. reset failed attempts daily (even if not locked)
-            if (!user.getIsLocked() && user.getLastLoginAttemptsDate() != null && !user.getLastLoginAttemptsDate().toLocalDate().equals(LocalDateTime.now().toLocalDate())) {
-                user.setLoginFailedAttempts(0);
+        // 3. Check email verification for manual login
+        if (!user.getIsVerified() && loginProvider.equals(ClientProvider.MANUAL)) {
+            return new ResponseEntity<>("Please verify email first", HttpStatus.FORBIDDEN);
+        }
+
+        //4. Handle manual login (password verification)
+        if (loginProvider.equals(ClientProvider.MANUAL)) {
+            ResponseEntity<?> loginResponse = handleManualLogin(user, password);
+            if (loginResponse.getStatusCode() != HttpStatus.OK) {
+                return loginResponse;
+            }
+        }
+
+        // 5. Generate JWT tokens and set cookies
+        generateAndSetTokens(response, user);
+
+        return new ResponseEntity<>("Login successfully", HttpStatus.OK);
+    }
+
+    private String getProviderMismatchMessage(ShopUser user, ClientProvider loginProvider) {
+        Set<ClientProvider> registeredProviders = user.getClient().getClientProviders().stream()
+                .map(cp -> cp.getId().getClientProvider())
+                .collect(Collectors.toSet());
+        if (loginProvider.equals(ClientProvider.MANUAL) && registeredProviders.contains(ClientProvider.GOOGLE)) {
+            return "You registered using Google OAuth2. Please log in with Google or reset your password to enable manual login.";
+        }
+        if (loginProvider.equals(ClientProvider.GOOGLE) && registeredProviders.contains(ClientProvider.MANUAL)) {
+            return "You registered using email and password. Do you want to link this account to Google?";
+        }
+        return null;
+    }
+
+
+    private ResponseEntity<?> handleManualLogin(ShopUser user, String password) {
+        //reset failed attempts if login data is a new day
+        if (!user.getIsLocked() && user.getLastLoginAttemptsDate() != null && !user.getLastLoginAttemptsDate().toLocalDate().equals(LocalDateTime.now().toLocalDate())) {
+            user.setLoginFailedAttempts(0);
+        }
+
+        // Account is Locked & Still Within Lock Time > Do Nothing
+        if (user.getIsLocked() && user.getLockExpiresAt().isAfter(LocalDateTime.now())) {
+            return new ResponseEntity<>("Too many failed attempts. Your account is locked until " + user.getLockExpiresAt(), HttpStatus.FORBIDDEN);
+        }
+
+        // Account is Locked & Lock Time Expired > Unlock
+        if (user.getIsLocked() && user.getLockExpiresAt().isBefore(LocalDateTime.now())) {
+            user.setIsLocked(false);
+            user.setLoginFailedAttempts(0);
+            user.setLockExpiresAt(null);
+            user.setLastLoginAttemptsDate(null);
+        }
+
+        // password incorrect
+        if (!bCryptPasswordEncoder.matches(password, user.getPassword())) {
+            user.setLoginFailedAttempts(user.getLoginFailedAttempts() + 1);
+            user.setLastLoginAttemptsDate(LocalDateTime.now());
+
+            // Login Failed MAX_FAILED_ATTEMPTS Times > Lock the Account
+            if (user.getLoginFailedAttempts() >= MAX_FAILED_ATTEMPTS) {
+                user.setIsLocked(true);
+                user.setLockExpiresAt(LocalDateTime.now().plusHours(LOCK_DURATION_HOURS));
                 shopUserRepository.save(user);
+                return new ResponseEntity<>("Too many failed attempts. Your account is locked for " + LOCK_DURATION_HOURS + " hours.", HttpStatus.FORBIDDEN);
             }
 
-            // 4.  Account is Locked & Still Within Lock Time > Do Nothing
-            if (user.getIsLocked() && user.getLockExpiresAt().isAfter(LocalDateTime.now())) {
-                return new ResponseEntity<>("Too many failed attempts. Your account is locked until " + user.getLockExpiresAt(), HttpStatus.FORBIDDEN);
-            }
-
-            // 5. Account is Locked & Lock Time Expired > Unlock
-            if (user.getIsLocked() && user.getLockExpiresAt().isBefore(LocalDateTime.now())) {
-                user.setIsLocked(false);
-                user.setLoginFailedAttempts(0);
-                user.setLockExpiresAt(null);
-                user.setLastLoginAttemptsDate(null);
-                shopUserRepository.save(user);
-            }
-
-            // 6. password incorrect
-            if (!bCryptPasswordEncoder.matches(password, user.getPassword())) {
-                user.setLoginFailedAttempts(user.getLoginFailedAttempts() + 1);
-                user.setLastLoginAttemptsDate(LocalDateTime.now());
-
-                // 7. Login Failed MAX_FAILED_ATTEMPTS Times > Lock the Account
-                if (user.getLoginFailedAttempts() >= MAX_FAILED_ATTEMPTS) {
-                    user.setIsLocked(true);
-                    user.setLockExpiresAt(LocalDateTime.now().plusHours(LOCK_DURATION_HOURS));
-                    shopUserRepository.save(user);
-                    return new ResponseEntity<>("Too many failed attempts. Your account is locked for " + LOCK_DURATION_HOURS + " hours.", HttpStatus.FORBIDDEN);
-                }
-
-                shopUserRepository.save(user);
-                return new ResponseEntity<>("Incorrect password", HttpStatus.UNAUTHORIZED);
-            }
-
-            // 8. successfully login > reset failed attempts & unlock account
+            shopUserRepository.save(user);
+            return new ResponseEntity<>("Incorrect password", HttpStatus.UNAUTHORIZED);
+        } else {
             user.setLockExpiresAt(null);
             user.setIsLocked(false);
             user.setLoginFailedAttempts(0);
             user.setLastLoginAttemptsDate(null);
             shopUserRepository.save(user);
+            return new ResponseEntity<>("Password correct and no locked", HttpStatus.OK);
         }
+    }
 
-
-        // generate access token and refresh token and add it to cookies
+    private void generateAndSetTokens(HttpServletResponse response, ShopUser user) {
         Set<AuthAuthority> authAuthorities = user.getAuthorities();
         List<String> authorities = authAuthorities.stream()
                 .map(authAuthority -> authAuthority.getRoleCode()).collect(Collectors.toList());
 
+        String email = user.getEmail();
         String accessToken = jwtUtil.generateAccessToken(email, authorities);
         String refreshToken = jwtUtil.generateRefreshToken(email, authorities);
         cookieGenerateHelper.generateCookieToResponse("access_token", accessToken, access_token_expiration/1000, true, response);
         cookieGenerateHelper.generateCookieToResponse("refresh_token", refreshToken, refresh_token_expiration/1000, true, response);
-
-        return new ResponseEntity<>("Login successfully", HttpStatus.OK);
     }
 
 

@@ -18,4 +18,7 @@ public class ChangePasswordRequest {
     @NotBlank(message = "New Password cannot be blank")
     String newPassword;
 
+    @NotBlank(message = "Confirmed new Password cannot be blank")
+    String confirmPassword;
+
 }

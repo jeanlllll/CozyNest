@@ -1,10 +1,7 @@
 package com.cozynest.auth.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -23,6 +20,8 @@ public class Verification {
 
     @OneToOne
     @JoinColumn(name="shop_user_id", nullable = false, unique = true)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private ShopUser shopUser;
 
     @Column(nullable = false)
@@ -30,9 +29,5 @@ public class Verification {
 
     @Column(nullable = false)
     private LocalDateTime expiresAt;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private VerificationType type;
 
 }

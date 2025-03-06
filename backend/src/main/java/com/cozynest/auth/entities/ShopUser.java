@@ -4,10 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -43,7 +40,6 @@ public class ShopUser {
     @Column(nullable = false, length = 30)
     private String lastName;
 
-    @NotBlank(message = "Password cannot be blank")
     private String password;
 
     @NotBlank(message = "Email cannot be blank")
@@ -58,6 +54,8 @@ public class ShopUser {
     private LocalDateTime updatedOn;
 
     @OneToOne(mappedBy = "shopUser", cascade = CascadeType.ALL, orphanRemoval = true)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Verification verification;
 
     @Column(nullable = false)
@@ -76,7 +74,7 @@ public class ShopUser {
     @Column(columnDefinition = "TIMESTAMP(0)")
     private LocalDateTime lockExpiresAt;
 
-    @ManyToMany(cascade = CascadeType.PERSIST) //auto  save new authAuthority when saving shopUser
+    @ManyToMany(cascade = CascadeType.PERSIST) //auto save new authAuthority when saving shopUser
     @JoinTable(
             name="auth_user_authority",
             joinColumns = @JoinColumn(name="shop_user_id"),
@@ -86,6 +84,8 @@ public class ShopUser {
     private Set<AuthAuthority> authorities;
 
     @OneToOne(mappedBy = "shopUser", cascade = CascadeType.ALL, orphanRemoval = true)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Client client;
 
 }

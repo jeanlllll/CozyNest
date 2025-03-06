@@ -40,13 +40,14 @@ public class StatelessCSRFFilter extends OncePerRequestFilter {
             for (Cookie cookie : cookies) {
                 if (cookie.getName().equals("CSRF_TOKEN")) {
                     csrfTokenInCookie = cookie.getValue();
+                    break;
                 }
             }
         }
 
 
         // 2. if csrf token in cookie is null, generate a csrf token to cookie
-        if (csrfTokenInCookie == null) {
+        if (csrfTokenInCookie == null || csrfTokenInCookie.trim().isEmpty()) {
             csrfTokenInCookie = generateCSRFToken();
             cookieGenerateHelper.generateCookieToResponse("CSRF_TOKEN", csrfTokenInCookie, -1, false, response);
         }

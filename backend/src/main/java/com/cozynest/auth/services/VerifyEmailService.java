@@ -2,12 +2,15 @@ package com.cozynest.auth.services;
 
 import com.cozynest.auth.dtos.VerifyEmailRequest;
 import com.cozynest.auth.entities.AuthAuthority;
+import com.cozynest.auth.entities.ClientProvider;
 import com.cozynest.auth.entities.ShopUser;
 import com.cozynest.auth.entities.Verification;
 import com.cozynest.auth.helper.CookieGenerateHelper;
 import com.cozynest.auth.helper.JwtUtil;
+import com.cozynest.auth.repositories.ClientRepository;
 import com.cozynest.auth.repositories.ShopUserRepository;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -41,6 +44,10 @@ public class VerifyEmailService {
     @Value("${jwt.refresh_token.expiration_time}")
     private int refresh_token_expiration;
 
+    @Autowired
+    private ClientRepository clientRepository;
+
+    @Transactional
     public ResponseEntity<?> isVerifyEmailSuccess(VerifyEmailRequest verifyEmailRequest, HttpServletResponse response) {
         String email = verifyEmailRequest.getEmail();
         String code = verifyEmailRequest.getCode();
@@ -49,6 +56,15 @@ public class VerifyEmailService {
 
         if (user == null) {
             return new ResponseEntity<>("Email has not been registered", HttpStatus.NOT_FOUND);
+        }
+        System.out.println(user.getEmail());
+
+
+        Set<ClientProvider> registeredProviders = user.getClient().getClientProviders().stream()
+                .map(cp -> cp.getId().getClientProvider())
+                .collect(Collectors.toSet());
+        if (!registeredProviders.contains(ClientProvider.MANUAL)) {
+            return new ResponseEntity<>("This account was not registered via manual email/password. Verification is not applicable here.", HttpStatus.NOT_FOUND);
         }
 
         if (user.getIsVerified()) {
@@ -68,6 +84,7 @@ public class VerifyEmailService {
            3. code wrong              */
         if (isCodeMatch && !isCodeExpire) {
             generateTokenToCookie(email, response, user);
+            user.setIsVerified(true);
             return new ResponseEntity<>("Verified successfully", HttpStatus.OK);
         } else if (isCodeMatch && isCodeExpire) {
             return new ResponseEntity<>("Verification Code expire, please request a new one.", HttpStatus.GONE);
