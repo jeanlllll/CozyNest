@@ -1,0 +1,118 @@
+package com.cozynest.services;
+
+import com.cozynest.Exceptions.InvalidLanguageException;
+import com.cozynest.Exceptions.MaterialTranslationNotFoundException;
+import com.cozynest.Exceptions.ProductNotFoundException;
+import com.cozynest.Exceptions.ProductTranslationNotFoundException;
+import com.cozynest.dtos.*;
+import com.cozynest.entities.languages.Languages;
+import com.cozynest.entities.products.Category;
+import com.cozynest.entities.products.categoryType.CategoryType;
+import com.cozynest.entities.products.materials.MaterialTranslation;
+import com.cozynest.entities.products.materials.MaterialTranslationId;
+import com.cozynest.entities.products.product.*;
+import com.cozynest.repositories.*;
+import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+@Service
+public class ProductService {
+
+    @Autowired
+    ProductRepository productRepository;
+
+    @Autowired
+    LanguageRepository languageRepository;
+
+    @Autowired
+    ProductTranslationRepository productTranslationRepository;
+
+    @Autowired
+    MaterialTranslationRepository materialTranslationRepository;
+
+    @Autowired
+    ReviewService reviewService;
+
+    final int REVIEW_SIZE_PER_PAGE = 3;
+
+    @Transactional
+    public ProductResponse getProductDetailsById(UUID productId, String languageCode) {
+        UUID languageId = getLanguageIdFromLanguageRepository(languageCode);
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ProductNotFoundException("Product not found with Id"));
+
+        ProductResponse productResponse = new ProductResponse();
+        productResponse.setProductId(productId);
+        productResponse.setPrice(product.getPrice());
+        productResponse.setAvgRating(product.getAvgRating());
+        productResponse.setIsNewArrival(isNewArrival(product));
+
+        ProductTranslationId productTranslationId = new ProductTranslationId(productId, languageId);
+        ProductTranslation productTranslation = productTranslationRepository.findById(productTranslationId)
+                .orElseThrow(() -> new ProductTranslationNotFoundException("Product translation not found"));
+        productResponse.setName(productTranslation.getName());
+        productResponse.setDescription(productTranslation.getDescription());
+
+        Category category = product.getCategory();
+        productResponse.setCategoryDto(new CategoryDto(category));
+
+        CategoryType categoryType = product.getCategoryType();
+        productResponse.setCategoryTypeDto(new CategoryTypeDto(categoryType));
+
+        List<ProductVariant> productVariantList = product.getProductVariants();
+        List<ProductVariantDto> productVariantDtoList = productVariantList.stream()
+                .map(productVariant -> new ProductVariantDto(productVariant)).collect(Collectors.toList());
+        productResponse.setProductVariantDtoList(productVariantDtoList);
+
+        //logN (b tree) + m, m is the item in list
+        List<ProductDisplay> productDisplayList = product.getProductDisplays();
+        List<ProductDisplayDto> productDisplayDtosList =
+                productDisplayList.stream()
+                        .map(productDisplay -> new ProductDisplayDto(productDisplay))
+                        .collect(Collectors.toList());
+        productResponse.setProductDisplayDtoList(productDisplayDtosList);
+
+        List<ProductMaterial> productMaterialList = product.getProductMaterials();
+        List<ProductMaterialDto> productMaterialDtoList = productMaterialList.stream()
+                .map(productMaterial -> {
+                    UUID materialId = productMaterial.getMaterial().getId();
+                    MaterialTranslationId materialTranslationId = new MaterialTranslationId(materialId, languageId);
+                    MaterialTranslation materialTranslation = materialTranslationRepository.findById(materialTranslationId)
+                            .orElseThrow(() -> new MaterialTranslationNotFoundException("Material translation not found."));
+                    return new ProductMaterialDto(materialTranslation.getName(), productMaterial.getPercentage());
+                }).collect(Collectors.toList());
+        productResponse.setProductMaterialDtoList(productMaterialDtoList);
+
+        Page<ReviewDto> reviewDtosOnPage = reviewService.getPaginatedReviews(productId, 0, REVIEW_SIZE_PER_PAGE, "createdOn", true);
+        productResponse.setReviewList(reviewDtosOnPage.getContent());
+
+        return productResponse;
+
+    }
+
+    private UUID getLanguageIdFromLanguageRepository(String languageCode) {
+        Languages language = languageRepository.findByCode(languageCode);
+        if (language == null) {
+            throw new InvalidLanguageException("Invalid language code");
+        }
+        return language.getId();
+    }
+
+    private boolean isNewArrival(Product product) {
+        if (product.getCreatedOn().isAfter(LocalDateTime.now().minusDays(7))){
+            product.setIsNewArrival(true);
+            productRepository.save(product);
+            return true;
+        }
+        return false;
+    }
+
+}

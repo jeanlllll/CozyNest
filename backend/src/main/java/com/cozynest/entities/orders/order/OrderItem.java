@@ -29,7 +29,7 @@ public class OrderItem {
     private Float itemPrice;
 
     @ManyToOne
-    @JoinColumn(name="product_id")
+    @JoinColumn(name="products_id")
     private Product product;
 
     @ManyToOne

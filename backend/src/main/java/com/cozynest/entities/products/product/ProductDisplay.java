@@ -33,6 +33,6 @@ public class ProductDisplay {
     private Boolean isPrimary;
 
     @ManyToOne
-    @JoinColumn(name="product_id", nullable = false)
+    @JoinColumn(name="products_id", nullable = false)
     private Product product;
 }

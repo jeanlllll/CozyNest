@@ -10,12 +10,12 @@ import lombok.NoArgsConstructor;
 import java.util.UUID;
 
 @Entity
-@Table(name="product_material")
+@Table(name="product_materials")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class productMaterials {
+public class ProductMaterial {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -25,7 +25,7 @@ public class productMaterials {
     private Integer percentage;
 
     @ManyToOne
-    @JoinColumn(name="product_id")
+    @JoinColumn(name="products_id")
     private Product product;
 
     @ManyToOne

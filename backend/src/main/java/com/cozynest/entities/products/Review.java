@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -29,10 +31,13 @@ public class Review {
     private String comment;
 
     @ManyToOne
-    @JoinColumn(name="product_id")
+    @JoinColumn(name="products_id")
     private Product product;
 
     @ManyToOne
     @JoinColumn(name="client_id")
     private Client client;
+
+    @Column(nullable = false)
+    private LocalDate createdOn;
 }

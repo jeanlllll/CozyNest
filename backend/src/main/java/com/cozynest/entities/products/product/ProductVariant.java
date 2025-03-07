@@ -30,7 +30,7 @@ public class ProductVariant {
     private Integer stockQuantity;
 
     @ManyToOne
-    @JoinColumn(name="product_id", nullable = false)
+    @JoinColumn(name="products_id", nullable = false)
     private Product product;
 
     private Character gender;
