@@ -1,4 +1,4 @@
-package com.cozynest.entities.subscriptions;
+package com.cozynest.entities.subscription;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -17,7 +17,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Subscriptions {
+public class Subscription {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -25,7 +25,7 @@ public class Subscriptions {
 
     @NotBlank(message = "Email cannot be blank")
     @Email(message = "Email should be valid")
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String email;
 
     @Column(nullable = false, columnDefinition = "TIMESTAMP(0)")

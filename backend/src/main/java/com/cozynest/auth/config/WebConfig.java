@@ -42,6 +42,7 @@ public class WebConfig {
                         .requestMatchers("/product/**").permitAll()
                         .requestMatchers("v3/api-docs/**", "/swagger-ui.html", "swagger-ui/**").permitAll()
                         .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/subscription/**").permitAll()
                         .anyRequest().authenticated()
                 );
         return http.build();

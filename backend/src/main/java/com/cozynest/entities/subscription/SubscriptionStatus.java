@@ -1,4 +1,4 @@
-package com.cozynest.entities.subscriptions;
+package com.cozynest.entities.subscription;
 
 public enum SubscriptionStatus {
 
