@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -23,10 +24,12 @@ public class Favorite {
     private UUID id;
 
     @OneToOne
-    @JoinColumn(name="client_userId")
+    @JoinColumn(name="client_id", nullable = false, unique = true)
     private Client client;
 
-    @OneToMany(mappedBy = "favorite")
+    private Integer itemCount = 0; //favorite items cannot larger than 50 for each user
+
+    @OneToMany(mappedBy = "favorite", cascade = CascadeType.ALL, orphanRemoval = true, fetch=FetchType.LAZY)
     private List<FavoriteItem> favoriteItems;
 
 }

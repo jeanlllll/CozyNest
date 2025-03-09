@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -28,4 +29,7 @@ public class FavoriteItem {
     @ManyToOne
     @JoinColumn(name="favorite_id")
     private Favorite favorite;
+
+    @Column(nullable = false, columnDefinition = "TIMESTAMP(0)")
+    private LocalDateTime addDateTime;
 }

@@ -23,4 +23,9 @@ public class ProductTranslation {
     @Column(nullable = false, length=500)
     private String description;
 
+    @ManyToOne
+    @MapsId("productId")
+    @JoinColumn(name = "product_id")
+    private Product product;
+
 }

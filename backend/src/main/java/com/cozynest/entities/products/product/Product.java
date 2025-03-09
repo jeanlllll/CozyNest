@@ -61,5 +61,10 @@ public class Product {
     @JsonIgnore
     private List<ProductMaterial> productMaterials;
 
+    private Boolean isOutOfStock = false;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch=FetchType.LAZY)
+    @JsonIgnore
+    private List<ProductTranslation> productTranslationList;
 
 }

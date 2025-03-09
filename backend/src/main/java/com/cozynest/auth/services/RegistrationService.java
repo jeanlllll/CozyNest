@@ -8,6 +8,8 @@ import com.cozynest.auth.exceptions.RegistrationException;
 import com.cozynest.auth.helper.PasswordValidator;
 import com.cozynest.auth.helper.VerificationCodeGenerator;
 import com.cozynest.auth.repositories.*;
+import com.cozynest.entities.profiles.favorites.Favorite;
+import com.cozynest.repositories.FavoriteRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -54,6 +56,9 @@ public class RegistrationService {
 
     @Autowired
     PasswordValidator passwordValidator;
+
+    @Autowired
+    FavoriteRepository favoriteRepository;
 
     public RegistrationResponse createUser(RegistrationRequest request, ClientProvider clientProvider) {
 
@@ -134,6 +139,11 @@ public class RegistrationService {
             // create client and link to shopUser
             Client client = new Client();
             client.setShopUser(shopUser);
+
+            // set favorite
+            Favorite favorite = new Favorite();
+            favorite.setClient(client);
+            client.setFavorite(favorite);
             clientRepository.save(client);
 
             // register client provider

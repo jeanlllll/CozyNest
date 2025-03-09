@@ -1,6 +1,7 @@
 package com.cozynest.auth.entities;
 
 import com.cozynest.entities.orders.order.Order;
+import com.cozynest.entities.profiles.favorites.Favorite;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -42,4 +43,7 @@ public class Client {
     @ToString.Exclude
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private Set<ClientProviders> clientProviders;
+
+    @OneToOne(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Favorite favorite;
 }
