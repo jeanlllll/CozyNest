@@ -13,7 +13,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Service
-public class FavoritesRedisService {
+public class FavoriteRedisService {
 
 
     @Autowired
@@ -30,15 +30,15 @@ public class FavoritesRedisService {
             try {
                 String jsonValue = objectMapper.writeValueAsString(favoriteItemDto);
                 redisTemplate.opsForList().rightPush(redisKey, jsonValue);
-
-                //if key expire not set, set it to 1 hour, it only set in the first time
-                Long currentTtl = redisTemplate.getExpire(redisKey, TimeUnit.SECONDS);
-                if (currentTtl == null || currentTtl == -1) { // -1 means no TTL is set
-                    redisTemplate.expire(redisKey, 1, TimeUnit.HOURS);
-                }
             } catch (JsonProcessingException e) {
                 throw new RuntimeException("Error converting FavoriteItem to Json", e);
             }
+        }
+
+        //if key expire not set, set it to 1 hour, it only set in the first time
+        Long currentTtl = redisTemplate.getExpire(redisKey, TimeUnit.SECONDS);
+        if (currentTtl == null || currentTtl == -1) { // -1 means no TTL is set
+            redisTemplate.expire(redisKey, 1, TimeUnit.HOURS);
         }
     }
 

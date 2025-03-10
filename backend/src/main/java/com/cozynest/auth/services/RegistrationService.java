@@ -125,7 +125,7 @@ public class RegistrationService {
             }
 
             //assign role
-            AuthAuthority authority = authorityRepository.findByRoleCode("NORMAL_CUSTOMER");
+            AuthAuthority authority = authorityRepository.findByRoleCode("CLIENT");
             if (authority == null) {
                 return new RegistrationResponse(500, "Role not found"); // Prevent saving a user without roles
             }

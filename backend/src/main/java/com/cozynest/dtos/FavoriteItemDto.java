@@ -21,4 +21,5 @@ public class FavoriteItemDto {
     private Boolean isOutOfStock;
     private List<ProductDisplayDto> ProductDisplayDto;
     private LocalDateTime addDateTime;
+    private List<ProductVariantDto> productVariantDtoList;
 }

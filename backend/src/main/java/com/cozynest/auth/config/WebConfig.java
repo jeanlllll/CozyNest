@@ -43,7 +43,8 @@ public class WebConfig {
                         .requestMatchers("v3/api-docs/**", "/swagger-ui.html", "swagger-ui/**").permitAll()
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/subscription/**").permitAll()
-                        .requestMatchers("/favorites/**").permitAll()
+                        .requestMatchers("/favorites/**").hasAuthority("CLIENT")
+                        .requestMatchers("/cart/**").hasAuthority("CLIENT")
                         .anyRequest().authenticated()
                 );
         return http.build();

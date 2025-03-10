@@ -34,10 +34,7 @@ public class CartItem {
     @JoinColumn(name="product_variant_id")
     private ProductVariant productVariant;
 
-    private String color;
-
-    private String size;
-
+    @Column(nullable = false)
     private Integer quantity;
 
 }

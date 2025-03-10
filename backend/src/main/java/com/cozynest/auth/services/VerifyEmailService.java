@@ -47,7 +47,6 @@ public class VerifyEmailService {
     @Autowired
     private ClientRepository clientRepository;
 
-    @Transactional
     public ResponseEntity<?> isVerifyEmailSuccess(VerifyEmailRequest verifyEmailRequest, HttpServletResponse response) {
         String email = verifyEmailRequest.getEmail();
         String code = verifyEmailRequest.getCode();
@@ -105,7 +104,6 @@ public class VerifyEmailService {
         Set<AuthAuthority> authAuthorities = user.getAuthorities();
         List<String> authorities = authAuthorities.stream()
                 .map(authAuthority -> authAuthority.getRoleCode()).collect(Collectors.toList());
-
         String accessToken = jwtUtil.generateAccessToken(email, authorities);
         String refreshToken = jwtUtil.generateRefreshToken(email, authorities);
         cookieGenerateHelper.generateCookieToResponse("access_token", accessToken, access_token_expiration/1000, true, response);

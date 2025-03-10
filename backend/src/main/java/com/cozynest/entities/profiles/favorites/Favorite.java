@@ -27,8 +27,6 @@ public class Favorite {
     @JoinColumn(name="client_id", nullable = false, unique = true)
     private Client client;
 
-    private Integer itemCount = 0; //favorite items cannot larger than 50 for each user
-
     @OneToMany(mappedBy = "favorite", cascade = CascadeType.ALL, orphanRemoval = true, fetch=FetchType.LAZY)
     private List<FavoriteItem> favoriteItems;
 
