@@ -15,9 +15,14 @@ import com.cozynest.repositories.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -39,6 +44,12 @@ public class ProductService {
 
     @Autowired
     ReviewService reviewService;
+
+    @Autowired
+    CategoryRepository categoryRepository;
+
+    @Autowired
+    CategoryTypesRepository categoryTypesRepository;
 
     final int REVIEW_SIZE_PER_PAGE = 3;
 
@@ -96,6 +107,60 @@ public class ProductService {
 
         return productResponse;
 
+    }
+
+
+    public Page<CategoryProductDto> getFilteredProducts(
+            String category, String languageCode, int page, int pageSize, String sortBy, String keywords, Boolean isNewArrival,
+            List<String> categoryTypes, Double minPrice, Double maxPrice, List<String> sizes) {
+
+        UUID categoryId = categoryRepository.findByCode(category.toUpperCase()).getId();
+
+        //TODO can be improved by connecting list<categoryType> to category
+        List<UUID> categoryTypeIds = new ArrayList<>();
+        if (categoryTypes != null && !categoryTypes.isEmpty()) {
+            for (String categoryCode : categoryTypes) {
+                categoryTypeIds.add(categoryTypesRepository.findByCodeAndCategory_id(categoryCode.toUpperCase(), categoryId).getId());
+            }
+        }
+
+        List<String> sizeList = new ArrayList<>();
+        if (sizes != null && !sizes.isEmpty()) {
+            for (String size : sizes) {
+                sizeList.add(size.toUpperCase());
+            }
+        }
+        UUID languageId = languageRepository.findByCode(languageCode).getId();
+        Pageable pageable = createPageable(page, pageSize, sortBy);
+
+        Page<Object[]> filteredProduct = productRepository.findByFilters(categoryId, categoryTypeIds, minPrice,
+                maxPrice, sizeList, keywords, isNewArrival, languageId, pageable);
+
+        Page<CategoryProductDto> categoryProductDtoPage = filteredProduct.map(obj -> convertFilteredProductObjectToDto(obj));
+        return categoryProductDtoPage;
+    }
+
+    private CategoryProductDto convertFilteredProductObjectToDto(Object[] object) {
+        CategoryProductDto categoryProductDto = new CategoryProductDto();
+        categoryProductDto.setProductId((UUID) object[0]);
+        categoryProductDto.setProductPrice((Float) object[1]);
+        categoryProductDto.setProductName((String) object[2]);
+        return categoryProductDto;
+    }
+
+    private Pageable createPageable(int page, int pageSize, String sortBy) {
+        if (sortBy == null) {
+            return PageRequest.of(page, pageSize);
+        }
+        switch (sortBy) {
+            case "priceAsc":
+                return PageRequest.of(page, pageSize, Sort.by("price").ascending());
+            case "priceDesc":
+                return PageRequest.of(page, pageSize, Sort.by("price").descending());
+            case "rating":
+                return PageRequest.of(page, pageSize, Sort.by("avg_rating").descending());
+        }
+        return PageRequest.of(page, pageSize);
     }
 
     private UUID getLanguageIdFromLanguageRepository(String languageCode) {

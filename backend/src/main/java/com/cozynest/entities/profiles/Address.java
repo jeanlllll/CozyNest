@@ -46,10 +46,6 @@ public class Address {
     @Column(nullable = false, length = 10)
     private String zipCode;
 
-    @NotBlank(message = "Phone number cannot be blank")
-    @Column(nullable = false, length = 20)
-    private String phoneNumber;
-
     @ManyToOne
     @JoinColumn(name="client_id")
     private Client client;

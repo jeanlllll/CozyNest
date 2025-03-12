@@ -52,9 +52,7 @@ public class Order {
     @JoinColumn(name="client_id")
     private Client client;
 
-    @ManyToOne
-    @JoinColumn(name="address_id")
-    private Address address;
+    private String address;
 
     @ManyToOne
     @JoinColumn(name="discount_id")

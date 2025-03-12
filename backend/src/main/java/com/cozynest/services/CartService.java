@@ -18,6 +18,7 @@ import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.UUID;
 
 @Service
 public class CartService {

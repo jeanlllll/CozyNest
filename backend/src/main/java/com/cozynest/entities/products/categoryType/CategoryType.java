@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.util.UUID;
 
@@ -19,6 +21,7 @@ public class CategoryType {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @JdbcTypeCode(SqlTypes.UUID)
     private UUID id;
 
     @Column(nullable = false)
@@ -33,5 +36,6 @@ public class CategoryType {
     @ManyToOne
     @JoinColumn(name="category_id", nullable = false)
     private Category category;
+
 
 }

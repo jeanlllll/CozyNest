@@ -1,9 +1,7 @@
 package com.cozynest.controllers;
 
-import com.cozynest.dtos.ApiResponse;
-import com.cozynest.dtos.ProductResponse;
-import com.cozynest.dtos.ReviewDto;
-import com.cozynest.dtos.ReviewRequest;
+import com.cozynest.dtos.*;
+import com.cozynest.repositories.ProductRepository;
 import com.cozynest.services.ProductService;
 import com.cozynest.services.ReviewService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +22,9 @@ public class ProductController {
     @Autowired
     ReviewService reviewService;
 
+    @Autowired
+    ProductRepository productRepository;
+
     @GetMapping("/{productId}")
     public ResponseEntity<ProductResponse> getProductById(
             @PathVariable UUID productId,
@@ -32,6 +33,53 @@ public class ProductController {
         ProductResponse productResponse = productService.getProductDetailsById(productId, languageCode);
         return ResponseEntity.ok().body(productResponse);
     }
+
+//    @GetMapping("/home/trending")
+
+
+    /*----------------------------product in category page------------------------------------------*/
+
+    @GetMapping("/category/{category}")
+    public ResponseEntity<List<CategoryProductDto>> getProductByCategory(
+            @PathVariable String category,
+            @RequestHeader(value ="Accept-Language", defaultValue="en") String languageCode,
+            @RequestParam(value = "page", required = true) int page,
+            @RequestParam(value = "size", required = false, defaultValue = "9") int pageSize,
+
+            //sorting: only one of these can be true
+            @RequestParam(value = "isNewArrival", required = false) Boolean isNewArrival,
+            @RequestParam(value = "priceAsc", required = false) Boolean priceAsc,
+            @RequestParam(value = "priceDesc", required = false) Boolean priceDesc,
+            @RequestParam(value = "rating", required = false) Boolean sortByRating,
+
+            //filtering parameters
+            @RequestParam(value = "keywords", required = false) String keywords,
+            @RequestParam(value = "categoryType", required = false) List<String> categoryTypes,
+            @RequestParam(value = "minPrice", required = false) Double minPrice,
+            @RequestParam(value = "maxPrice", required = false)  Double maxPrice,
+            @RequestParam(value = "sizes", required = false) List<String> sizes) {
+
+        // Validate: Only one sorting flag may be true
+        int sortCount = (Boolean.TRUE.equals(isNewArrival) ? 1 : 0) +
+                        (Boolean.TRUE.equals(priceAsc) ? 1 : 0) +
+                        (Boolean.TRUE.equals(priceDesc) ? 1 : 0) +
+                        (Boolean.TRUE.equals(sortByRating) ? 1 : 0);
+        if (sortCount > 1) {
+            return ResponseEntity.badRequest().body(null);
+        }
+
+        // Determine sorting flag (if none is true, the service will use the default)
+        String sortBy = null;
+        if (Boolean.TRUE.equals(priceAsc)) sortBy = "priceAsc";
+        else if (Boolean.TRUE.equals(priceDesc)) sortBy = "priceDesc";
+        else if (Boolean.TRUE.equals(sortByRating)) sortBy = "rating";
+
+        // call service layer
+        Page<CategoryProductDto> products = productService.getFilteredProducts(
+                category, languageCode, page, pageSize, sortBy, keywords, isNewArrival, categoryTypes, minPrice, maxPrice, sizes);
+        return ResponseEntity.ok(products.getContent());
+    }
+
 
     /*----------------------------------review------------------------------------------*/
     @PostMapping("/{productId}/review")
@@ -57,6 +105,6 @@ public class ProductController {
         Page<ReviewDto> reviewPage = reviewService.getPaginatedReviews(productId, page, size, sortBy, isDesc);
         return ResponseEntity.ok().body(reviewPage.getContent());
     }
-    /*---------------------------------------------------------------------------------*/
+
 
 }
