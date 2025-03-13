@@ -44,6 +44,7 @@ public class WebConfig {
                         .requestMatchers("/subscription/**").permitAll()
                         .requestMatchers("/favorites/**").hasAuthority("CLIENT")
                         .requestMatchers("/cart/**").hasAuthority("CLIENT")
+                        .requestMatchers("/client/**").hasAuthority("CLIENT")
                         .anyRequest().authenticated()
                 );
         return http.build();

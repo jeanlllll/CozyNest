@@ -4,6 +4,7 @@ import com.cozynest.Exceptions.InvalidLanguageException;
 import com.cozynest.Exceptions.MaterialTranslationNotFoundException;
 import com.cozynest.Exceptions.ProductNotFoundException;
 import com.cozynest.Exceptions.ProductTranslationNotFoundException;
+import com.cozynest.Helper.ConvertToDtoListHelper;
 import com.cozynest.dtos.*;
 import com.cozynest.entities.languages.Languages;
 import com.cozynest.entities.products.Category;
@@ -18,13 +19,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -50,6 +49,9 @@ public class ProductService {
 
     @Autowired
     CategoryTypesRepository categoryTypesRepository;
+
+    @Autowired
+    ConvertToDtoListHelper convertToDtoListHelper;
 
     final int REVIEW_SIZE_PER_PAGE = 3;
 
@@ -136,7 +138,14 @@ public class ProductService {
         Page<Object[]> filteredProduct = productRepository.findByFilters(categoryId, categoryTypeIds, minPrice,
                 maxPrice, sizeList, keywords, isNewArrival, languageId, pageable);
 
-        Page<CategoryProductDto> categoryProductDtoPage = filteredProduct.map(obj -> convertFilteredProductObjectToDto(obj));
+        Page<CategoryProductDto> categoryProductDtoPage = filteredProduct.map(obj -> {
+            CategoryProductDto categoryProductDto = convertFilteredProductObjectToDto(obj);
+            Optional<Product> product = productRepository.findById(categoryProductDto.getProductId());
+            List<ProductDisplayDto>  productDisplayDtoList = convertToDtoListHelper.getProductDisplayDetail(product.get());
+            categoryProductDto.setProductDisplayDtoList(productDisplayDtoList);
+            return categoryProductDto;
+        });
+
         return categoryProductDtoPage;
     }
 

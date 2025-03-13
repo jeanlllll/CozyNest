@@ -1,6 +1,7 @@
 package com.cozynest.auth.entities;
 
 import com.cozynest.entities.orders.order.Order;
+import com.cozynest.entities.profiles.Address;
 import com.cozynest.entities.profiles.cart.Cart;
 import com.cozynest.entities.profiles.favorites.Favorite;
 import jakarta.persistence.*;
@@ -50,4 +51,7 @@ public class Client {
 
     @OneToOne(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
     private Cart cart;
+
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Address> addressList;
 }

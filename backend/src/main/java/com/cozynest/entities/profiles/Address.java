@@ -22,9 +22,9 @@ public class Address {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @NotBlank(message = "Building cannot be blank")
+    @NotBlank(message = "Floor and building cannot be blank")
     @Column(nullable = false, length = 50)
-    private String building;
+    private String floorNBuilding;
 
     @NotBlank(message = "Street cannot be blank")
     @Column(nullable = false, length = 50)
@@ -44,7 +44,7 @@ public class Address {
 
     @NotBlank(message = "ZipCode cannot be blank")
     @Column(nullable = false, length = 10)
-    private String zipCode;
+    private String postalCode;
 
     @ManyToOne
     @JoinColumn(name="client_id")

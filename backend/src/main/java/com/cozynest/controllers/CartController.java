@@ -1,5 +1,6 @@
 package com.cozynest.controllers;
 
+import com.cozynest.Helper.BindingResultHelper;
 import com.cozynest.Helper.CheckAuthenticationHelper;
 import com.cozynest.dtos.ApiResponse;
 import com.cozynest.dtos.CartItemDto;
@@ -13,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.SQLOutput;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,6 +29,9 @@ public class CartController {
     @Autowired
     CartService cartService;
 
+    @Autowired
+    BindingResultHelper bindingResultHelper;
+
     @GetMapping
     public List<CartItemDto> getCartItemList() {
         UUID userId = checkAuthenticationHelper.getUserIdViaAuthentication();
@@ -38,13 +41,8 @@ public class CartController {
 
     @PostMapping("/add")
     public ResponseEntity<?> addToCart(@Valid @RequestBody CartRequest cartRequest, BindingResult result) throws ChangeSetPersister.NotFoundException {
-        if (result.hasErrors()) {
-            List<String> errors = result.getAllErrors()
-                    .stream()
-                    .map(error -> error.getDefaultMessage())
-                    .toList();
-            return ResponseEntity.badRequest().body(Set.of("errors"));
-        }
+        ResponseEntity errorResponse = bindingResultHelper.convertBindErrorToResponse(result);
+        if (errorResponse != null ) return errorResponse;
         UUID userId = checkAuthenticationHelper.getUserIdViaAuthentication();
         ApiResponse response = cartService.addToCart(userId, cartRequest);
         return ResponseEntity.status(response.getStatus()).body(response.getMessage());
