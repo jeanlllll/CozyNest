@@ -3,8 +3,6 @@ package com.cozynest.entities.orders.order;
 import com.cozynest.auth.entities.Client;
 import com.cozynest.entities.orders.discount.Discount;
 import com.cozynest.entities.orders.payment.Payment;
-import com.cozynest.entities.orders.payment.PaymentMethod;
-import com.cozynest.entities.profiles.Address;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,23 +28,15 @@ public class Order {
     @Column(nullable = false, columnDefinition = "TIMESTAMP(0)")
     private LocalDateTime orderDate;
 
-    @Column(nullable = false)
-    private Float totalAmount;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private OrderStatus orderStatus;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private PaymentMethod paymentMethod;
+    private String paymentMethod;
 
     private String shipmentTrackingNumber;
 
-    private LocalDateTime expectedDeliveryDate;
-
-    @Builder.Default
-    private float discountAmount = 0;
+    private LocalDateTime deliveryDate;
 
     @ManyToOne
     @JoinColumn(name="client_id")
@@ -58,15 +48,29 @@ public class Order {
     @JoinColumn(name="discount_id")
     private Discount discount;
 
-    @OneToMany(mappedBy = "order")
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItems;
 
-    @OneToOne
-    @JoinColumn(name="payment_id")
+    @OneToOne(mappedBy = "order")
     private Payment payment;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name="delivery_id")
     private Delivery delivery;
+
+    @Column(nullable = false)
+    private String phoneNumber;
+
+    @Column(nullable = false)
+    private Float originalAmount;
+
+    @Column(nullable = false)
+    private float discountAmount;
+
+    @Column(nullable = false)
+    private Float totalAmount;
+
+    @Column(nullable = false)
+    private Float transportationAmount;
 
 }

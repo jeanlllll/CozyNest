@@ -1,6 +1,6 @@
 package com.cozynest.entities.orders.payment;
 
-public enum PaymentMethod {
+public enum Currency {
 
-    CREDIT_CARD
+    HKD,
 }

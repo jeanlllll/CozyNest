@@ -21,7 +21,7 @@ public class Discount {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String discountCode;
 
     @Enumerated(EnumType.STRING)

@@ -1,5 +1,8 @@
 package com.cozynest.auth.config;
 
+import com.cozynest.controllers.OrderController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,11 +33,19 @@ public class WebConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        http.cors(cors -> cors.configurationSource(corsConfig.corsConfigurationSource()))
-                .csrf((csrf) -> csrf.disable()).addFilterBefore(statelessCSRFFilter, CsrfFilter.class)
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS) //disable sessions
+//        configurationSource(corsConfig.corsConfigurationSource())
+        http.cors(cors -> cors.disable())
+                .csrf((csrf) -> csrf
+                    .ignoringRequestMatchers("/webhook/**")
+                    .ignoringRequestMatchers("/webhook")
+                    .ignoringRequestMatchers("/api/webhook/**")
+                    .ignoringRequestMatchers("/api/webhook")
+                    .disable()
                 )
+//                .addFilterBefore(statelessCSRFFilter, CsrfFilter.class)
+//                .sessionManagement(session -> session
+//                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS) //disable sessions
+//                )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers("/csrf/token").permitAll()
@@ -42,6 +53,10 @@ public class WebConfig {
                         .requestMatchers("v3/api-docs/**", "/swagger-ui.html", "swagger-ui/**").permitAll()
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/subscription/**").permitAll()
+                        .requestMatchers("/webhook/**").permitAll()
+                        .requestMatchers("/webhook").permitAll()
+                        .requestMatchers("/api/webhook/**").permitAll()
+                        .requestMatchers("/api/webhook").permitAll()
                         .requestMatchers("/favorites/**").hasAuthority("CLIENT")
                         .requestMatchers("/cart/**").hasAuthority("CLIENT")
                         .requestMatchers("/client/**").hasAuthority("CLIENT")

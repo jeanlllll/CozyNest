@@ -34,4 +34,5 @@ public class ProductVariant {
     private Product product;
 
     private Character gender;
+
 }

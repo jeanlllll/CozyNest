@@ -1,19 +1,40 @@
-//package com.cozynest.controllers;
-//
-//import com.cozynest.dtos.FavoriteItemDto;
-//import org.springframework.web.bind.annotation.RequestMapping;
-//import org.springframework.web.bind.annotation.RequestParam;
-//import org.springframework.web.bind.annotation.RestController;
-//
-//import java.util.List;
-//import java.util.UUID;
-//
-//@RestController
-//@RequestMapping("/orders")
-//public class OrderController {
-//
-//    public List<OrderDto> getOrderDtoList() {
-//        UUID userId = checkAuthenticationHelper.getUserIdViaAuthentication();
-//        return favoriteService.getUserFavoriteItemList(userId, page, size);
-//    }
-//}
+package com.cozynest.controllers;
+
+import com.cozynest.Helper.BindingResultHelper;
+import com.cozynest.Helper.CheckAuthenticationHelper;
+import com.cozynest.dtos.OrderRequest;
+import com.cozynest.services.OrderService;
+import com.stripe.exception.StripeException;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
+import java.util.UUID;
+
+@RestController
+@RequestMapping("/orders")
+public class OrderController {
+
+    @Autowired
+    CheckAuthenticationHelper checkAuthenticationHelper;
+
+    @Autowired
+    OrderService orderService;
+
+    @Autowired
+    BindingResultHelper bindingResultHelper;
+
+    @PostMapping
+    public ResponseEntity<?> postOrder(@Valid @RequestBody OrderRequest  orderRequest, BindingResult result) throws StripeException {
+        UUID userId = checkAuthenticationHelper.getUserIdViaAuthentication();
+        bindingResultHelper.convertBindErrorToResponse(result);
+        Map<String, String> paymentMap = orderService.createCheckOutSession(orderRequest, userId);
+        return ResponseEntity.ok(paymentMap);
+    }
+
+
+
+}

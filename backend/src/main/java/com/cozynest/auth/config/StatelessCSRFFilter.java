@@ -32,6 +32,11 @@ public class StatelessCSRFFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
+        if (request.getRequestURI().endsWith("/webhook")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         // 1. extract csrf token in header and in cookie
         final String csrfTokenInHeader = request.getHeader("X-CSRF-TOKEN");
         final Cookie[] cookies = request.getCookies();

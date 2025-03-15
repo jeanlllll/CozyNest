@@ -20,16 +20,11 @@ public class Delivery {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String deliveryMethod;
+    private DeliveryMethod deliveryMethod;
 
     @Column(nullable = false)
     private Integer transportationFee;
-
-    @Column(nullable = false)
-    private Integer minDeliveryDays;
-
-    @Column(nullable = false)
-    private Integer maxDeliveryDays;
 
 }

@@ -2,10 +2,7 @@ package com.cozynest.entities.orders.payment;
 
 import com.cozynest.entities.orders.order.Order;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -22,21 +19,32 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @Column(nullable = false)
-    private LocalDateTime paymentDate;
+    @OneToOne
+    @JoinColumn(name = "orders_id")
+    private Order order;
+
+    private String paymentIntentId;
 
     @Column(nullable = false)
     private Float amount;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private PaymentMethod paymentMethod;
+    private Currency currency;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private PaymentStatus paymentStatus;
 
-    @OneToOne
-    @JoinColumn(name="orders_id")
-    private Order order;
+
+    @Column(nullable = false)
+    private LocalDateTime paymentDate;
+
+    private String paymentMethod;
+
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
+
 }

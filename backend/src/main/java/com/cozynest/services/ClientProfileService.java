@@ -35,7 +35,7 @@ public class ClientProfileService {
     @Autowired
     AddressRepository addressRepository;
 
-    final private int SORTED_ADDRESS_LIMIT = 5;
+    final public int SORTED_ADDRESS_LIMIT = 5;
 
     public ProfileDto getClientProfile(UUID clientId) {
         Client client = clientRepository.findById(clientId).get();
@@ -68,7 +68,7 @@ public class ClientProfileService {
             addressMap.put(address.getId(), address);
         }
 
-        List<String> errors = new ArrayList<>();
+
         List<AddressDto> updatedAddressDtoList = profileDto.getAddressList();
 
         for (AddressDto addressDto : updatedAddressDtoList) {
@@ -97,7 +97,7 @@ public class ClientProfileService {
         return new ApiResponse("Updated Successfully.", 200);
     }
 
-    private void udpateAddressDtoInAddress(AddressDto addressDto, Address address) {
+    public void udpateAddressDtoInAddress(AddressDto addressDto, Address address) {
         address.setFloorNBuilding(addressDto.getFloorNBuilding());
         address.setStreet(addressDto.getStreet());
         address.setCity(addressDto.getCity());

@@ -25,9 +25,6 @@ public class OrderItem {
     @Column(nullable = false)
     private Integer quantity;
 
-    @Column(nullable = false)
-    private Float itemPrice;
-
     @ManyToOne
     @JoinColumn(name="products_id")
     private Product product;

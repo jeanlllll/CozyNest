@@ -1,6 +1,6 @@
 package com.cozynest.auth.services;
 
-import com.cozynest.auth.dtos.EmailDetails;
+import com.cozynest.auth.dtos.VerificationEmailDetail;
 import com.cozynest.auth.dtos.RegistrationRequest;
 import com.cozynest.auth.dtos.RegistrationResponse;
 import com.cozynest.auth.entities.*;
@@ -117,9 +117,8 @@ public class RegistrationService {
                 shopUserRepository.save(shopUser);
 
                 //send verification code via email
-                EmailDetails emailDetails = new EmailDetails(email, verificationCode, request.getFirstName());
-                int returnStatus = emailService.sendSimpleMail(emailDetails);
-                if (returnStatus != 200) {
+                VerificationEmailDetail verificationEmailDetail = new VerificationEmailDetail(email, verificationCode, request.getFirstName());
+                if (!emailService.sendSimpleMail(verificationEmailDetail)) {
                     return new RegistrationResponse(400, "Oops. Seems like something went wrong. Please contact us via email " + ourEmail);
                 }
             }

@@ -1,7 +1,7 @@
 package com.cozynest.auth.services;
 
 import com.cozynest.auth.dtos.ChangePasswordRequest;
-import com.cozynest.auth.dtos.EmailDetails;
+import com.cozynest.auth.dtos.VerificationEmailDetail;
 import com.cozynest.auth.dtos.ResetPasswordRequest;
 import com.cozynest.auth.entities.*;
 import com.cozynest.auth.helper.PasswordValidator;
@@ -10,21 +10,16 @@ import com.cozynest.auth.repositories.ClientProvidersRepository;
 import com.cozynest.auth.repositories.ClientRepository;
 import com.cozynest.auth.repositories.ShopUserRepository;
 import com.cozynest.auth.repositories.VerificationRepository;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -138,8 +133,8 @@ public class PasswordService {
         }
 
         String verificationCode = VerificationCodeGenerator.generateVerificationCode();
-        EmailDetails emailDetails = new EmailDetails(user.getEmail(), verificationCode, user.getEmail());
-        emailService.sendSimpleMail(emailDetails);
+        VerificationEmailDetail verificationEmailDetail = new VerificationEmailDetail(user.getEmail(), verificationCode, user.getEmail());
+        emailService.sendSimpleMail(verificationEmailDetail);
 
         String encryptedCode = bCryptPasswordEncoder.encode(verificationCode);
         Verification verification = user.getVerification();

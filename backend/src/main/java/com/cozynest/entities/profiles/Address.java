@@ -1,5 +1,6 @@
 package com.cozynest.entities.profiles;
 
+import com.stripe.param.PaymentMethodCreateParams;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -49,4 +50,8 @@ public class Address {
     @ManyToOne
     @JoinColumn(name="client_id")
     private Client client;
+
+    public String toString() {
+        return floorNBuilding + ", " + street + ", " + city + ", " + state + ", " + country + ", " + postalCode;
+    }
 }
