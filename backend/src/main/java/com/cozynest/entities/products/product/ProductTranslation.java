@@ -1,10 +1,7 @@
 package com.cozynest.entities.products.product;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name="product_translation")
@@ -23,6 +20,7 @@ public class ProductTranslation {
     @Column(nullable = false, length=500)
     private String description;
 
+    @ToString.Exclude
     @ManyToOne
     @MapsId("productId")
     @JoinColumn(name = "product_id")

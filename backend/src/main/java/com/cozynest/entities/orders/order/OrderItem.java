@@ -26,7 +26,7 @@ public class OrderItem {
     private Integer quantity;
 
     @ManyToOne
-    @JoinColumn(name="products_id")
+    @JoinColumn(name="product_id")
     private Product product;
 
     @ManyToOne
@@ -34,6 +34,6 @@ public class OrderItem {
     private ProductVariant productVariant;
 
     @ManyToOne
-    @JoinColumn(name="orders_id")
+    @JoinColumn(name="shop_order_id")
     private Order order;
 }

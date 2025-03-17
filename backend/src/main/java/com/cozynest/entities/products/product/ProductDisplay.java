@@ -1,10 +1,7 @@
 package com.cozynest.entities.products.product;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.UUID;
 
@@ -32,7 +29,8 @@ public class ProductDisplay {
     @Column(nullable = false)
     private Boolean isPrimary;
 
+    @ToString.Exclude
     @ManyToOne
-    @JoinColumn(name="products_id", nullable = false)
+    @JoinColumn(name="product_id", nullable = false)
     private Product product;
 }

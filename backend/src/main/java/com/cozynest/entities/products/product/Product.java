@@ -4,17 +4,14 @@ import com.cozynest.entities.products.Category;
 import com.cozynest.entities.products.categoryType.CategoryType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name="products")
+@Table(name="product")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -51,18 +48,22 @@ public class Product {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch=FetchType.LAZY)
     @JsonIgnore
+    @ToString.Exclude
     private List<ProductVariant> productVariants;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch=FetchType.LAZY)
     @JsonIgnore
     private List<ProductDisplay> productDisplays;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch=FetchType.LAZY)
     @JsonIgnore
     private List<ProductMaterial> productMaterials;
 
     private Boolean isOutOfStock = false;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch=FetchType.LAZY)
     @JsonIgnore
     private List<ProductTranslation> productTranslationList;

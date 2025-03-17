@@ -19,7 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.parameters.P;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -52,6 +52,9 @@ public class ProductService {
 
     @Autowired
     ConvertToDtoListHelper convertToDtoListHelper;
+
+    @Autowired
+    RedisTemplate<String, Object> redis;
 
     final int REVIEW_SIZE_PER_PAGE = 3;
 
@@ -111,7 +114,6 @@ public class ProductService {
 
     }
 
-
     public Page<CategoryProductDto> getFilteredProducts(
             String category, String languageCode, int page, int pageSize, String sortBy, String keywords, Boolean isNewArrival,
             List<String> categoryTypes, Double minPrice, Double maxPrice, List<String> sizes) {
@@ -141,7 +143,7 @@ public class ProductService {
         Page<CategoryProductDto> categoryProductDtoPage = filteredProduct.map(obj -> {
             CategoryProductDto categoryProductDto = convertFilteredProductObjectToDto(obj);
             Optional<Product> product = productRepository.findById(categoryProductDto.getProductId());
-            List<ProductDisplayDto>  productDisplayDtoList = convertToDtoListHelper.getProductDisplayDetail(product.get());
+            List<ProductDisplayDto>  productDisplayDtoList = convertToDtoListHelper.getProductDisplayDtoList(product.get());
             categoryProductDto.setProductDisplayDtoList(productDisplayDtoList);
             return categoryProductDto;
         });

@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import java.util.UUID;
 
 @Entity
-@Table(name="languages")
+@Table(name="shop_language")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

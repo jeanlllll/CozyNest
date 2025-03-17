@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name="orders")
+@Table(name="shop_order")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -31,8 +31,6 @@ public class Order {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private OrderStatus orderStatus;
-
-    private String paymentMethod;
 
     private String shipmentTrackingNumber;
 

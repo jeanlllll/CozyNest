@@ -2,15 +2,12 @@ package com.cozynest.entities.products.product;
 
 import com.cozynest.entities.products.materials.Material;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.UUID;
 
 @Entity
-@Table(name="product_materials")
+@Table(name="product_material")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -24,8 +21,9 @@ public class ProductMaterial {
     @Column(nullable = false)
     private Integer percentage;
 
+    @ToString.Exclude
     @ManyToOne
-    @JoinColumn(name="products_id")
+    @JoinColumn(name="product_id")
     private Product product;
 
     @ManyToOne

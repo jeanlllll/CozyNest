@@ -2,7 +2,7 @@ package com.cozynest.auth.services;
 
 import com.cozynest.auth.dtos.VerifyEmailRequest;
 import com.cozynest.auth.entities.AuthAuthority;
-import com.cozynest.auth.entities.ClientProvider;
+import com.cozynest.auth.entities.AuthProvider;
 import com.cozynest.auth.entities.ShopUser;
 import com.cozynest.auth.entities.Verification;
 import com.cozynest.auth.helper.CookieGenerateHelper;
@@ -10,7 +10,6 @@ import com.cozynest.auth.helper.JwtUtil;
 import com.cozynest.auth.repositories.ClientRepository;
 import com.cozynest.auth.repositories.ShopUserRepository;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -59,10 +58,10 @@ public class VerifyEmailService {
         System.out.println(user.getEmail());
 
 
-        Set<ClientProvider> registeredProviders = user.getClient().getClientProviders().stream()
-                .map(cp -> cp.getId().getClientProvider())
+        Set<AuthProvider> registeredProviders = user.getClient().getClientProviders().stream()
+                .map(cp -> cp.getId().getAuthProvider())
                 .collect(Collectors.toSet());
-        if (!registeredProviders.contains(ClientProvider.MANUAL)) {
+        if (!registeredProviders.contains(AuthProvider.MANUAL)) {
             return new ResponseEntity<>("This account was not registered via manual email/password. Verification is not applicable here.", HttpStatus.NOT_FOUND);
         }
 

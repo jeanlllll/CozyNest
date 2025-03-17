@@ -1,13 +1,11 @@
 package com.cozynest.auth.controllers;
 
 import com.cozynest.auth.dtos.*;
-import com.cozynest.auth.entities.Client;
-import com.cozynest.auth.entities.ClientProvider;
+import com.cozynest.auth.entities.AuthProvider;
 import com.cozynest.auth.entities.ShopUserUserType;
 import com.cozynest.auth.services.*;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import lombok.Builder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -36,13 +34,13 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@Validated @RequestBody RegistrationRequest request) {
-        RegistrationResponse response = registrationService.createUser(request, ClientProvider.MANUAL);
+        RegistrationResponse response = registrationService.createUser(request, AuthProvider.MANUAL);
         return new ResponseEntity<>(response.getMessage(), HttpStatus.valueOf(response.getCode()));
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
-        return loginService.login(loginRequest.getEmail(), loginRequest.getPassword(), response, ClientProvider.MANUAL);
+        return loginService.login(loginRequest.getEmail(), loginRequest.getPassword(), response, AuthProvider.MANUAL);
     }
 
     @PostMapping("/logout")

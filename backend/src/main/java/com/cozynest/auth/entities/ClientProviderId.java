@@ -14,10 +14,10 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ClientProvidersId implements Serializable {
+public class ClientProviderId implements Serializable {
 
     private UUID clientId;
 
     @Enumerated(EnumType.STRING)
-    private ClientProvider clientProvider;
+    private AuthProvider authProvider;
 }

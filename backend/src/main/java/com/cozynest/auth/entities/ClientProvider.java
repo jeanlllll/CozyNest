@@ -1,7 +1,23 @@
 package com.cozynest.auth.entities;
 
-public enum ClientProvider {
+import jakarta.persistence.*;
+import lombok.*;
 
-    GOOGLE,
-    MANUAL
+@Entity
+@Table(name="client_provider")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class ClientProvider {
+
+    @EmbeddedId
+    private ClientProviderId id;
+
+    @ManyToOne
+    @JoinColumn(name="client_id", nullable = false)
+    @MapsId("clientId")
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private Client client;
 }

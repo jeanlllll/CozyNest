@@ -10,10 +10,10 @@ import com.cozynest.entities.products.product.ProductTranslation;
 import com.cozynest.entities.products.product.ProductVariant;
 import com.cozynest.entities.profiles.Address;
 import com.cozynest.repositories.LanguageRepository;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.swing.plaf.nimbus.State;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -43,7 +43,7 @@ public class ConvertToDtoListHelper {
         return productTranslationDtoList;
     }
 
-    public List<ProductDisplayDto> getProductDisplayDetail(Product product) {
+    public List<ProductDisplayDto> getProductDisplayDtoList(Product product) {
         List<ProductDisplay> productDisplays = product.getProductDisplays();
         List<ProductDisplayDto> productDisplayDtoList = new ArrayList<>();
 

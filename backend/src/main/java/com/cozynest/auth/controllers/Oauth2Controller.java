@@ -1,25 +1,20 @@
 package com.cozynest.auth.controllers;
 
-import com.cozynest.auth.dtos.LoginRequest;
 import com.cozynest.auth.dtos.Oauth2CallbackResponse;
 import com.cozynest.auth.dtos.RegistrationRequest;
 import com.cozynest.auth.dtos.RegistrationResponse;
-import com.cozynest.auth.entities.ClientProvider;
+import com.cozynest.auth.entities.AuthProvider;
 import com.cozynest.auth.services.LoginService;
 import com.cozynest.auth.services.Oauth2Service;
 import com.cozynest.auth.services.RegistrationService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -55,11 +50,11 @@ public class Oauth2Controller {
 
         //if oauth2 client already register, then login
         if (registrationService.isRegistered(email)) {
-            return loginService.login(email, null, response, ClientProvider.GOOGLE);
+            return loginService.login(email, null, response, AuthProvider.GOOGLE);
         } else {
             //if oauth2 client not yet register, then register
             RegistrationRequest registrationRequest = new RegistrationRequest(firstName, lastName, email, "", "");
-            RegistrationResponse registrationResponse = registrationService.createUser(registrationRequest, ClientProvider.GOOGLE);
+            RegistrationResponse registrationResponse = registrationService.createUser(registrationRequest, AuthProvider.GOOGLE);
             return ResponseEntity.ok(registrationResponse);
         }
 

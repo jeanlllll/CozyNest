@@ -20,7 +20,7 @@ public class Payment {
     private UUID id;
 
     @OneToOne
-    @JoinColumn(name = "orders_id")
+    @JoinColumn(name = "shop_order_id")
     private Order order;
 
     private String paymentIntentId;
@@ -36,8 +36,6 @@ public class Payment {
     @Column(nullable = false)
     private PaymentStatus paymentStatus;
 
-
-    @Column(nullable = false)
     private LocalDateTime paymentDate;
 
     private String paymentMethod;

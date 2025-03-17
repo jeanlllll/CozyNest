@@ -6,7 +6,6 @@ import com.cozynest.auth.helper.JwtUtil;
 import com.cozynest.auth.repositories.ShopUserRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
-import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -15,8 +14,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -54,7 +51,7 @@ public class LoginService {
     private int refresh_token_expiration;
 
     @Transactional
-    public ResponseEntity<?> login(String email, String password, HttpServletResponse response, ClientProvider loginProvider) {
+    public ResponseEntity<?> login(String email, String password, HttpServletResponse response, AuthProvider loginProvider) {
         ShopUser user = shopUserRepository.findByEmail(email);
 
         // 1. Check if the user exists
@@ -69,12 +66,12 @@ public class LoginService {
         }
 
         // 3. Check email verification for manual login
-        if (!user.getIsVerified() && loginProvider.equals(ClientProvider.MANUAL)) {
+        if (!user.getIsVerified() && loginProvider.equals(AuthProvider.MANUAL)) {
             return new ResponseEntity<>("Please verify email first", HttpStatus.FORBIDDEN);
         }
 
         //4. Handle manual login (password verification)
-        if (loginProvider.equals(ClientProvider.MANUAL)) {
+        if (loginProvider.equals(AuthProvider.MANUAL)) {
             ResponseEntity<?> loginResponse = handleManualLogin(user, password);
             if (loginResponse.getStatusCode() != HttpStatus.OK) {
                 return loginResponse;
@@ -87,14 +84,14 @@ public class LoginService {
         return new ResponseEntity<>("Login successfully", HttpStatus.OK);
     }
 
-    private String getProviderMismatchMessage(ShopUser user, ClientProvider loginProvider) {
-        Set<ClientProvider> registeredProviders = user.getClient().getClientProviders().stream()
-                .map(cp -> cp.getId().getClientProvider())
+    private String getProviderMismatchMessage(ShopUser user, AuthProvider loginProvider) {
+        Set<AuthProvider> registeredProviders = user.getClient().getClientProviders().stream()
+                .map(cp -> cp.getId().getAuthProvider())
                 .collect(Collectors.toSet());
-        if (loginProvider.equals(ClientProvider.MANUAL) && registeredProviders.contains(ClientProvider.GOOGLE)) {
+        if (loginProvider.equals(AuthProvider.MANUAL) && registeredProviders.contains(AuthProvider.GOOGLE)) {
             return "You registered using Google OAuth2. Please log in with Google or reset your password to enable manual login.";
         }
-        if (loginProvider.equals(ClientProvider.GOOGLE) && registeredProviders.contains(ClientProvider.MANUAL)) {
+        if (loginProvider.equals(AuthProvider.GOOGLE) && registeredProviders.contains(AuthProvider.MANUAL)) {
             return "You registered using email and password. Do you want to link this account to Google?";
         }
         return null;

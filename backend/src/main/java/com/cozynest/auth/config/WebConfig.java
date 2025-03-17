@@ -6,6 +6,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -19,6 +21,8 @@ import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
+@EnableScheduling
+@EnableAsync
 public class WebConfig {
 
     @Autowired
@@ -33,29 +37,21 @@ public class WebConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-//        configurationSource(corsConfig.corsConfigurationSource())
-        http.cors(cors -> cors.disable())
-                .csrf((csrf) -> csrf
-                    .ignoringRequestMatchers("/webhook/**")
-                    .ignoringRequestMatchers("/webhook")
-                    .ignoringRequestMatchers("/api/webhook/**")
-                    .ignoringRequestMatchers("/api/webhook")
-                    .disable()
+        http.cors(cors -> cors.configurationSource(corsConfig.corsConfigurationSource()))
+                .csrf((csrf) -> csrf.disable())
+                .addFilterBefore(statelessCSRFFilter, CsrfFilter.class)
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS) //disable sessions
                 )
-//                .addFilterBefore(statelessCSRFFilter, CsrfFilter.class)
-//                .sessionManagement(session -> session
-//                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS) //disable sessions
-//                )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests((requests) -> requests
+                        .requestMatchers("/").permitAll()
                         .requestMatchers("/csrf/token").permitAll()
                         .requestMatchers("/product/**").permitAll()
                         .requestMatchers("v3/api-docs/**", "/swagger-ui.html", "swagger-ui/**").permitAll()
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/subscription/**").permitAll()
-                        .requestMatchers("/webhook/**").permitAll()
-                        .requestMatchers("/webhook").permitAll()
-                        .requestMatchers("/api/webhook/**").permitAll()
+                        .requestMatchers("/webhook/**", "/api/webhook/**", "/api/webhook").permitAll()
                         .requestMatchers("/api/webhook").permitAll()
                         .requestMatchers("/favorites/**").hasAuthority("CLIENT")
                         .requestMatchers("/cart/**").hasAuthority("CLIENT")

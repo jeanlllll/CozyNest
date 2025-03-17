@@ -52,7 +52,7 @@ public class RegistrationService {
     VerificationRepository verificationRepository;
 
     @Autowired
-    ClientProvidersRepository clientProvidersRepository;
+    ClientProviderRepository clientProviderRepository;
 
     @Autowired
     PasswordValidator passwordValidator;
@@ -60,7 +60,7 @@ public class RegistrationService {
     @Autowired
     FavoriteRepository favoriteRepository;
 
-    public RegistrationResponse createUser(RegistrationRequest request, ClientProvider clientProvider) {
+    public RegistrationResponse createUser(RegistrationRequest request, AuthProvider clientProvider) {
 
         String firstName = request.getFirstName();
         String lastName = request.getLastName();
@@ -69,7 +69,7 @@ public class RegistrationService {
         String confirmedPassword = request.getConfirmPassword();
 
         // for manual register type
-        if (clientProvider.equals(ClientProvider.MANUAL)) {
+        if (clientProvider.equals(AuthProvider.MANUAL)) {
             // for manual registration, registration request info cannot be blank
             if (isBlank(firstName) || isBlank(lastName) || isBlank(email) || isBlank(password) || isBlank(confirmedPassword)) {
                 return new RegistrationResponse(400, "First name, last name, email, password, confirmed password cannot be blank");
@@ -101,7 +101,7 @@ public class RegistrationService {
 
             // for manual register type, only manual registration has password, oauth2 register does not have, and only manual register
             // need to verify email
-            if (clientProvider.equals(ClientProvider.MANUAL)) {
+            if (clientProvider.equals(AuthProvider.MANUAL)) {
                 //set password
                 String encryptedPassword = bCryptPasswordEncoder.encode(request.getPassword());
                 shopUser.setPassword(encryptedPassword);
@@ -109,7 +109,7 @@ public class RegistrationService {
 
             shopUserRepository.save(shopUser);
 
-            if (clientProvider.equals(ClientProvider.MANUAL)) {
+            if (clientProvider.equals(AuthProvider.MANUAL)) {
                 //set verification code
                 String verificationCode = VerificationCodeGenerator.generateVerificationCode();
                 Verification verification = createNewVerificationObject(shopUser, verificationCode);
@@ -118,9 +118,7 @@ public class RegistrationService {
 
                 //send verification code via email
                 VerificationEmailDetail verificationEmailDetail = new VerificationEmailDetail(email, verificationCode, request.getFirstName());
-                if (!emailService.sendSimpleMail(verificationEmailDetail)) {
-                    return new RegistrationResponse(400, "Oops. Seems like something went wrong. Please contact us via email " + ourEmail);
-                }
+                emailService.sendSimpleMail(verificationEmailDetail);
             }
 
             //assign role
@@ -146,20 +144,21 @@ public class RegistrationService {
             clientRepository.save(client);
 
             // register client provider
-            ClientProviders newClientProvider = new ClientProviders();
-            newClientProvider.setId(new ClientProvidersId(client.getId(), clientProvider));
+            ClientProvider newClientProvider = new ClientProvider();
+            newClientProvider.setId(new ClientProviderId(client.getId(), clientProvider));
             newClientProvider.setClient(client);
-            clientProvidersRepository.save(newClientProvider);
+            clientProviderRepository.save(newClientProvider);
 
-            Set<ClientProviders> clientProviderSet = new HashSet<>();
+            Set<ClientProvider> clientProviderSet = new HashSet<>();
             clientProviderSet.add(newClientProvider);
             client.setClientProviders(clientProviderSet);
             clientRepository.save(client);
 
             // Return success messages
-            if (clientProvider.equals(ClientProvider.MANUAL)) {
+            if (clientProvider.equals(AuthProvider.MANUAL)) {
                 // Manual: user needs to verify
-                return new RegistrationResponse(200, "User created. Please verify your code");
+                return new RegistrationResponse(200, "User created. Please verify your code. " +
+                        "The email may take 1-2 minutes to arrive.");
             } else {
                 // OAuth or other
                 return new RegistrationResponse(200, "User registered successfully.");

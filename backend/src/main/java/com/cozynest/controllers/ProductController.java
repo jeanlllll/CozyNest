@@ -34,9 +34,6 @@ public class ProductController {
         return ResponseEntity.ok().body(productResponse);
     }
 
-//    @GetMapping("/home/trending")
-
-
     /*----------------------------product in category page------------------------------------------*/
 
     @GetMapping("/category/{category}")
@@ -79,7 +76,6 @@ public class ProductController {
                 category, languageCode, page, pageSize, sortBy, keywords, isNewArrival, categoryTypes, minPrice, maxPrice, sizes);
         return ResponseEntity.ok(products.getContent());
     }
-
 
     /*----------------------------------review------------------------------------------*/
     @PostMapping("/{productId}/review")

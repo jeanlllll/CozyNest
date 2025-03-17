@@ -5,14 +5,9 @@ import com.cozynest.entities.profiles.Address;
 import com.cozynest.entities.profiles.cart.Cart;
 import com.cozynest.entities.profiles.favorites.Favorite;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -44,7 +39,7 @@ public class Client {
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    private Set<ClientProviders> clientProviders;
+    private Set<ClientProvider> clientProviders;
 
     @OneToOne(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
     private Favorite favorite;

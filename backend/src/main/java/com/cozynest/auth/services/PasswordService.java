@@ -6,7 +6,7 @@ import com.cozynest.auth.dtos.ResetPasswordRequest;
 import com.cozynest.auth.entities.*;
 import com.cozynest.auth.helper.PasswordValidator;
 import com.cozynest.auth.helper.VerificationCodeGenerator;
-import com.cozynest.auth.repositories.ClientProvidersRepository;
+import com.cozynest.auth.repositories.ClientProviderRepository;
 import com.cozynest.auth.repositories.ClientRepository;
 import com.cozynest.auth.repositories.ShopUserRepository;
 import com.cozynest.auth.repositories.VerificationRepository;
@@ -51,7 +51,7 @@ public class PasswordService {
     ClientRepository clientRepository;
 
     @Autowired
-    ClientProvidersRepository clientProvidersRepository;
+    ClientProviderRepository clientProviderRepository;
 
     //change password for admin and user
     public ResponseEntity<?> changePassword(ChangePasswordRequest changePasswordRequest, ShopUserUserType userType) {
@@ -84,10 +84,10 @@ public class PasswordService {
                 return new ResponseEntity<>("Client data missing.", HttpStatus.INTERNAL_SERVER_ERROR);
             }
 
-            Set<ClientProvider> registeredProviders = user.getClient().getClientProviders().stream()
-                    .map(cp -> cp.getId().getClientProvider())
+            Set<AuthProvider> registeredProviders = user.getClient().getClientProviders().stream()
+                    .map(ap -> ap.getId().getAuthProvider())
                     .collect(Collectors.toSet());
-            if (!registeredProviders.contains(ClientProvider.MANUAL)) {
+            if (!registeredProviders.contains(AuthProvider.MANUAL)) {
                 return new ResponseEntity<>("Please enable manual login first.", HttpStatus.FORBIDDEN);
             }
         }
@@ -147,7 +147,7 @@ public class PasswordService {
         verification.setExpiresAt(LocalDateTime.now().plusMinutes(verificationCodeExpireTime));
         verificationRepository.save(verification);
 
-        return new ResponseEntity<>("Verification Code sent. Please check your email", HttpStatus.OK);
+        return new ResponseEntity<>("Verification Code will be send in 1 to 2 minutes. Please check your email.", HttpStatus.OK);
     }
 
 
@@ -191,18 +191,18 @@ public class PasswordService {
             return new ResponseEntity<>("Verification Code is incorrect", HttpStatus.UNAUTHORIZED);
         }
 
-        Set<ClientProviders> clientProviders = user.getClient().getClientProviders();
-        Set<ClientProvider> registeredProviders = clientProviders.stream()
-                .map(cp -> cp.getId().getClientProvider())
+        Set<ClientProvider> clientProviders = user.getClient().getClientProviders();
+        Set<AuthProvider> registeredProviders = clientProviders.stream()
+                .map(cp -> cp.getId().getAuthProvider())
                 .collect(Collectors.toSet());
 
-        if (!registeredProviders.contains(ClientProvider.MANUAL)) {
+        if (!registeredProviders.contains(AuthProvider.MANUAL)) {
             user.setIsVerified(true);
             Client client = user.getClient();
-            ClientProviders clientProvider = new ClientProviders();
-            clientProvider.setId(new ClientProvidersId(user.getId(), ClientProvider.MANUAL));
+            ClientProvider clientProvider = new ClientProvider();
+            clientProvider.setId(new ClientProviderId(user.getId(), AuthProvider.MANUAL));
             clientProvider.setClient(client);
-            clientProvidersRepository.save(clientProvider);
+            clientProviderRepository.save(clientProvider);
             client.getClientProviders().add(clientProvider);
             clientRepository.save(client);
         }

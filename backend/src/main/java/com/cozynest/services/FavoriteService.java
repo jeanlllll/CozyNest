@@ -5,13 +5,10 @@ import com.cozynest.auth.entities.Client;
 import com.cozynest.auth.repositories.ClientRepository;
 import com.cozynest.dtos.*;
 import com.cozynest.entities.products.product.Product;
-import com.cozynest.entities.products.product.ProductDisplay;
-import com.cozynest.entities.products.product.ProductTranslation;
 import com.cozynest.entities.products.product.ProductVariant;
 import com.cozynest.entities.profiles.favorites.Favorite;
 import com.cozynest.entities.profiles.favorites.FavoriteItem;
 import com.cozynest.repositories.FavoriteRepository;
-import com.cozynest.repositories.LanguageRepository;
 import com.cozynest.repositories.ProductRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -160,7 +157,7 @@ public class FavoriteService {
         favoriteItemDto.setPrice(product.getPrice());
         favoriteItemDto.setIsOutOfStock(product.getIsOutOfStock());
 
-        favoriteItemDto.setProductDisplayDto(convertToDtoListHelper.getProductDisplayDetail(product));
+        favoriteItemDto.setProductDisplayDto(convertToDtoListHelper.getProductDisplayDtoList(product));
         favoriteItemDto.setAddDateTime(favoriteItem.getAddDateTime());
 
         List<ProductVariant> productVariantList = product.getProductVariants();

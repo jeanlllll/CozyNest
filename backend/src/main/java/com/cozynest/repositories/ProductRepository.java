@@ -34,7 +34,6 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
                 (LOWER(pt.name) LIKE CONCAT('%', :keywords, '%') OR LOWER(pt.description) LIKE CONCAT('%', :keywords, '%')))
 
     """)
-
     Page<Object[]> findByFilters(
             @Param("categoryId") UUID categoryId,
             @Param("categoryTypeIds") List<UUID> categoryTypeIds,
@@ -45,18 +44,16 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
             @Param("isNewArrival") Boolean isNewArrival,
             @Param("languageId") UUID languageId,
             Pageable pageable);
+
+
+    List<Product> findByIsNewArrival(Boolean status);
+
+
+    @Query("""
+        SELECT p
+        FROM Product p
+        WHERE p.category.id = :categoryId
+        ORDER BY p.createdOn DESC
+    """)
+    Page<Product> findByCategoryNOrderByCreatedDate(@Param("categoryId") UUID categoryId, Pageable pageable);
 }
-
-
-//AND (
-//                    :keywords IS NULL
-//        OR LOWER(pt.name) LIKE LOWER(CONCAT('%', :keywords, '%'))
-//OR LOWER(pt.description) LIKE LOWER(CONCAT('%', :keywords, '%')))
-
-
-//AND (:isNewArrival IS NULL OR p.isNewArrival = :isNewArrival)
-//AND p.isOutOfStock = false
-//AND (:minPrice IS NULL OR p.price >= :minPrice)
-//AND (:maxPrice IS NULL OR p.price <= :maxPrice)
-//AND (:sizes IS NULL OR SIZE(:sizes) = 0 OR pv.size IN :sizes)
-
