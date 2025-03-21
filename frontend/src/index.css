@@ -1,0 +1,38 @@
+@import "tailwindcss";
+
+@theme {
+    --font-protest: "Protest Strike", sans-serif;
+    --font-inter: "Inter", sans-serif;
+    --font-inter-blackItalic: "Inter Black Italic", sans-serif;
+    --color-secondPrimary: #EAB3B3;
+    --color-primary: #E38E8E;
+    --color-thirdPrimary: #D77777;
+    --animate-scrollX: scrollX 15s linear infinite;
+}
+
+@font-face {
+    font-family: 'Protest Strike';
+    font-style: normal;
+    font-weight: 600;
+    src: url('/src/assets/fonts/ProtestStrike-Regular.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/src/assets/fonts/Inter-VariableFont_opsz,wght.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Inter Black Italic';
+    font-style: italic;
+    font-weight: 900;
+    src: url('/src/assets/fonts/Inter_18pt-BlackItalic.ttf') format('truetype');
+}
+
+
+@keyframes scrollX {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
