@@ -7,13 +7,7 @@ import { fetchTrendingProduct } from "./api/fetchTrendingProduct.js";
 export const router = createBrowserRouter([
     {
         path: "/",
-        element: <ShopApplicationWrapper/>,
-        children: [
-            {
-                path: "",
-                element: <HomePage/>,
-                loader: fetchTrendingProduct,
-            }
-        ]
+        element: <HomePage/>,
+        loader: fetchTrendingProduct
     }
 ])

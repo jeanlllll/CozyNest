@@ -7,10 +7,10 @@ export const LanguageLoginHeader = () => {
 
     return (
     
-        <div className="container mx-auto max-w-[90%]">
+        <div className="container mx-auto">
 
-            <div className="flex justify-end sm:px-7.5 sm:py-0.5 text-xs text-black">
-                <span className="mr-3 sm:mr-6 cursor-pointer"><LanguageSwitcher/></span>
+            <div className="flex justify-end sm:py-0.5 text-xs text-black">
+                <span className="mr-3 sm:mr-4 cursor-pointer"><LanguageSwitcher/></span>
                 <span className="cursor-pointer">
                     {language === 'en'? 'Login' : '登入'}
                 </span>

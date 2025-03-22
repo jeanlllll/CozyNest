@@ -14,7 +14,7 @@ export const Menus = () => {
 
     useEffect(() => {
         setIsEnglish(language === 'en');
-    }, [language]); 
+    }, [language]);
 
     const switchLanguageToEn = () => {
         if (language != 'en') {
@@ -33,20 +33,20 @@ export const Menus = () => {
     };
 
     return (
-        <div className="relative z-[100]">
+        <div className="relative">
             <button
                 onClick={toggleMenu}
-                className="text-white text-extraBold bg-black font-medium rounded-lg text-sm px-2.5 py-2 inline-flex items-end hover:bg-gray-700">
+                className="text-white text-extraBold bg-black font-medium rounded-lg text-sm px-2.5 py-2 inline-flex items-end cursor-pointer hover:bg-gray-700">
                 <Bar3Icon />
             </button>
 
             {open && (
-                <div className="absolute right-0 mt-2 z-100 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-gray-700 dark:divide-gray-600 ">
+                <div className="absolute right-0 mt-2 z-1 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44">
 
                     <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownInformationButton">
                         <li className="px-4 py-1 font-semiBold">{isEnglish ? "Products By Category" : "產品分類"}</li>
                         <li>
-                            <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">{isEnglish? 'Men' : '男裝'}</a>
+                            <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">{isEnglish ? 'Men' : '男裝'}</a>
                         </li>
                         <li>
                             <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">{isEnglish ? 'Women' : '女裝'}</a>
@@ -59,13 +59,11 @@ export const Menus = () => {
                     <div class="py-2">
                         <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">{isEnglish ? "切換至繁體中文" : "Switch To English"}</a>
                     </div>
-                    
+
                     <div class="py-2">
                         <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">{isEnglish ? "Sign In" : "登入"}</a>
                     </div>
-                </div>
-            )}
+                </div>)}
         </div>
-
     )
 }

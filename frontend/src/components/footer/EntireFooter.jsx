@@ -22,12 +22,12 @@ export const EntireFooter = () => {
 
             {/* Desktop Version */}
 
-            <div className="hidden sm:flex container mx-auto justify-between max-w-[90%] mt-7 mb-7">
+            <div className="hidden sm:flex container mx-auto justify-between  mt-7 mb-7">
                 {/* About Us */}
                 <div className="w-1/4 flex flex-col item-left lg:items-center text-left mt-7 mb-8">
                     <ul className="space-y-3 font-thin">
                         <li>
-                            <li><h3 className="text-gray-900 mb-2 font-bold">{isEnglish ? "About Us" : "關於我們"}</h3></li>
+                            <h3 className="text-gray-900 mb-2 font-bold">{isEnglish ? "About Us" : "關於我們"}</h3>
                         </li>
                         <li>
                             <span className="cursor-pointer" onClick={() => navigate("/our-story")}>
@@ -47,7 +47,7 @@ export const EntireFooter = () => {
                 <div className="w-1/4 flex flex-col lg:items-center text-left mt-7 mb-6">
                     <ul className="space-y-3 font-thin">
                         <li>
-                            <li><h3 className="text-gray-900 mb-2 font-bold">{isEnglish ? "Customer Service" : "客戶服務"}</h3></li>
+                            <h3 className="text-gray-900 mb-2 font-bold">{isEnglish ? "Customer Service" : "客戶服務"}</h3>
                         </li>
                         <li>
                             <span className="cursor-pointer" onClick={() => navigate("/faqs")}>
@@ -101,7 +101,7 @@ export const EntireFooter = () => {
                 <div className="w-1/3 flex flex-col item-left text-left mt-7">
                     <ul className="space-y-3 font-thin">
                         <li>
-                            <li><h3 className="text-gray-900 mb-2 font-bold">{isEnglish ? "About Us" : "關於我們"}</h3></li>
+                            <h3 className="text-gray-900 mb-2 font-bold">{isEnglish ? "About Us" : "關於我們"}</h3>
                         </li>
                         <li>
                             <span className="cursor-pointer" onClick={() => navigate("/our-story")}>
@@ -121,7 +121,7 @@ export const EntireFooter = () => {
                 <div className="w-1/3 flex flex-col text-left mt-7 mb-2">
                     <ul className="space-y-3 font-thin">
                         <li>
-                            <li><h3 className="text-gray-900 mb-2 font-bold">{isEnglish ? "Customer Service" : "客戶服務"}</h3></li>
+                            <h3 className="text-gray-900 mb-2 font-bold">{isEnglish ? "Customer Service" : "客戶服務"}</h3>
                         </li>
                         <li>
                             <span className="cursor-pointer" onClick={() => navigate("/faqs")}>

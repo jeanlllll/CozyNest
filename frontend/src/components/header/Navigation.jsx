@@ -15,15 +15,15 @@ export const Navigation = () => {
     }, [language]); 
 
     return (
-        <div className="bg-secondPrimary py-3 px-5 drop-shadow-lg">
+        <div className="bg-secondPrimary py-4 px-4 md:py-3 md:px-2 drop-shadow-lg">
 
             {/* Desktop Header */}
-            <div className="hidden sm:flex container mx-auto justify-between max-w-[90%]">
+            <div className="hidden sm:flex container mx-auto justify-between">
                 {/* Logo */}
-                <div className="font-protest text-3xl font-bold text-white w-1/3 ">CozyNest</div>
+                <div className="font-protest text-4xl font-bold text-white w-1/2 md:w-1/3 ">CozyNest</div>
 
                 {/* Navigation Links */}
-                <div className="flex items-center justify-center font-inter text-normal font-bold text-white w-1/3 space-x-12 ">
+                <div className="flex items-center justify-center font-inter text-lg font-bold text-white w-1/3 space-x-12 ">
                     <span className="cursor-pointer mr-12 drop-shadow-sm hover:scale-105">
                         {isEnglish? 'Men' : '男裝'}
                     </span>
@@ -35,7 +35,7 @@ export const Navigation = () => {
                     </span>
                 </div>
 
-                <div className="flex justify-end items-center w-1/3 space-x-12">
+                <div className="flex justify-end items-center w-1/2 md:w-1/3 space-x-12">
 
                     <div className="flex items-center space-x-10">
                         {/* Search Bar */}
