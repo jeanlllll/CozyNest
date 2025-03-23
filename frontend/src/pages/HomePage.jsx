@@ -5,8 +5,13 @@ import { EntireFooter } from "../components/footer/EntireFooter";
 import { TrendingProductsSection } from "../components/home/TrendingProductsSection"
 import { useSelector } from "react-redux";
 import { categoryChinese } from "../api/constant";
+import { useRef } from "react";
+import { AIAgentButton } from "../components/sideButtons/AiAgentButton";
+import { ContainerScrollToTopButton } from "../components/sideButtons/ContainerScrollToTopButton";
+import { WindowScrollToTopButton } from "../components/sideButtons/WindowScrollToTopButton";
 
 export const HomePage = () => {
+    const scrollRef = useRef(null);
 
     const trendingProducts = useLoaderData();
 
@@ -15,8 +20,8 @@ export const HomePage = () => {
     const getProductsByCategory = (category) => trendingProducts[category] || [];
 
     return (
-        <div className="lg:h-screen">
-            <div className="lg:h-screen lg:overflow-y-scroll scroll-smooth lg:snap-y lg:snap-mandatory">
+        <div className="sm:scroll-container lg:h-screen">
+            <div className="lg:h-screen lg:overflow-y-scroll scroll-smooth lg:snap-y lg:snap-mandatory" ref={scrollRef}>
 
                 <section className="lg:h-dvh flex flex-col lg:snap-start">
                     {/* Header */}
@@ -28,6 +33,7 @@ export const HomePage = () => {
                     <div className="relative z-10">
                         <HeroSection />
                     </div>
+
                 </section>
 
                 {/* Trending Product By Categoires Section */}
@@ -60,11 +66,16 @@ export const HomePage = () => {
                         <EntireFooter />
                     </div>
 
-                    
                 </section>
-
-                
             </div >
+
+            <div className="z-50">
+                <div className="hidden lg:block"><ContainerScrollToTopButton scrollRef={scrollRef} /></div>
+                <div className="md:hideen"><WindowScrollToTopButton /></div>
+                <div className="relative z-30">
+                    <AIAgentButton />
+                </div>
+            </div>
         </div>
 
     )
