@@ -3,8 +3,10 @@ import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom"
+import { switchToTraditionalChinese, switchToEnglish } from "../../store/features/languageSlice";
 
-export const Menus = () => {
+export const Menus = ({show}) => {
 
     const [open, setOpen] = useState(false);
 
@@ -12,25 +14,24 @@ export const Menus = () => {
     const language = useSelector((state) => state.language.language);
     const [isEnglish, setIsEnglish] = useState(false);
 
+    const navigate = useNavigate();
+
     useEffect(() => {
         setIsEnglish(language === 'en');
     }, [language]);
 
-    const switchLanguageToEn = () => {
-        if (language != 'en') {
-            dispatch(switchToEnglish());
-        }
-    }
-
-    const switchLanguageToTraditionalChinese = () => {
-        if (language != 'zh-hk') {
-            dispatch(switchToTraditionalChinese());
-        }
-    }
-
     const toggleMenu = () => {
         setOpen((prev) => !prev)
     };
+
+    const handleSwitchLanguageEvent= (e) => {
+        e.preventDefault();
+        if (language != 'en') {
+            dispatch(switchToEnglish());
+        } else {
+            dispatch(switchToTraditionalChinese());
+        }
+    }
 
     return (
         <div className="relative">
@@ -57,11 +58,18 @@ export const Menus = () => {
                     </ul>
 
                     <div class="py-2">
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">{isEnglish ? "切換至繁體中文" : "Switch To English"}</a>
+                        <div onClick={handleSwitchLanguageEvent} 
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white cursor-pointer">
+                            {isEnglish ? "切換至繁體中文" : "Switch To English"}
+                        </div>
                     </div>
 
                     <div class="py-2">
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">{isEnglish ? "Sign In" : "登入"}</a>
+                        <div onClick={() => navigate("/user/login")}
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white cursor-pointer"
+                        >
+                            {isEnglish ? "Sign In" : "登入"}
+                        </div>
                     </div>
                 </div>)}
         </div>

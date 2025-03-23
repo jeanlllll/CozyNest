@@ -20,7 +20,10 @@ export const Navigation = () => {
             {/* Desktop Header */}
             <div className="hidden sm:flex container mx-auto justify-between">
                 {/* Logo */}
-                <div className="font-protest text-4xl font-bold text-white w-1/2 md:w-1/3 ">CozyNest</div>
+                <div className="font-protest text-4xl font-bold text-white w-1/2 md:w-1/3"> 
+                    
+                    CozyNest
+                </div>
 
                 {/* Navigation Links */}
                 <div className="flex items-center justify-center font-inter text-lg font-bold text-white w-1/3 space-x-12 ">

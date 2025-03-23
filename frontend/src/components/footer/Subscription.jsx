@@ -9,7 +9,7 @@ export const Subscription = () => {
             />
 
             {/* Submit Button */}
-            <button className="absolute py-[6.3px] px-4  top-0.4 right-[1px] bg-gray-900 text-white rounded-lg hover:bg-gray-700">Submit</button>
+            <button className="absolute py-[6.3px] px-4  top-0.4 right-[1px] bg-gray-900 text-white rounded-lg hover:bg-gray-800 cursor-pointer">Submit</button>
 
         </div>
         

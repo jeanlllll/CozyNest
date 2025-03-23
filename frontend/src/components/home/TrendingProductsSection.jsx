@@ -20,10 +20,10 @@ export const TrendingProductsSection = ({ category, products, language, category
         };
 
         checkScroll();
-        
+
         container.addEventListener("scroll", checkScroll);
         window.addEventListener("resize", checkScroll);
-        return () =>  {
+        return () => {
             container.removeEventListener("scroll", checkScroll);
             window.removeEventListener("resize", checkScroll);
         }
@@ -36,7 +36,7 @@ export const TrendingProductsSection = ({ category, products, language, category
     }
 
     const handleScrolLeft = () => {
-        if (scrollContainerRef.current && Math.ceil(container.scrollLeft + container.clientWidth) < container.scrollWidth) {
+        if (scrollContainerRef.current) {
             scrollContainerRef.current.scrollBy({ left: -250, behavior: "smooth" });
         }
     }
@@ -48,12 +48,12 @@ export const TrendingProductsSection = ({ category, products, language, category
 
                 <div className="flex justify-between">
                     {/* Section Title*/}
-                    <h1 className="font-protest text-4xl mt-6 ">{language === 'en'? `Top 8 Trending Products By Categories - ${category}` : 
+                    <h1 className="font-protest text-4xl mt-6 ">{language === 'en' ? `Top 8 Trending Products By Categories - ${category}` :
                         `前八熱銷商品 - ${categoryChinese}`}</h1>
 
                     {/* click to see more */}
                     <div className="font-inter bg-black rounded-lg border px-6 py-3 text-bold text-white cursor-pointer hover:scale-105 hover:bg-gray-900 drop-shadow-lg mt-4">
-                        <p className="drop=shadow-lg">{language === 'en'? "See More" : "了解更多"}</p>
+                        <p className="drop=shadow-lg">{language === 'en' ? "View More" : "了解更多"}</p>
                     </div>
 
                 </div>
@@ -75,6 +75,7 @@ export const TrendingProductsSection = ({ category, products, language, category
                                 {/* product Image */}
                                 <img src={productImage} alt={productName} className="w-full h-auto rounded-lg hover:scale-105 mb-2 cursor-pointer" />
 
+
                                 {/* product Info */}
                                 <div className="">
                                     <p className="text-lg font-semibold">{productName}</p>
@@ -90,7 +91,14 @@ export const TrendingProductsSection = ({ category, products, language, category
 
             {/*--------mobile version--------*/}
             <div className="lg:hidden px-6 pt-3 mb-6 relative">
-                <h1 className="lg:hidden font-protest text-3xl pl-4 mt-2">{language === 'en'? category : categoryChinese}</h1>
+
+                <div className="flex flex-row justify-between items-start">
+                    <h1 className="lg:hidden font-protest text-3xl pl-4">{language === 'en' ? category : categoryChinese}</h1>
+
+                    <div className="font-inter bg-black rounded-lg border px-3 py-2 text-bold text-white cursor-pointer hover:scale-105 hover:bg-gray-900 drop-shadow-lg">
+                        <p className="drop=shadow-lg">{language === 'en' ? "View More" : "了解更多"}</p>
+                    </div>
+                </div>
 
                 <div
                     ref={scrollContainerRef}
@@ -134,7 +142,7 @@ export const TrendingProductsSection = ({ category, products, language, category
                     })}
 
                     {!atStart && (<div
-                        className="absolute top-[50%] left-3 transform -translate-y-1/2 bg-transparent p-7 rounded-full cursor-pointer"
+                        className="absolute top-[50%] left-3 transform -translate-y-1/2  p-7 rounded-full cursor-pointer"
                         onClick={handleScrolLeft}
                     >
                         <ArrowLeft />

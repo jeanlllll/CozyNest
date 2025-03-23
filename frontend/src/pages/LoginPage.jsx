@@ -1,0 +1,84 @@
+import { useEffect, useState } from "react";
+import { GoogleMailIcon } from "../assets/icons/GoogleMailIcon"
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+
+export const LoginPage = () => {
+    const language = useSelector((state) => state.language.language);
+    const isEnglish = language === 'en';
+    const navigate = useNavigate();
+
+    return (
+        <>
+            {/* desktop version */}
+            <div className="container mx-auto lg:h-dvh flex lg:flex-row items-center justify-center font-inter">
+
+                <div className="flex lg:border lg:border-gray-100 rounded-[2vh] overflow-hidden lg:shadow-xl lg:shadow-gray-200 my-8">
+
+                    {/* Left Side (Image) */}
+                    <div className="hidden lg:block lg:w-5/8">
+                        <img src="/images/login_page_lg.png"
+                            className="w-full h-full border-gray-300 shadow-xl shadow-gray-500"
+                        />
+                    </div>
+
+                    {/* Right Side (Login Form) */}
+                    <div className="lg:w-3/8 flex flex-col justify-start items-between w-100 px-7 lg:px-21 py-2 lg:py-0 ">
+
+                        {/* Login */}
+                        <button className="text-4xl font-protest font-bold flex justify-starttext-black lg:mt-14 mb-6">
+                            {isEnglish ? "Login" : "登入"}
+                        </button>
+
+                        <button className="border border-gray-300 w-full h-14 flex items-center justify-center gap-4 font-inter font-semibold text-base text-gray-800 cursor-pointer
+                            hover:bg-gray-100 transition hover:delay-100 duration-300">
+                            <GoogleMailIcon /> {isEnglish ? "Google Mail" : "Google 郵箱"}
+                        </button>
+
+                        <h2 className="flex items-center justify-center text-gray-400 font-inter py-4 font-lg">
+                            OR
+                        </h2>
+
+                        {/* Email */}
+                        <div className="mb-4">
+                            <label for="email" className="text-lg font-semibold">{isEnglish ? "Email" : "電郵"}</label>
+                            <input id="email" type="email"
+                                placeholder="example@gamil.com"
+                                className="w-full px-3 py-2 mt-1 border border-gray-300 h-14"
+                            />
+                        </div>
+
+                        {/* Password */}
+                        <div className="mt-2">
+                            <label for="password" className="text-lg font-semibold">{isEnglish ? "Password" : "密碼"}</label>
+                            <input id="password" name="email" type="password"
+                                placeholder="password"
+                                className="w-full px-3 py-2 mt-1 border border-gray-300 h-14"
+                            />
+                        </div>
+
+                        <div className="flex items-center justify-end pr-1 text-gray-400 font-inter text-base cursor-pointer hover:underline">
+                            {isEnglish ? "Forget password?" : "忘記密碼？"}
+                        </div>
+
+                        <button className="drop-shadow-lg mt-12 bg-black rounded-lg w-full p-2 flex items-center justify-center font-bold text-lg text-white cursor-pointer font-inter
+                            hover:bg-gray-800">
+                            {isEnglish ? "Submit" : "提交"}
+                        </button>
+
+                        <button className="mb-5 md:mb-10 mt-3 pl-2 flex items-center justify-start pr-1 text-gray-400 font-inter text-base cursor-pointer 
+                            hover:underline" onClick={() => navigate("/user/register")}>
+                            {isEnglish ? "Do not have account yet?" : "沒有帳號？"}
+                        </button>
+
+                    </div>
+
+                </div>
+            </div >
+
+        </>
+    )
+
+
+
+}

@@ -37,7 +37,6 @@ export const HeroSection = () => {
                     {/* images */}
                     <img
                         src={imageSrc}
-                        alt="Couple in Pajamas"
                         className="w-full h-auto lg:h-[799px]"
                     />
 
