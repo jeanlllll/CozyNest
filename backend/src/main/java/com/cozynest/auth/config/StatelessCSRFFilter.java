@@ -32,7 +32,7 @@ public class StatelessCSRFFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        if (request.getRequestURI().endsWith("/webhook")) {
+        if (request.getRequestURI().endsWith("/webhook") || request.getRequestURI().endsWith("/csrf/token")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -78,7 +78,7 @@ public class StatelessCSRFFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private String generateCSRFToken() {
+    public String generateCSRFToken() {
         SecureRandom random = new SecureRandom();
         byte[] tokenBytes = new byte[32];
         random.nextBytes(tokenBytes);

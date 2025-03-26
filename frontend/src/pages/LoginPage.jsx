@@ -2,11 +2,30 @@ import { useEffect, useState } from "react";
 import { GoogleMailIcon } from "../assets/icons/GoogleMailIcon"
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { fetchGoogleOauth2Url } from "../api/fetchGoogleOauth2Url";
 
 export const LoginPage = () => {
     const language = useSelector((state) => state.language.language);
     const isEnglish = language === 'en';
     const navigate = useNavigate();
+
+    useEffect(() => {
+        document.title = isEnglish ? "CozyNest | Login" : "CozyNest | 登入";
+
+        const favicon = document.querySelector("link[rel='icon']");
+        if (favicon) {
+            favicon.href = "/images/cozyNestLogo.png";
+          }
+    }, [isEnglish])
+
+    const handleGoogleLogin = async () => {
+        try {
+            const { oauth_url } = await fetchGoogleOauth2Url();
+            window.location.href = oauth_url;
+        } catch (error) {
+            console.log("error")
+        }
+    }
 
     return (
         <>
@@ -31,7 +50,8 @@ export const LoginPage = () => {
                         </button>
 
                         <button className="border border-gray-300 w-full h-14 flex items-center justify-center gap-4 font-inter font-semibold text-base text-gray-800 cursor-pointer
-                            hover:bg-gray-100 transition hover:delay-100 duration-300">
+                            hover:bg-gray-100 transition hover:delay-100 duration-300" 
+                            onClick={handleGoogleLogin}>
                             <GoogleMailIcon /> {isEnglish ? "Google Mail" : "Google 郵箱"}
                         </button>
 

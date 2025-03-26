@@ -4,12 +4,11 @@ import com.cozynest.entities.Sales;
 import com.cozynest.entities.products.Category;
 import com.cozynest.repositories.ProductRepository;
 import jakarta.transaction.Transactional;
-import org.hibernate.Hibernate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import com.cozynest.Helper.ConvertToDtoListHelper;
 import com.cozynest.dtos.ProductDisplayDto;
-import com.cozynest.dtos.ProductHomeDto;
+import com.cozynest.dtos.ProductDto;
 import com.cozynest.dtos.ProductTranslationDto;
 import com.cozynest.entities.products.product.Product;
 import com.cozynest.repositories.CategoryRepository;
@@ -42,13 +41,13 @@ public class TrendingProductService {
     @Autowired
     ProductRepository productRepository;
 
-    private final int TRENDING_PRODUCT_SIZE = 5;
+    private final int TRENDING_PRODUCT_SIZE = 8;
 
     @Transactional
     @Scheduled(fixedRate = 1000 * 60 * 60 * 6)
     public void updateTrendingProductByScheduled() {
 
-        Map<String, List<ProductHomeDto>> map = new HashMap<>();
+        Map<String, List<ProductDto>> map = new HashMap<>();
 
         Pageable pageable = PageRequest.of(0, TRENDING_PRODUCT_SIZE);
         List<UUID> categoryIdList = categoryRepository.findAllCategoryId();
@@ -70,14 +69,13 @@ public class TrendingProductService {
 
             Category category = categoryRepository.findById(categoryId).get();
 
-            List<ProductHomeDto> productHomeDtoList = new ArrayList<>();
+            List<ProductDto> productDtoList = new ArrayList<>();
 
             // edge case, if not enough sales of product in that category
 
             if (productList.size() < TRENDING_PRODUCT_SIZE) {
                 Page<Product> restProductPage = productRepository.findByCategoryNOrderByCreatedDate(categoryId, pageable);
                 List<Product> restProductList = restProductPage.getContent();
-                System.out.println(restProductList);
                 for (Product product : restProductList) {
                     if (!productList.contains(product) && productList.size() < TRENDING_PRODUCT_SIZE) {
                         productList.add(product);
@@ -85,23 +83,23 @@ public class TrendingProductService {
                 }
             }
             for (Product product : productList) {
-                ProductHomeDto productHomeDto = new ProductHomeDto();
-                productHomeDto.setProductId(product.getId());
-                productHomeDto.setProductPrice(product.getPrice());
+                ProductDto productDto = new ProductDto();
+                productDto.setProductId(product.getId());
+                productDto.setProductPrice(product.getPrice());
 
                 List<ProductTranslationDto> productTranslationDtoList = convertToDtoListHelper.getProductTranslationDtoList(product);
                 List<ProductDisplayDto> productDisplayDtoList = convertToDtoListHelper.getProductDisplayDtoList(product);
-                productHomeDto.setProductTranslattionDtoList(productTranslationDtoList);
-                productHomeDto.setProductDisplayDtoList(productDisplayDtoList);
-                productHomeDtoList.add(productHomeDto);
+                productDto.setProductTranslationDtoList(productTranslationDtoList);
+                productDto.setProductDisplayDtoList(productDisplayDtoList);
+                productDtoList.add(productDto);
             }
-            map.put(category.getCode(), productHomeDtoList);
+            map.put(category.getCode(), productDtoList);
         }
         productRedisService.saveTrendingProductsToRedis(map);
     }
 
-    public Map<String, List<ProductHomeDto>> getTrendingProductsForAllCategory() throws IOException {
-        Map<String, List<ProductHomeDto>>  map = productRedisService.getTrendingProductsFromRedis();
+    public Map<String, List<ProductDto>> getTrendingProductsForAllCategory() throws IOException {
+        Map<String, List<ProductDto>>  map = productRedisService.getTrendingProductsFromRedis();
         if (map == null) {
             updateTrendingProductByScheduled();
         }

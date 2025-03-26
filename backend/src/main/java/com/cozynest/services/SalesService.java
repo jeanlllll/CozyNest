@@ -19,9 +19,6 @@ import java.util.Map;
 public class SalesService {
 
     @Autowired
-    OrderRepository orderRepository;
-
-    @Autowired
     SalesRepository salesRepository;
 
     public void updateSales(Order order) {

@@ -1,9 +1,12 @@
-const apiUrl = import.meta.env.VITE_BACKEND_DOMAIN_URL;
+export const getTrendingProductForHomePageUrl = "/api/home/trendingProducts";
 
-export const getTrendingProductForHomePageUrl = `${apiUrl}/api/home/trendingProducts`;
-
-export const categoryChinese = {
-    WOMEN: "女裝",
-    MEN: "男裝",
-    COUPLE: "情侶裝"
+export const getCategoryProductForCategoryPageUrl = (category) => {
+    return `/api/product/category/${category}`
 }
+
+export const getGoogleOauth2Url = "/api/oauth2/google";
+
+export const getGoogleOauth2Callback = "/api/oauth2/google/callback";
+
+export const getcsrfTokenUrl = "/api/csrf/token";
+

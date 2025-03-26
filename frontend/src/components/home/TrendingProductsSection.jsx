@@ -2,12 +2,14 @@ import { useEffect, useRef } from "react";
 import { ArrowRight } from "../../assets/icons/ArrowRight";
 import { ArrowLeft } from "../../assets/icons/ArrowLeft";
 import { useState } from "react";
+import { useNavigate } from "react-router";
 
 export const TrendingProductsSection = ({ category, products, language, categoryChinese }) => {
 
     const scrollContainerRef = useRef(null);
     const [atStart, setAtStart] = useState(true);
     const [atEnd, setAtEnd] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const container = scrollContainerRef.current;
@@ -52,7 +54,9 @@ export const TrendingProductsSection = ({ category, products, language, category
                         `前八熱銷商品 - ${categoryChinese}`}</h1>
 
                     {/* click to see more */}
-                    <div className="font-inter bg-black rounded-lg border px-6 py-3 text-bold text-white cursor-pointer hover:scale-105 hover:bg-gray-900 drop-shadow-lg mt-4">
+                    <div className="font-inter bg-black rounded-lg border px-6 py-3 text-bold text-white cursor-pointer hover:scale-105 hover:bg-gray-900 drop-shadow-lg mt-4"
+                        onClick={() => navigate(`/category/${category.toLowerCase()}`)}
+                    >
                         <p className="drop=shadow-lg">{language === 'en' ? "View More" : "了解更多"}</p>
                     </div>
 
@@ -67,7 +71,7 @@ export const TrendingProductsSection = ({ category, products, language, category
                             product?.productDisplayDtoList?.[0]?.url; //if found more than 1 isPrimary Key product, get the first one
 
                         //get product name
-                        const productName = product.productTranslattionDtoList.find((item) => item.languageCode === language)?.productName || "Unnamed Product";
+                        const productName = product.productTranslationDtoList.find((item) => item.languageCode === language)?.productName || "Unnamed Product";
 
                         return (
                             <div key={product.productId} className="drop-shadow-md rounded-lg">
@@ -95,68 +99,70 @@ export const TrendingProductsSection = ({ category, products, language, category
                 <div className="flex flex-row justify-between items-start">
                     <h1 className="lg:hidden font-protest text-3xl pl-4">{language === 'en' ? category : categoryChinese}</h1>
 
-                    <div className="font-inter bg-black rounded-lg border px-3 py-2 text-bold text-white cursor-pointer hover:scale-105 hover:bg-gray-900 drop-shadow-lg">
-                        <p className="drop=shadow-lg">{language === 'en' ? "View More" : "了解更多"}</p>
+                    <div className="font-inter bg-black rounded-lg border px-3 py-2 text-bold text-white cursor-pointer hover:scale-105 hover:bg-gray-900 drop-shadow-lg"
+                        onClick={() => navigate(`/category/${category.toLowerCase()}`)}
+                            >
+                            <p className="drop=shadow-lg">{language === 'en' ? "View More" : "了解更多"}</p>
                     </div>
-                </div>
+            </div>
 
-                <div
-                    ref={scrollContainerRef}
-                    className="flex overflow-x-scroll snap-x snap-mandatory scroll-smooth no-scrollbar w-full"
-                >
+            <div
+                ref={scrollContainerRef}
+                className="flex overflow-x-scroll snap-x snap-mandatory scroll-smooth no-scrollbar w-full"
+            >
 
-                    {products.map((product, index) => {
+                {products.map((product, index) => {
 
-                        //get primary image
-                        const productImage = product.productDisplayDtoList.find((img) => img.isPrimary)?.url ||
-                            product?.productDisplayDtoList?.[0]?.url; //if found more than 1 isPrimary Key product, get the first one
+                    //get primary image
+                    const productImage = product.productDisplayDtoList.find((img) => img.isPrimary)?.url ||
+                        product?.productDisplayDtoList?.[0]?.url; //if found more than 1 isPrimary Key product, get the first one
 
-                        //get product name
-                        const productName = product.productTranslattionDtoList.find((item) => item.languageCode === language)?.productName || "Unnamed Product";
+                    //get product name
+                    const productName = product.productTranslationDtoList.find((item) => item.languageCode === language)?.productName || "Unnamed Product";
 
-                        return (
-                            <>
-                                <div key={index} className="snap-x w-full h-full">
-                                    <div className="text-black text-center ">
+                    return (
+                        <>
+                            <div key={index} className="snap-x w-full h-full">
+                                <div className="text-black text-center ">
 
-                                        {/* product Image */}
-                                        <div className="relative">
+                                    {/* product Image */}
+                                    <div className="relative">
 
-                                            <div className="snap-center w-80 h-80 px-2 pt-3 ">
-                                                <img src={productImage} alt={productName}
-                                                    className="rounded-lg hover:scale-105 cursor-pointer border border-gray-200 drop-shadow-lg" />
-                                            </div>
+                                        <div className="snap-center w-80 h-80 px-2 pt-3 ">
+                                            <img src={productImage} alt={productName}
+                                                className="rounded-lg hover:scale-105 cursor-pointer border border-gray-200 drop-shadow-lg" />
+                                        </div>
 
 
-                                            <div className="text-center font-inter">
-                                                <p className="text-lg font-bold">{productName}</p>
-                                                <p className="text-gray-500">HKD {product.productPrice}</p>
-                                            </div>
+                                        <div className="text-center font-inter">
+                                            <p className="text-lg font-bold">{productName}</p>
+                                            <p className="text-gray-500">HKD {product.productPrice}</p>
                                         </div>
                                     </div>
                                 </div>
+                            </div>
 
-                            </>
-                        )
+                        </>
+                    )
 
-                    })}
+                })}
 
-                    {!atStart && (<div
-                        className="absolute top-[50%] left-3 transform -translate-y-1/2  p-7 rounded-full cursor-pointer"
-                        onClick={handleScrolLeft}
-                    >
-                        <ArrowLeft />
-                    </div>)}
+                {!atStart && (<div
+                    className="absolute top-[50%] left-3 transform -translate-y-1/2  p-7 rounded-full cursor-pointer"
+                    onClick={handleScrolLeft}
+                >
+                    <ArrowLeft />
+                </div>)}
 
-                    {!atEnd && (<div className="absolute top-[50%] right-3 transform -translate-y-1/2 bg-transparent p-7 rounded-full cursor-pointer"
-                        onClick={handleScrollRight}
-                    >
-                        <ArrowRight />
-                    </div>)}
+                {!atEnd && (<div className="absolute top-[50%] right-3 transform -translate-y-1/2 bg-transparent p-7 rounded-full cursor-pointer"
+                    onClick={handleScrollRight}
+                >
+                    <ArrowRight />
+                </div>)}
 
-                </div>
             </div>
-
         </div>
+
+        </div >
     )
 }

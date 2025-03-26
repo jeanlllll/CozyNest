@@ -19,8 +19,9 @@ export const WindowScrollToTopButton = () => {
 
     return (
         visible && (
-            <button onClick={handleScrollToTopEvent} className="fixed bottom-20 right-1 p-3 mb-3 mr-3  
-            bg-thirdPrimary rounded-full cursor-pointer drop-shadow-lg">
+            <button onClick={handleScrollToTopEvent} 
+                className="fixed bottom-19 right-1 p-3 mb-3 mr-3 lg:right-5 lg:bottom-28 lg:p-[10px] lg:mr-22 lg:mb-5
+                        bg-thirdPrimary rounded-full cursor-pointer drop-shadow-lg">
                 <ScrollUpIcon />
             </button>
         )

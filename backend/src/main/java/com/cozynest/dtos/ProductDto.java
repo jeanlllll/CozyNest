@@ -7,10 +7,11 @@ import java.util.List;
 import java.util.UUID;
 
 @Data
-public class CategoryProductDto {
+public class ProductDto {
 
     private UUID productId;
-    private String productName;
+    private List<ProductTranslationDto> productTranslationDtoList = new ArrayList<>();
     private Float productPrice;
     private List<ProductDisplayDto> productDisplayDtoList = new ArrayList<>();
+
 }

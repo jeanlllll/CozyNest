@@ -114,8 +114,8 @@ public class ProductService {
 
     }
 
-    public Page<CategoryProductDto> getFilteredProducts(
-            String category, String languageCode, int page, int pageSize, String sortBy, String keywords, Boolean isNewArrival,
+    public Page<ProductDto> getFilteredProducts(
+            String category, int page, int pageSize, String sortBy, String keywords,
             List<String> categoryTypes, Double minPrice, Double maxPrice, List<String> sizes) {
 
         UUID categoryId = categoryRepository.findByCode(category.toUpperCase()).getId();
@@ -134,29 +134,32 @@ public class ProductService {
                 sizeList.add(size.toUpperCase());
             }
         }
-        UUID languageId = languageRepository.findByCode(languageCode).getId();
         Pageable pageable = createPageable(page, pageSize, sortBy);
 
         Page<Object[]> filteredProduct = productRepository.findByFilters(categoryId, categoryTypeIds, minPrice,
-                maxPrice, sizeList, keywords, isNewArrival, languageId, pageable);
+                maxPrice, sizeList, keywords,pageable);
 
-        Page<CategoryProductDto> categoryProductDtoPage = filteredProduct.map(obj -> {
-            CategoryProductDto categoryProductDto = convertFilteredProductObjectToDto(obj);
-            Optional<Product> product = productRepository.findById(categoryProductDto.getProductId());
+        Page<ProductDto> categoryProductDtoPage = filteredProduct.map(obj -> {
+            ProductDto productDto = convertFilteredProductObjectToDto(obj);
+            Optional<Product> product = productRepository.findById(productDto.getProductId());
+
             List<ProductDisplayDto>  productDisplayDtoList = convertToDtoListHelper.getProductDisplayDtoList(product.get());
-            categoryProductDto.setProductDisplayDtoList(productDisplayDtoList);
-            return categoryProductDto;
+            productDto.setProductDisplayDtoList(productDisplayDtoList);
+
+            List<ProductTranslationDto> productTranslationList = convertToDtoListHelper.getProductTranslationDtoList(product.get());
+            productDto.setProductTranslationDtoList(productTranslationList);
+            return productDto;
         });
 
         return categoryProductDtoPage;
     }
 
-    private CategoryProductDto convertFilteredProductObjectToDto(Object[] object) {
-        CategoryProductDto categoryProductDto = new CategoryProductDto();
-        categoryProductDto.setProductId((UUID) object[0]);
-        categoryProductDto.setProductPrice((Float) object[1]);
-        categoryProductDto.setProductName((String) object[2]);
-        return categoryProductDto;
+
+    private ProductDto convertFilteredProductObjectToDto(Object[] object) {
+        ProductDto productDto = new ProductDto();
+        productDto.setProductId((UUID) object[0]);
+        productDto.setProductPrice((Float) object[1]);
+        return productDto;
     }
 
     private Pageable createPageable(int page, int pageSize, String sortBy) {

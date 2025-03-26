@@ -4,8 +4,8 @@ import { EntireHeader } from "../components/header/EntireHeader";
 import { EntireFooter } from "../components/footer/EntireFooter";
 import { TrendingProductsSection } from "../components/home/TrendingProductsSection"
 import { useSelector } from "react-redux";
-import { categoryChinese } from "../api/constant";
-import { useRef } from "react";
+import { categoryChinese } from "../assets/data/data";
+import { useEffect, useRef } from "react";
 import { AIAgentButton } from "../components/sideButtons/AiAgentButton";
 import { ContainerScrollToTopButton } from "../components/sideButtons/ContainerScrollToTopButton";
 import { WindowScrollToTopButton } from "../components/sideButtons/WindowScrollToTopButton";
@@ -16,8 +16,18 @@ export const HomePage = () => {
     const trendingProducts = useLoaderData();
 
     const language = useSelector((state) => state.language.language);
+    const isEnglish = language === 'en';
 
     const getProductsByCategory = (category) => trendingProducts[category] || [];
+
+    useEffect(() => {
+        document.title = isEnglish ? "CozyNest | Home" : "CozyNest | 首頁";
+
+        const favicon = document.querySelector("link[rel='icon']");
+        if (favicon) {
+            favicon.href = "/images/cozyNestLogo.png";
+          }
+    }, [isEnglish])
 
     return (
         <div className="sm:scroll-container lg:h-screen">
@@ -26,7 +36,7 @@ export const HomePage = () => {
                 <section className="lg:h-dvh flex flex-col lg:snap-start">
                     {/* Header */}
                     <div className="relative z-20">
-                        <EntireHeader />
+                        <EntireHeader needSearchBar={true}/>
                     </div>
 
                     {/* Hero Section */}

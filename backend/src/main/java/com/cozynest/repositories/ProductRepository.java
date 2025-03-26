@@ -16,24 +16,24 @@ import java.util.UUID;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, UUID> {
 
-
-    @Query("""
-            SELECT DISTINCT p.id, p.price, pt.name
-            FROM Product p
-            LEFT JOIN p.productVariants pv
-            LEFT JOIN p.productTranslationList pt
-            WHERE p.category.id = :categoryId
-              AND pt.id.languageId = :languageId
-              AND (:#{#categoryTypeIds == null or #categoryTypeIds.isEmpty()} = true OR p.categoryType.id IN (:categoryTypeIds))
-              AND (:isNewArrival IS NULL OR p.isNewArrival = :isNewArrival)
-              AND p.isOutOfStock = false
-              AND (:minPrice IS NULL OR p.price >= :minPrice)
-              AND (:maxPrice IS NULL OR p.price <= :maxPrice)
-              AND (:#{#sizes == NULL or #sizes.isEmpty()} = true OR  pv.size IN :sizes)
-              AND (:#{#keywords == NULL} = true OR
-                (LOWER(pt.name) LIKE CONCAT('%', :keywords, '%') OR LOWER(pt.description) LIKE CONCAT('%', :keywords, '%')))
-
-    """)
+    //even though there are 2 rows with same price for the same p.id, it would only get the first based on the group
+    @Query(
+            """
+                SELECT p.id, min(p.price), p.avgRating
+                FROM Product p
+                LEFT JOIN p.productVariants pv
+                LEFT JOIN p.productTranslationList pt
+                WHERE p.category.id = :categoryId
+                  AND (:#{#categoryTypeIds == null or #categoryTypeIds.isEmpty()} = true OR p.categoryType.id IN (:categoryTypeIds))
+                  AND p.isOutOfStock = false
+                  AND (:minPrice IS NULL OR p.price >= :minPrice)
+                  AND (:maxPrice IS NULL OR p.price <= :maxPrice)
+                  AND (:#{#sizes == NULL or #sizes.isEmpty()} = true OR  pv.size IN :sizes)
+                  AND (:#{#keywords == NULL} = true OR
+                    (LOWER(pt.name) LIKE CONCAT('%', :keywords, '%') OR LOWER(pt.description) LIKE CONCAT('%', :keywords, '%')))
+                GROUP BY p.id
+             """
+    )
     Page<Object[]> findByFilters(
             @Param("categoryId") UUID categoryId,
             @Param("categoryTypeIds") List<UUID> categoryTypeIds,
@@ -41,8 +41,6 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
             @Param("maxPrice") Double maxPrice,
             @Param("sizes") List<String> sizes,
             @Param("keywords") String keywords,
-            @Param("isNewArrival") Boolean isNewArrival,
-            @Param("languageId") UUID languageId,
             Pageable pageable);
 
 

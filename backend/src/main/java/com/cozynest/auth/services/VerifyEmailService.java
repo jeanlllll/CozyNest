@@ -55,8 +55,6 @@ public class VerifyEmailService {
         if (user == null) {
             return new ResponseEntity<>("Email has not been registered", HttpStatus.NOT_FOUND);
         }
-        System.out.println(user.getEmail());
-
 
         Set<AuthProvider> registeredProviders = user.getClient().getClientProviders().stream()
                 .map(cp -> cp.getId().getAuthProvider())

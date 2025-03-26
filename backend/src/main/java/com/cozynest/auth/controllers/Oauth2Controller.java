@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/oauth2")
+@RequestMapping("/api/oauth2/google")
 public class Oauth2Controller {
 
     @Autowired
@@ -30,7 +30,7 @@ public class Oauth2Controller {
     @Autowired
     private LoginService loginService;
 
-    @GetMapping("/google")
+    @GetMapping("/")
     public ResponseEntity<Map<String, String>> getOauth2GoogleLink(HttpServletResponse response) {
         Map<String, String> responseBody = oauth2Service.generateOauth2GoogleLink(response);
         return new ResponseEntity<>(responseBody, HttpStatus.OK);

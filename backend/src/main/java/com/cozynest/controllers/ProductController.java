@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/product")
+@RequestMapping("/api/product")
 public class ProductController {
 
     @Autowired
@@ -37,27 +37,26 @@ public class ProductController {
     /*----------------------------product in category page------------------------------------------*/
 
     @GetMapping("/category/{category}")
-    public ResponseEntity<List<CategoryProductDto>> getProductByCategory(
+    public ResponseEntity<Page<ProductDto>> getProductByCategory(
             @PathVariable String category,
-            @RequestHeader(value ="Accept-Language", defaultValue="en") String languageCode,
             @RequestParam(value = "page", required = true) int page,
             @RequestParam(value = "size", required = false, defaultValue = "9") int pageSize,
 
             //sorting: only one of these can be true
-            @RequestParam(value = "isNewArrival", required = false) Boolean isNewArrival,
-            @RequestParam(value = "priceAsc", required = false) Boolean priceAsc,
-            @RequestParam(value = "priceDesc", required = false) Boolean priceDesc,
-            @RequestParam(value = "rating", required = false) Boolean sortByRating,
+            @RequestParam(value = "sortByArrivalDateDesc", required = false) Boolean sortByArrivalDate,
+            @RequestParam(value = "sortByPriceAsc", required = false) Boolean priceAsc,
+            @RequestParam(value = "sortByPriceDesc", required = false) Boolean priceDesc,
+            @RequestParam(value = "sortByRatingDesc", required = false) Boolean sortByRating,
 
             //filtering parameters
             @RequestParam(value = "keywords", required = false) String keywords,
-            @RequestParam(value = "categoryType", required = false) List<String> categoryTypes,
+            @RequestParam(value = "categoryTypes", required = false) List<String> categoryTypes,
             @RequestParam(value = "minPrice", required = false) Double minPrice,
             @RequestParam(value = "maxPrice", required = false)  Double maxPrice,
             @RequestParam(value = "sizes", required = false) List<String> sizes) {
 
         // Validate: Only one sorting flag may be true
-        int sortCount = (Boolean.TRUE.equals(isNewArrival) ? 1 : 0) +
+        int sortCount = (Boolean.TRUE.equals(sortByArrivalDate) ? 1 : 0) +
                         (Boolean.TRUE.equals(priceAsc) ? 1 : 0) +
                         (Boolean.TRUE.equals(priceDesc) ? 1 : 0) +
                         (Boolean.TRUE.equals(sortByRating) ? 1 : 0);
@@ -69,12 +68,13 @@ public class ProductController {
         String sortBy = null;
         if (Boolean.TRUE.equals(priceAsc)) sortBy = "priceAsc";
         else if (Boolean.TRUE.equals(priceDesc)) sortBy = "priceDesc";
-        else if (Boolean.TRUE.equals(sortByRating)) sortBy = "rating";
+        else if (Boolean.TRUE.equals(sortByRating)) sortBy = "avgRatingDesc";
+        else if (Boolean.TRUE.equals(sortByArrivalDate)) sortBy = "createdOnDesc";
 
         // call service layer
-        Page<CategoryProductDto> products = productService.getFilteredProducts(
-                category, languageCode, page, pageSize, sortBy, keywords, isNewArrival, categoryTypes, minPrice, maxPrice, sizes);
-        return ResponseEntity.ok(products.getContent());
+        Page<ProductDto> products = productService.getFilteredProducts(
+                category, page, pageSize, sortBy, keywords, categoryTypes, minPrice, maxPrice, sizes);
+        return ResponseEntity.ok(products);
     }
 
     /*----------------------------------review------------------------------------------*/

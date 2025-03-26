@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/client/profile")
+@RequestMapping("/api/client/profile")
 public class ClientProfileController {
 
     @Autowired

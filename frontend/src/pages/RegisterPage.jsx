@@ -8,6 +8,15 @@ export const RegisterPage = () => {
     const isEnglish = language === 'en';
     const navigate = useNavigate();
 
+    useEffect(() => {
+        document.title = isEnglish ? "CozyNest | Register" : "CozyNest | 注冊";
+
+        const favicon = document.querySelector("link[rel='icon']");
+        if (favicon) {
+            favicon.href = "/images/cozyNestLogo.png";
+          }
+    }, [isEnglish])
+
     return (
         <>
             {/* desktop version */}
@@ -44,8 +53,8 @@ export const RegisterPage = () => {
                             <div className="w-3/7">
                                 <label for="lastName" className="text-lg font-semibold">{isEnglish ? "Last Name" : "姓氏"}</label>
                                 <input id="lastName" type="text"
-                                    placeholder="  Chan"
-                                    className="w-full py-2 mt-0.5 border border-gray-300 h-14"
+                                    placeholder="Chan"
+                                    className="w-full px-2 py-2 mt-0.5 border border-gray-300 h-14"
                                 />
                             </div>
                         </div>
@@ -97,7 +106,7 @@ export const RegisterPage = () => {
                         </div>
 
 
-                        <button className="drop-shadow-lg mt-8 bg-black rounded-lg w-full p-2 flex items-center justify-center font-bold text-lg text-white cursor-pointer font-inter
+                        <button className="drop-shadow-lg mt-6 bg-black rounded-lg w-full p-2 flex items-center justify-center font-bold text-lg text-white cursor-pointer font-inter
                             hover:bg-gray-800">
                             {isEnglish ? "Submit" : "提交"}
                         </button>

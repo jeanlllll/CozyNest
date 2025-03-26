@@ -76,9 +76,18 @@ export const EntireFooter = () => {
                     <div className="flex flex-col">
                         <h3 className="font-bold mb-2">{isEnglish ? "Find Us" : "關注我們"}</h3>
                         <div className="flex flex-row space-x-2">
-                            <InstagramIcon />
-                            <FacebookIcon />
-                            <WhatsappIcon />
+                            <div className="cursor-pointer" onClick={() => window.open("https://www.instagram.com/", "_blank", "noopener,noreferrer")}>
+                                <InstagramIcon />
+                            </div>
+
+                            <div className="cursor-pointer" onClick={() => window.open("https://www.facebook.com/", "_blank", "noopener,noreferrer")}>
+                                <FacebookIcon />
+                            </div>
+
+                            <div className="cursor-pointer" onClick={() => window.open("https://www.whatsapp.com/", "_blank", "noopener,noreferrer")}>
+                                <WhatsappIcon />
+                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -131,13 +140,13 @@ export const EntireFooter = () => {
 
                         <li>
                             <span className="cursor-pointer" onClick={() => navigate("/shipping-returns")}>
-                            {isEnglish ? "Shipping & Returns" : "運輸與退貨"}
+                                {isEnglish ? "Shipping & Returns" : "運輸與退貨"}
                             </span>
                         </li>
 
                         <li>
                             <span className="cursor-pointer" onClick={() => navigate("/size-guide")}>
-                            {isEnglish ? "Size Guide" : "尺寸指南"}
+                                {isEnglish ? "Size Guide" : "尺寸指南"}
                             </span>
                         </li>
                     </ul>

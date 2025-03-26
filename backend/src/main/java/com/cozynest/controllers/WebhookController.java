@@ -1,6 +1,5 @@
 package com.cozynest.controllers;
 
-import com.cozynest.services.OrderService;
 import com.cozynest.services.WebhookService;
 import com.stripe.exception.StripeException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/webhook")
+@RequestMapping("/api/webhook")
 public class WebhookController {
 
     @Autowired

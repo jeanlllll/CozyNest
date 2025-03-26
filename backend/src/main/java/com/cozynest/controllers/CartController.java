@@ -20,7 +20,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/cart")
+@RequestMapping("/api/cart")
 public class CartController {
 
     @Autowired
@@ -35,7 +35,6 @@ public class CartController {
     @GetMapping
     public List<CartItemDto> getCartItemList() {
         UUID userId = checkAuthenticationHelper.getUserIdViaAuthentication();
-        System.out.println();
         return cartService.getUserFavoriteItemList(userId);
     }
 

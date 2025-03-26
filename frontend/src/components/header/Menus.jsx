@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom"
 import { switchToTraditionalChinese, switchToEnglish } from "../../store/features/languageSlice";
 
-export const Menus = ({show}) => {
+export const Menus = ({ show }) => {
 
     const [open, setOpen] = useState(false);
 
@@ -24,7 +24,7 @@ export const Menus = ({show}) => {
         setOpen((prev) => !prev)
     };
 
-    const handleSwitchLanguageEvent= (e) => {
+    const handleSwitchLanguageEvent = (e) => {
         e.preventDefault();
         if (language != 'en') {
             dispatch(switchToEnglish());
@@ -47,18 +47,24 @@ export const Menus = ({show}) => {
                     <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownInformationButton">
                         <li className="px-4 py-1 font-semiBold">{isEnglish ? "Products By Category" : "產品分類"}</li>
                         <li>
-                            <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">{isEnglish ? 'Men' : '男裝'}</a>
+                            <div onClick={() => navigate("/category/men")} class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white cursor-pointer">
+                                {isEnglish ? 'Men' : '男裝'}
+                            </div>
                         </li>
                         <li>
-                            <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">{isEnglish ? 'Women' : '女裝'}</a>
+                            <div onClick={() => navigate("/category/women")} class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white cursor-pointer">
+                                {isEnglish ? 'Women' : '女裝'}
+                            </div>
                         </li>
                         <li>
-                            <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">{isEnglish ? 'Couple' : '情侶裝'}</a>
+                            <div onClick={() => navigate("/category/couple")} class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white cursor-pointer">
+                                {isEnglish ? 'Couple' : '情侶裝'}
+                            </div>
                         </li>
                     </ul>
 
                     <div class="py-2">
-                        <div onClick={handleSwitchLanguageEvent} 
+                        <div onClick={handleSwitchLanguageEvent}
                             className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white cursor-pointer">
                             {isEnglish ? "切換至繁體中文" : "Switch To English"}
                         </div>

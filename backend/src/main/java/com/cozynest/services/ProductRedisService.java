@@ -1,7 +1,6 @@
 package com.cozynest.services;
 
-import com.cozynest.dtos.ProductHomeDto;
-import com.fasterxml.jackson.core.JsonParser;
+import com.cozynest.dtos.ProductDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,17 +25,17 @@ public class ProductRedisService {
     private static final String REDIS_KEY = "HomeProducts";
     private static final long EXPIRATION_HOUR = 6;
 
-    public Map<String, List<ProductHomeDto>> getTrendingProductsFromRedis() throws IOException {
+    public Map<String, List<ProductDto>> getTrendingProductsFromRedis() throws IOException {
         Object categoryHomeJsonList = redisTemplate.opsForValue().get(REDIS_KEY);
 
         if (categoryHomeJsonList instanceof String jsonString) {
-            return objectMapper.readValue(jsonString, new TypeReference<Map<String, List<ProductHomeDto>>>() {});
+            return objectMapper.readValue(jsonString, new TypeReference<Map<String, List<ProductDto>>>() {});
         }
 
         return null;
     }
 
-    public void saveTrendingProductsToRedis(Map<String, List<ProductHomeDto>> map) {
+    public void saveTrendingProductsToRedis(Map<String, List<ProductDto>> map) {
         try {
             String jsonValue = objectMapper.writeValueAsString(map); //convert object to json
             //save as key value

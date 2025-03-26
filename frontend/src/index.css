@@ -7,6 +7,9 @@
     --color-secondPrimary: #EAB3B3;
     --color-primary: #E38E8E;
     --color-thirdPrimary: #D77777;
+    --color-buttonMain: #2C2C2C;
+    --color-buttonSecond: #757575;
+    --color-buttonThird: #F5F5F5;
     --animate-scrollX: scrollX 15s linear infinite;
 }
 
