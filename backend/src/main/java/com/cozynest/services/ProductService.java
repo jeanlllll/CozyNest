@@ -69,7 +69,7 @@ public class ProductService {
         productResponse.setProductId(productId);
         productResponse.setPrice(product.getPrice());
         productResponse.setAvgRating(product.getAvgRating());
-        productResponse.setIsNewArrival(isNewArrival(product));
+        productResponse.setIsNewArrival(product.getIsNewArrival());
 
         ProductTranslationId productTranslationId = new ProductTranslationId(productId, languageId);
         ProductTranslation productTranslation = productTranslationRepository.findById(productTranslationId)
@@ -148,6 +148,9 @@ public class ProductService {
 
             List<ProductTranslationDto> productTranslationList = convertToDtoListHelper.getProductTranslationDtoList(product.get());
             productDto.setProductTranslationDtoList(productTranslationList);
+
+            productDto.setCategory(product.get().getCategory().getCode());
+            productDto.setCategoryTypes(product.get().getCategoryType().getCode());
             return productDto;
         });
 

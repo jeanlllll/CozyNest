@@ -9,7 +9,7 @@ import { Navigate, useNavigate, useParams } from "react-router"
 import { resetFilters } from "../../store/features/filtersSlice"
 import { useDispatch } from "react-redux"
 
-export const Navigation = ({ needSearchBar}) => {
+export const Navigation = ({ needSearchBar, needCategory}) => {
     const language = useSelector((state) => state.language.language);
     const [isEnglish, setIsEnglish] = useState(false);
     const navigate = useNavigate();
@@ -83,7 +83,7 @@ export const Navigation = ({ needSearchBar}) => {
                         {needSearchBar && <SearchBar />}
                     </div>
                     <div className="flex items-center">
-                        <Menus />
+                        <Menus needCategory={needCategory} category={category}/>
                     </div>
                 </div>
             </div>

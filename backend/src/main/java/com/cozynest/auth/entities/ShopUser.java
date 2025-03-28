@@ -35,9 +35,8 @@ public class ShopUser {
     @Column(nullable = false, length = 30)
     private String firstName;
 
-    @NotBlank(message = "Last name cannot be blank")
     @Size(max = 50, message = "Last name must not exceed 30 characters")
-    @Column(nullable = false, length = 30)
+    @Column(length = 30)
     private String lastName;
 
     private String password;

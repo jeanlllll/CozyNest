@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 export const fitlersToStringParams = ({category, filters}) => {
     const params = new URLSearchParams();
 
-    if (filters.categoryTypes.length > 0 && filters.categoryTypes.length !== categoryType[category].length) {
+    if (filters.categoryTypes.length > 0 && filters.categoryTypes.length !== categoryType[category.toLowerCase()].length) {
         filters.categoryTypes.forEach((type) => 
             params.append("categoryTypes", type)
         );

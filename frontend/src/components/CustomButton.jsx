@@ -1,6 +1,12 @@
 import { TickIcon } from "../assets/icons/TickIcon";
 
-export const CustomButton = ({ value, isChecked, onChange}) => {
+export const CustomButton = ({ value, isChecked, onChange, color}) => {
+
+    const colorClass = {
+        black: "checked:bg-black checked:border-black",
+        thirdPrimary: "checked:bg-thirdPrimary checked:border-thirdPrimary",
+        gray: "checked:bg-gray-800 checked:border-gray-800",
+      };
 
     return (
         <div className="relative w-4 h-4">
@@ -11,9 +17,9 @@ export const CustomButton = ({ value, isChecked, onChange}) => {
                 value={value}
                 checked={isChecked}
                 onChange={onChange}
-                className="absolute inset-0 appearance-none w-4 h-4 border bg-transparent border-gray-300 cursor-pointer drop-shadow-xs
-                    checked:bg-black checked:border-black
-                    rounded z-0"
+                className={`absolute inset-0 appearance-none w-4 h-4 border bg-transparent border-gray-300 cursor-pointer drop-shadow-xs
+                    ${colorClass[color]}
+                    rounded z-0`}
             />
 
 

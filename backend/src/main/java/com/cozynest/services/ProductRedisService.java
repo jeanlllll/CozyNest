@@ -44,5 +44,4 @@ public class ProductRedisService {
             throw new RuntimeException("Failed to serialize trending products", e);
         }
     }
-
 }

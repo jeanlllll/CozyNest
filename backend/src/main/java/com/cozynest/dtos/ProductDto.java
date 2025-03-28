@@ -10,6 +10,8 @@ import java.util.UUID;
 public class ProductDto {
 
     private UUID productId;
+    private String category;
+    private String categoryTypes;
     private List<ProductTranslationDto> productTranslationDtoList = new ArrayList<>();
     private Float productPrice;
     private List<ProductDisplayDto> productDisplayDtoList = new ArrayList<>();

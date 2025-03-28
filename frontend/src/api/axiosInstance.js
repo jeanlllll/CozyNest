@@ -1,5 +1,6 @@
 import axios from "axios";
-import { store } from "../store/store"
+import { getcsrfTokenUrl } from "./constant";
+import Cookies from "js-cookie";
 
 const apiUrl = import.meta.env.VITE_BACKEND_DOMAIN_URL;
 
@@ -10,13 +11,11 @@ const axiosInstance = axios.create({
     xsrfHeaderName: "X-CSRF-TOKEN" //csrf token carry in header
 })
 
-// inject language header form global state
 axiosInstance.interceptors.request.use((config) => {
-    const state = store.getState();
-    const language = state.language.language;
-
-    config.headers["Accept-Language"] = language;
-
+    const csrfToken = Cookies.get("CSRF_TOKEN");
+    if (csrfToken) {
+        config.headers["X-CSRF-TOKEN"] = csrfToken;
+    }
     return config;
 });
 

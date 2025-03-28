@@ -1,5 +1,6 @@
 package com.cozynest.controllers;
 
+import com.cozynest.Helper.CheckAuthenticationHelper;
 import com.cozynest.dtos.*;
 import com.cozynest.repositories.ProductRepository;
 import com.cozynest.services.ProductService;
@@ -24,6 +25,9 @@ public class ProductController {
 
     @Autowired
     ProductRepository productRepository;
+
+    @Autowired
+    CheckAuthenticationHelper checkAuthenticationHelper;
 
     @GetMapping("/{productId}")
     public ResponseEntity<ProductResponse> getProductById(
@@ -81,7 +85,8 @@ public class ProductController {
     @PostMapping("/{productId}/review")
     public ResponseEntity<String> postReview(@PathVariable UUID productId,
                                              @RequestBody ReviewRequest reviewRequest) {
-        ApiResponse apiResponse = reviewService.postReview(productId, reviewRequest);
+        UUID userId = checkAuthenticationHelper.getUserIdViaAuthentication();
+        ApiResponse apiResponse = reviewService.postReview(productId, reviewRequest, userId);
         return ResponseEntity.status(apiResponse.getStatus()).body(apiResponse.getMessage());
     }
 

@@ -10,3 +10,12 @@ export const getGoogleOauth2Callback = "/api/oauth2/google/callback";
 
 export const getcsrfTokenUrl = "/api/csrf/token";
 
+export const getProductByIdUrl = (productId) => {
+    return `/api/product/${productId}`
+}
+
+export const getLeaveReviewForProductUrl = (productId) => {
+    return `/api/product/${productId}/review`
+}
+
+

@@ -106,6 +106,62 @@ public class TrendingProductService {
         return productRedisService.getTrendingProductsFromRedis();
     }
 
+//    @Transactional
+//    @Scheduled(fixedRate = 1000 * 60 * 60 * 6)
+//    public void updateTrendingProductByCateogoryNCategoryTypesByScheduled() {
+
+
+//        Map<String, List<ProductDto>> map = new HashMap<>();
+
+
+//        List<UUID> categoryIdList = categoryRepository.findAllCategoryId();
+//
+//        for (UUID categoryId : categoryIdList) {
+//            Page<Sales> salesList = salesRepository.findTopSellingProductsIdByCategory(LocalDateTime.now().minusDays(7), categoryId, pageable);
+//
+//            List<Product> productList = salesList.get().map(sales -> {
+//                return sales.getProduct();
+//            }).collect(Collectors.toCollection(() -> new ArrayList<>()));
+//
+//            if (productList == null) {
+//                productList = new ArrayList<>();
+//            }
+//
+//            for (Product product : productList) {
+//                product.getProductDisplays().size();
+//            }
+//
+//            Category category = categoryRepository.findById(categoryId).get();
+//
+//            List<ProductDto> productDtoList = new ArrayList<>();
+//
+//            // edge case, if not enough sales of product in that category
+//
+//            if (productList.size() < TRENDING_PRODUCT_SIZE) {
+//                Page<Product> restProductPage = productRepository.findByCategoryNOrderByCreatedDate(categoryId, pageable);
+//                List<Product> restProductList = restProductPage.getContent();
+//                for (Product product : restProductList) {
+//                    if (!productList.contains(product) && productList.size() < TRENDING_PRODUCT_SIZE) {
+//                        productList.add(product);
+//                    }
+//                }
+//            }
+//            for (Product product : productList) {
+//                ProductDto productDto = new ProductDto();
+//                productDto.setProductId(product.getId());
+//                productDto.setProductPrice(product.getPrice());
+//
+//                List<ProductTranslationDto> productTranslationDtoList = convertToDtoListHelper.getProductTranslationDtoList(product);
+//                List<ProductDisplayDto> productDisplayDtoList = convertToDtoListHelper.getProductDisplayDtoList(product);
+//                productDto.setProductTranslationDtoList(productTranslationDtoList);
+//                productDto.setProductDisplayDtoList(productDisplayDtoList);
+//                productDtoList.add(productDto);
+//            }
+//            map.put(category.getCode(), productDtoList);
+//        }
+//        productRedisService.saveTrendingProductsToRedis(map);
+//    }
+
 
 }
 

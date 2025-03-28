@@ -17,14 +17,20 @@ public class ProductVariantDto {
     private UUID id;
     private String color;
     private String size;
-    private Integer stockQuantity;
     private Character gender;
+    private UUID productDisplayId;
+    private Boolean isAvailable;
 
     public ProductVariantDto(ProductVariant productVariant) {
         this.id = productVariant.getId();
         this.color = productVariant.getColor();
         this.size = productVariant.getSize();
-        this.stockQuantity = productVariant.getStockQuantity();
+        if (productVariant.getStockQuantity() > 0) {
+            isAvailable = true;
+        } else {
+            isAvailable = false;
+        }
         this.gender = productVariant.getGender();
+        this.productDisplayId = productVariant.getProductDisplayId();
     }
 }

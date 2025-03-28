@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { GoogleMailIcon } from "../assets/icons/GoogleMailIcon"
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom"
+import { fetchGoogleOauth2Url } from "../api/fetchGoogleOauth2Url";
 
 export const RegisterPage = () => {
     const language = useSelector((state) => state.language.language);
@@ -16,6 +17,15 @@ export const RegisterPage = () => {
             favicon.href = "/images/cozyNestLogo.png";
           }
     }, [isEnglish])
+
+    const handleGoogleRegister = async () => {
+        try {
+            const { oauth_url } = await fetchGoogleOauth2Url();
+            window.location.href = oauth_url;
+        } catch (error) {
+            console.log("error")
+        }
+    }
 
     return (
         <>
@@ -33,7 +43,7 @@ export const RegisterPage = () => {
                         </h2>
 
                         <button className="border border-gray-300 w-full h-14 flex items-center justify-center gap-4 font-inter font-semibold text-base text-gray-800 cursor-pointer
-                            hover:bg-gray-100 transition hover:delay-150 duration-300">
+                            hover:bg-gray-100 transition hover:delay-150 duration-300" onClick={handleGoogleRegister}>
                             <GoogleMailIcon /> {isEnglish ? "Google Mail" : "Google 郵箱"}
                         </button>
 

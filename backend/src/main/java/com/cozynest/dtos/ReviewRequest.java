@@ -8,5 +8,4 @@ import java.util.UUID;
 public class ReviewRequest {
     private Float rating;
     private String comments;
-    private UUID userId;
 }

@@ -37,10 +37,10 @@ export const LoginNRegisterWrapper = () => {
 
             <div className="bg-secondPrimary py-3 px-2 drop-shadow-lg">
                 <div className="flex container mx-auto justify-between">
-                    <div className="font-protest text-4xl font-bold text-white w-1/2 md:w-1/3 cursor-pointer" onClick={()=> navigate("/")}>
+                    <div className="font-protest text-4xl font-bold text-white w-1/2 md:w-1/3 cursor-pointer pl-4" onClick={()=> navigate("/")}>
                     CozyNest</div>
                     <div className="sm:hidden flex flex-row">
-                        <div className="flex items-center">
+                        <div className="flex items-center pr-2">
                             <Menus />
                         </div>
                     </div>

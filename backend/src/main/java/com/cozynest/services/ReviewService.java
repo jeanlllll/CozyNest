@@ -1,7 +1,9 @@
 package com.cozynest.services;
 
 import com.cozynest.Exceptions.ProductNotFoundException;
+import com.cozynest.auth.entities.AuthProvider;
 import com.cozynest.auth.entities.Client;
+import com.cozynest.auth.entities.ClientProvider;
 import com.cozynest.auth.entities.ShopUser;
 import com.cozynest.auth.repositories.ClientRepository;
 import com.cozynest.auth.repositories.ShopUserRepository;
@@ -59,7 +61,7 @@ public class ReviewService {
     }
 
     @Transactional
-    public ApiResponse postReview(UUID productId, ReviewRequest reviewRequest) {
+    public ApiResponse postReview(UUID productId, ReviewRequest reviewRequest, UUID userId) {
         Float rating = reviewRequest.getRating();
         if (rating > 5.0 || rating <= 0) {
             return new ApiResponse("Rating must be between 0.1 and 5.0", 400);
@@ -71,12 +73,14 @@ public class ReviewService {
         }
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException("Product Id cannot found"));
-        Client client = clientRepository.findById(reviewRequest.getUserId())
+        Client client = clientRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Client not found"));
 
-        ShopUser shopUser = shopUserRepository.findById(client.getId())
+        ShopUser shopUser = shopUserRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Client not found"));
-        if (!shopUser.getIsVerified()) {
+
+        boolean isManualRegister = client.getClientProviders().contains(AuthProvider.MANUAL);
+        if (!shopUser.getIsVerified() && isManualRegister) {
             return new ApiResponse("Please verify email first.", 401);
         }
 

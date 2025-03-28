@@ -51,7 +51,7 @@ export const HeroSection = () => {
                                 "精選時尚又舒適的睡衣，專為男士、女士與情侶打造，讓您輕鬆享受美好睡眠。"}
                         </p>
                         <button className="mt-2 sm:mt-4 px-6 sm:px-10 py-3 sm:py-5.5 bg-thirdPrimary font-protest text-white rounded-[36px] text-xl sm:text-4xl font-semibold shadow-md shadow-thirdPrimary/50 
-                        transition delay-150 duration-300 ease-in-out cursor-pointer hover:scale-105 hover:drop-shadow-2xl sm:hover:opacity-90"
+                        ease-in-out cursor-pointer hover:scale-105 hover:drop-shadow-2xl sm:hover:opacity-90"
                                 onClick={() => navigate("/category/women")}
                         >
                             <p className="drop-shadow-xl">{isEnglish ? "Shop Pajamas Now" : "選購睡衣"}</p>

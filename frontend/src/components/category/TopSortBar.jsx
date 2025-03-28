@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setSortBy } from "../../store/features/filtersSlice";
 import { useEffect } from "react";
 import { fitlersToStringParams } from "../../Helper/filtersToStringParams";
+import { DropDownMenu } from "./DropDownMenu";
 
 export const TopSortBar = ({isEnglish, category}) => {
     const navigate = useNavigate();
@@ -24,13 +25,13 @@ export const TopSortBar = ({isEnglish, category}) => {
 
     return (
         < div className = "flex flex-cols items-center mb-8 mt-7 justify-between" >
-            <div className="ml-6">
 
+            <div className="ml-6">
                 {/* search bar */}
                 <div className="relative md:hidden lg:block flex">
                     <input type="text"
                         id="default-search"
-                        className="block w-36 sm:w-60 p-2 ps-5 pr-10 text-sm text-gray-500 border border-gray-200 
+                        className="block w-50 sm:w-60 p-2 ps-5 pr-10 text-sm text-gray-500 border border-gray-200 
                                 rounded-full bg-white
                                 focus:border-gray-400 focus:outline-none"
                         placeholder={isEnglish ? "Search" : "搜尋"}
@@ -52,11 +53,12 @@ export const TopSortBar = ({isEnglish, category}) => {
                     </div>
                 </div>
             </div>
-
-            <div className="flex flex-row items-center">
+            
+            {/* Desktop version */}
+            <div className="hidden sm:flex flex-row items-center">
                 {/* sorting criteria */}
                 <div className="mr-4 text-gray-500">
-                    sort by
+                    {isEnglish? "Sort by" : "排序方式"}
                 </div>
                 <div className={` ${sortBy==="sortByArrivalDateDesc" ? "bg-buttonMain text-white" : "bg-buttonThird"}
                                 text-gray-800 rounded-lg px-4 py-1  mr-3 flex flex-row justify-between cursor-pointer hover:bg-buttonMain hover:text-white drop-shadow-sm
@@ -64,7 +66,7 @@ export const TopSortBar = ({isEnglish, category}) => {
                                 onClick={()=> hanldeSortByOnClick("sortByArrivalDateDesc")}
                             
                 >
-                    New Arrival
+                    {isEnglish? "New Arrival" : "最新上架"}
                 </div>
                 <div className={` ${sortBy==="sortByPriceAsc" ? "bg-buttonMain text-white" : "bg-buttonThird"}
                                 text-gray-800 rounded-lg px-4 py-1  mr-3 flex flex-row justify-between cursor-pointer hover:bg-buttonMain hover:text-white drop-shadow-sm
@@ -72,7 +74,7 @@ export const TopSortBar = ({isEnglish, category}) => {
                                 onClick={()=> hanldeSortByOnClick("sortByPriceAsc")}
                             
                 >
-                    Price ascending
+                    {isEnglish? "Price ascending" : "價格：由低至高"}
                 </div>
 
                 <div className={` ${sortBy==="sortByPriceDesc" ? "bg-buttonMain text-white" : "bg-buttonThird"}
@@ -80,7 +82,7 @@ export const TopSortBar = ({isEnglish, category}) => {
                                 `}
                                 onClick={()=> hanldeSortByOnClick("sortByPriceDesc")}   
                 >
-                    Price descending
+                    {isEnglish? "Price descending": "價格：由高至低"}
                 </div>
 
                 <div className={` ${sortBy==="sortByRatingDesc" ? "bg-buttonMain text-white" : "bg-buttonThird"}
@@ -88,9 +90,14 @@ export const TopSortBar = ({isEnglish, category}) => {
                                 `}
                                 onClick={()=> hanldeSortByOnClick("sortByRatingDesc")}   
                 >
-                    Rating
+                    {isEnglish? "Rating" : "評價"}
                 </div>
-        </div>
+            </div>
+            
+            {/* Mobile version */}
+            <div className="sm:hidden mr-5">
+                <DropDownMenu isEnglish={isEnglish} category={category}/>
+            </div>
     </div>
     )
 }

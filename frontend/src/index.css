@@ -11,6 +11,20 @@
     --color-buttonSecond: #757575;
     --color-buttonThird: #F5F5F5;
     --animate-scrollX: scrollX 15s linear infinite;
+
+    /* product color */
+    --color-productDarkGray: #4B4B4B;
+    --color-productPurple: #800080;
+    --color-productBlue: #007BFF;
+    --color-productLightGreen: #90EE90;
+    --color-productLightGray: #D3D3D3;
+    --color-productTaupe: #8B8589;
+    --color-productBrown: #8B4513;
+    --color-productDarkGreen: #006400;
+    --color-productWhite: #FFFFFF;
+    --color-productGray: #808080;
+    --color-productPink: #FFC0CB;
+    --color-productCream: #F5EBDD;
 }
 
 @font-face {
@@ -36,18 +50,26 @@
 
 
 @keyframes scrollX {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
 }
 
 @layer utilities {
+
     /* Chrome, Safari and Opera */
     .no-scrollbar::-webkit-scrollbar {
-      display: none;
+        display: none;
     }
 
     .no-scrollbar {
-      -ms-overflow-style: none; /* IE and Edge */
-      scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none;
+        /* IE and Edge */
+        scrollbar-width: none;
+        /* Firefox */
     }
 }

@@ -26,6 +26,7 @@ public class ProductResponse {
     private List<ProductVariantDto> productVariantDtoList;
     private List<ProductDisplayDto> productDisplayDtoList;
     private List<ProductMaterialDto> productMaterialDtoList;
+    private List<ProductDto> guessYouLikeList;
     private List<ReviewDto> reviewList;
 
 

@@ -32,7 +32,7 @@ public class StatelessCSRFFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        if (request.getRequestURI().endsWith("/webhook") || request.getRequestURI().endsWith("/csrf/token")) {
+        if (request.getRequestURI().endsWith("/api/webhook")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -40,6 +40,7 @@ public class StatelessCSRFFilter extends OncePerRequestFilter {
         // 1. extract csrf token in header and in cookie
         final String csrfTokenInHeader = request.getHeader("X-CSRF-TOKEN");
         final Cookie[] cookies = request.getCookies();
+
         String csrfTokenInCookie = null;
         if (cookies != null) {
             for (Cookie cookie : cookies) {
@@ -49,7 +50,6 @@ public class StatelessCSRFFilter extends OncePerRequestFilter {
                 }
             }
         }
-
 
         // 2. if csrf token in cookie is null, generate a csrf token to cookie
         if (csrfTokenInCookie == null || csrfTokenInCookie.trim().isEmpty()) {
@@ -64,7 +64,9 @@ public class StatelessCSRFFilter extends OncePerRequestFilter {
         String requestMethod = request.getMethod();
         if (protectedMethods.contains(requestMethod)) {
             if (csrfTokenInHeader == null || !csrfTokenInHeader.equals(csrfTokenInCookie)) {
-
+                logger.info(csrfTokenInHeader);
+                logger.info(csrfTokenInCookie);
+                logger.info(String.valueOf((boolean) csrfTokenInHeader.equals(csrfTokenInCookie)));
                 logger.warn("CSRF token mismatch detected! IP: {}, User-Agent: {}, Path: {}",
                         request.getRemoteAddr(), request.getHeader("User-Agent"), request.getRequestURI());
 

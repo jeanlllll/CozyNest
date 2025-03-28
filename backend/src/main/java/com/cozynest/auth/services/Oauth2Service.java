@@ -114,8 +114,16 @@ public class Oauth2Service {
         requestBody.add("code", code);
         requestBody.add("redirect_uri", redirect_url);
         requestBody.add("grant_type", "authorization_code");
+        requestBody.add("scope", String.join(" ", scope));
 
+        System.out.println(client_id);
+        System.out.println(client_secret);
+        System.out.println(code);
+        System.out.println(redirect_url);
+
+        System.out.println(requestBody.toString());
         HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(requestBody, headers);
+
 
         //send post request to Google to ask for access token
         RestTemplate restTemplate = new RestTemplate();

@@ -32,5 +32,6 @@ public class ProductVariant {
     private Product product;
 
     private Character gender;
-
+    
+    private UUID productDisplayId;
 }

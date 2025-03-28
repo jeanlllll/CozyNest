@@ -33,8 +33,8 @@ public class AuthController {
     PasswordService passwordService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@Validated @RequestBody RegistrationRequest request) {
-        RegistrationResponse response = registrationService.createUser(request, AuthProvider.MANUAL);
+    public ResponseEntity<?> register(@Validated @RequestBody RegistrationRequest request, HttpServletResponse httpResponse) {
+        RegistrationResponse response = registrationService.createUser(request, httpResponse, AuthProvider.MANUAL);
         return new ResponseEntity<>(response.getMessage(), HttpStatus.valueOf(response.getCode()));
     }
 

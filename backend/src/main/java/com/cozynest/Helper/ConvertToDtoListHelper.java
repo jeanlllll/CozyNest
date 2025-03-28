@@ -74,7 +74,11 @@ public class ConvertToDtoListHelper {
         productVariantDto.setId(productVariant.getId());
         productVariantDto.setColor(productVariant.getColor());
         productVariantDto.setSize(productVariant.getSize());
-        productVariantDto.setStockQuantity(productVariant.getStockQuantity());
+        if (productVariant.getStockQuantity() > 0) {
+            productVariantDto.setIsAvailable(true);
+        } else {
+            productVariantDto.setIsAvailable(false);
+        }
         productVariantDto.setGender(productVariant.getGender());
         return productVariantDto;
     }

@@ -10,6 +10,7 @@ import com.cozynest.auth.helper.VerificationCodeGenerator;
 import com.cozynest.auth.repositories.*;
 import com.cozynest.entities.profiles.favorites.Favorite;
 import com.cozynest.repositories.FavoriteRepository;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -58,9 +59,9 @@ public class RegistrationService {
     PasswordValidator passwordValidator;
 
     @Autowired
-    FavoriteRepository favoriteRepository;
+    VerifyEmailService verifyEmailService;
 
-    public RegistrationResponse createUser(RegistrationRequest request, AuthProvider clientProvider) {
+    public RegistrationResponse createUser(RegistrationRequest request, HttpServletResponse response, AuthProvider clientProvider) {
 
         String firstName = request.getFirstName();
         String lastName = request.getLastName();
@@ -160,8 +161,9 @@ public class RegistrationService {
                 return new RegistrationResponse(200, "User created. Please verify your code. " +
                         "The email may take 1-2 minutes to arrive.");
             } else {
+                verifyEmailService.generateTokenToCookie(email, response, shopUser);
                 // OAuth or other
-                return new RegistrationResponse(200, "User registered successfully.");
+                return new RegistrationResponse(200, "Google oauth2 register success.");
             }
 
         } catch (Exception e) {
