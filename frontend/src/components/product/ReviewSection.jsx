@@ -15,9 +15,9 @@ export const ReviewSection = ({ data }) => {
     return (
         <div>
             <div className="flex flex-row justify-between items-center">
-                <div className="drop-shadow-sm">
-                    <h1 className="font-bold text-xl ">Reviews</h1>
-                    <div className="mt-4 text-xl">
+                <div className="">
+                    <h1 className="font-bold text-lg ">Reviews</h1>
+                    <div className="mt-4 text-md">
                         {haveReview ? `Total Rating ${data.avgRating} ` : "No Reviews Given Yet"}
                         <div className="pt-1"><StarRating rate={haveReview ? data.avgRating : 0} isReadOnly={true} /></div>
                     </div>
@@ -25,7 +25,7 @@ export const ReviewSection = ({ data }) => {
 
                 <div className="flex flex-col">
                     <div className="flex justify-end">
-                        <div className="border bg-buttonMain py-2 rounded-md text-white hover:bg-gray-800 cursor-pointer text-lg w-49 text-center drop-shadow-lg"
+                        <div className="border bg-buttonMain px-6 py-2 rounded-md text-white hover:bg-gray-800 cursor-pointer text-md text-center drop-shadow-lg"
                             onClick={() => setIsReviewModalOpen(true)}
                         >
                             Leave Your Review

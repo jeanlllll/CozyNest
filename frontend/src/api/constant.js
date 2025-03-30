@@ -18,4 +18,15 @@ export const getLeaveReviewForProductUrl = (productId) => {
     return `/api/product/${productId}/review`
 }
 
+export const getFavoriteListUrl = "/api/favorites"
+
+export const addFavoriteUrl = (productId) => {
+    return `/api/favorites/add?productId=${productId}`
+}
+
+export const removeFavoriteUrl = (productId) => {
+    return `/api/favorites/remove?productId=${productId}`
+}
+
+
 

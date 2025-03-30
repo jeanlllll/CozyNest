@@ -8,8 +8,9 @@ import { useSelector } from "react-redux"
 import { Navigate, useNavigate, useParams } from "react-router"
 import { resetFilters } from "../../store/features/filtersSlice"
 import { useDispatch } from "react-redux"
+import { resetFavoriteList, resetFavoritePage, setFavoritePage } from "../../store/features/favoriteSlice"
 
-export const Navigation = ({ needSearchBar, needCategory}) => {
+export const Navigation = ({ needSearchBar, needCategory }) => {
     const language = useSelector((state) => state.language.language);
     const [isEnglish, setIsEnglish] = useState(false);
     const navigate = useNavigate();
@@ -40,17 +41,17 @@ export const Navigation = ({ needSearchBar, needCategory}) => {
 
                 {/* Navigation Links */}
                 <div className="flex items-center justify-center font-inter text-lg font-bold text-white w-1/3 space-x-12">
-                    <span className={`cursor-pointer mr-12 drop-shadow-sm hover:scale-105  ${category === "men"? "text-black" : ""}`}
+                    <span className={`cursor-pointer mr-12 drop-shadow-sm hover:scale-105  ${category === "men" ? "text-black" : ""}`}
                         onClick={() => handleCategoryOnClick("men")}
                     >
                         {isEnglish ? 'Men' : '男裝'}
                     </span>
-                    <span className={`cursor-pointer mr-8 drop-shadow-sm hover:scale-105 ${category === "women"? "text-black" : ""}`}
+                    <span className={`cursor-pointer mr-8 drop-shadow-sm hover:scale-105 ${category === "women" ? "text-black" : ""}`}
                         onClick={() => handleCategoryOnClick("women")}
                     >
                         {isEnglish ? 'Women' : '女裝'}
                     </span>
-                    <span className={`cursor-pointer drop-shadow-sm hover:scale-105 ${category === "couple"? "text-black" : ""}`}
+                    <span className={`cursor-pointer drop-shadow-sm hover:scale-105 ${category === "couple" ? "text-black" : ""}`}
                         onClick={() => handleCategoryOnClick("couple")}
                     >
                         {isEnglish ? 'Couple' : '情侶裝'}
@@ -65,7 +66,12 @@ export const Navigation = ({ needSearchBar, needCategory}) => {
 
                         {/* Icons */}
                         <ProfileIcon />
-                        <HeartIcon />
+                        <div className="cursor-pointer hover:scale-105"
+                            onClick={() => {
+                                navigate("/user/favorite");
+                            }}>
+                            <HeartIcon />
+                        </div>
                         <ShoppingBagIcon />
                     </div>
                 </div>
@@ -83,7 +89,7 @@ export const Navigation = ({ needSearchBar, needCategory}) => {
                         {needSearchBar && <SearchBar />}
                     </div>
                     <div className="flex items-center">
-                        <Menus needCategory={needCategory} category={category}/>
+                        <Menus needCategory={needCategory} category={category} />
                     </div>
                 </div>
             </div>

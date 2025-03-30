@@ -13,6 +13,8 @@ import { setCategoryTypes, setSizes } from "../store/features/filtersSlice";
 import { useEffect } from "react";
 import { TopSortBar } from "../components/category/TopSortBar";
 import { resetFilters } from "../store/features/filtersSlice";
+import { fetchFavoriteList } from "../api/fetchFavoriteList";
+import { setFavoriteList } from "../store/features/favoriteSlice";
 
 export const CategoryPage = (request) => {
     const language = useSelector((state) => state.language.language);
@@ -25,17 +27,28 @@ export const CategoryPage = (request) => {
     const totalPages = data.totalPages;
     const productList = data.content;
 
-    const navigate = useNavigate();
     const dispatch = useDispatch();
 
     const filters = useSelector((state) => state.filters)
-    const sortBy = filters.sortBy;
 
     const [searchParams] = useSearchParams();
     const page = parseInt(searchParams.get("page")) || 0;
     const lastPage = totalPages - 1;
     const rowNeededForGrid = page === lastPage ? 'grid-rows-1' : 'grid-rows-3'
     const isNoProductFound = data.totalElements === 0 ? true : false;
+
+    const isLoggedIn = useSelector((state) => state.login.isLoggedIn)
+    const favoritesList = useSelector((state) => state.favorite.favoritesList);
+
+    useEffect(() => {
+        const loadFavorites = async () => {
+            if (favoritesList === null && isLoggedIn) {
+                const favoritesList = await fetchFavoriteList();
+                dispatch(setFavoriteList(favoritesList));
+            }
+        }
+        loadFavorites();
+    }, [dispatch, isLoggedIn, favoritesList])
 
     useEffect(() => {
         dispatch(resetFilters());
@@ -87,7 +100,7 @@ export const CategoryPage = (request) => {
                                 const productImage = product.productDisplayDtoList.find((img) => img.isPrimary)?.url ||
                                     product?.productDisplayDtoList?.[0]?.url;
                                 return (
-                                    <Card key={index} product={product} productImage={productImage} isEnglish={isEnglish}/>
+                                    <Card key={index} product={product} productImage={productImage} isEnglish={isEnglish} />
                                 )
                             })}
                         </div>

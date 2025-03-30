@@ -1,5 +1,5 @@
-import { HeartIcon } from "../assets/icons/HeartIcon"
 import { Link } from "react-router";
+import { HeartButton } from "./HeartButton";
 
 export const Card = ({ product, productImage, isEnglish }) => {
 
@@ -23,10 +23,7 @@ export const Card = ({ product, productImage, isEnglish }) => {
                     <img src={productImage} className="cursor-pointer" />
                 </Link>
 
-                <div className="absolute top-1.5 right-1.5 bg-buttonMain opacity-50 p-2 rounded-full flex items-center justify-center cursor-pointer hover:opacity-100 drop-shadow-xl">
-                    <HeartIcon />
-                </div>
-
+                <HeartButton productId={product.productId}/>
             </div>
 
 

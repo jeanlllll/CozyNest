@@ -14,6 +14,8 @@ import { Oauth2CallbackPage } from './pages/OAuthCallbackPage.jsx';
 import { fetchProductByProductId } from './api/fetchProductByProductId.js';
 import { ProductPage } from './pages/ProductPage.jsx';
 import { ProductEntirePage } from './pages/ProductEntirePage.jsx';
+import { fetchFavoriteList } from './api/fetchFavoriteList.js';
+import { FavoritesPage } from './pages/FavoritesPage.jsx';
 
 export const router = createBrowserRouter([
     {
@@ -58,5 +60,10 @@ export const router = createBrowserRouter([
     {
         path: "/oauth2/google/callback",
         element: <Oauth2CallbackPage />
+    },
+    {
+        path: "/user/favorite",
+        element: <FavoritesPage />,
+        loader: fetchFavoriteList
     }
 ])

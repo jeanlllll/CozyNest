@@ -5,7 +5,7 @@ import { RightProductIntroSection } from "../components/product/RightProductIntr
 import { resetProductPageGlobalState, setLargeImageDisplay, setLeftImageSelected } from "../store/features/productPageSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { ReviewSection } from "../components/product/ReviewSection";
-
+import { setFavoriteList } from "../store/features/favoriteSlice";
 
 export const ProductPage = () => {
 
@@ -22,6 +22,19 @@ export const ProductPage = () => {
         dispatch(setLargeImageDisplay(primaryImageProductDispalyDto.url));
         dispatch(setLeftImageSelected(primaryImageProductDispalyDto.id));
     }, [])
+
+    const isLoggedIn = useSelector((state) => state.login.isLoggedIn)
+    const favoritesList = useSelector((state) => state.favorite.favoritesList);
+
+    useEffect(() => {
+        const loadFavorites = async () => {
+            if (favoritesList === null && isLoggedIn) {
+                const favoritesList = await fetchFavoriteList();
+                dispatch(setFavoriteList(favoritesList));
+            }
+        }
+        loadFavorites();
+    }, [dispatch, isLoggedIn, favoritesList])
 
     return (
         <div className="w-full h-auto flex justify-center items-center font-inter">

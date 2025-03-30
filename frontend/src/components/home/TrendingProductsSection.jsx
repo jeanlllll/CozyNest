@@ -3,6 +3,7 @@ import { ArrowRight } from "../../assets/icons/ArrowRight";
 import { ArrowLeft } from "../../assets/icons/ArrowLeft";
 import { useState } from "react";
 import { useNavigate } from "react-router";
+import { Link } from "react-router";
 
 export const TrendingProductsSection = ({ category, products, language, categoryChinese }) => {
 
@@ -78,9 +79,11 @@ export const TrendingProductsSection = ({ category, products, language, category
 
                         return (
                             <div key={product.productId} className="drop-shadow-md rounded-lg">
-
-                                {/* product Image */}
-                                <img src={productImage} alt={productName} className="w-full h-auto rounded-lg hover:scale-105 mb-2 cursor-pointer" />
+{/* 
+                                <Link to={`/category/${category}/${categoryTypes}/${linkEnName}${linkZnName}/${product.productId}/${language}`}> */}
+                                    {/* product Image */}
+                                    <img src={productImage} alt={productName} className="w-full h-auto rounded-lg hover:scale-105 mb-2 cursor-pointer" />
+                                {/* </Link> */}
 
 
                                 {/* product Info */}
