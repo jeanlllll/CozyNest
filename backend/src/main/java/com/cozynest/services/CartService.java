@@ -1,5 +1,6 @@
 package com.cozynest.services;
 
+import com.cozynest.Exceptions.*;
 import com.cozynest.Helper.ConvertToDtoListHelper;
 import com.cozynest.auth.entities.Client;
 import com.cozynest.auth.repositories.ClientRepository;
@@ -14,7 +15,6 @@ import com.cozynest.repositories.ProductRepository;
 import com.cozynest.repositories.ProductVariantRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -52,29 +52,34 @@ public class CartService {
         //use redisKey to fetch from redis
         List<CartItemDto> cartItemDtoList = cartRedisService.getCartList(clientId);
 
-        // if redis found that key, return the list
+        // if redis found that key, check whether the cart quantity is enough or not
         if (cartItemDtoList != null && !cartItemDtoList.isEmpty()) {
-            return cartItemDtoList;
+            for (CartItemDto dto : cartItemDtoList) {
+                ProductVariantDto productVariantDto = dto.getProductVariantDto();
+                int stockQuantity = productVariantRepository.findById(productVariantDto.getId()).get().getStockQuantity();
+                if (dto.getQuantity() >= stockQuantity) {
+                    dto.setQuantity(stockQuantity);
+                    cartRedisService.saveCartItemsList(clientId, cartItemDtoList);
+                }
+            }
+        } else {
+            // if redis does not found that key, retrieve list form database
+            Cart cart = cartRepository.findByClient_Id(clientId);
+            if (cart == null) {
+                return new LinkedList<>();
+            }
+            List<CartItem> cartItemList = cart.getCartItems();
+            cartItemDtoList = new LinkedList<>();
+            convertCartItemListToCartItemDtoList(cartItemList, cartItemDtoList);
         }
-
-        // if redis does not found that key, retrieve list form database
-        Cart cart = cartRepository.findByClient_Id(clientId);
-        if (cart == null) {
-            return new LinkedList<>();
-        }
-
-        List<CartItem> cartItemList = cart.getCartItems();
-        List<CartItemDto> cartItemDtosList = new LinkedList<>();
-
-        convertCartItemListToCartItemDtoList(cartItemList, cartItemDtosList);
 
         // add to redis
-        cartRedisService.saveCartItemsList(clientId, cartItemDtosList);
-        return cartItemDtosList;
+        cartRedisService.saveCartItemsList(clientId, cartItemDtoList);
+        return cartItemDtoList;
     }
 
     @Transactional
-    public ApiResponse addToCart(UUID clientId, CartRequest cartRequest) throws ChangeSetPersister.NotFoundException {
+    public ApiResponse addToCart(UUID clientId, CartRequest cartRequest) throws Exception {
 
         Client client = clientRepository.findById(clientId).get();
 
@@ -100,7 +105,7 @@ public class CartService {
         }
 
         if (cart.getCartItems().size() >= LIMIT_CART_ITEMS) {
-            return new ApiResponse("Cart items cannot be more than " + LIMIT_CART_ITEMS , 400);
+            throw new ExcessLimitException("Cart items cannot be more than " + LIMIT_CART_ITEMS);
         }
 
         if (cart.getCartItems() != null) {
@@ -108,32 +113,33 @@ public class CartService {
                      cartItem.getProduct().getId().equals(cartRequest.getProductId()) &&
                      cartItem.getProductVariant().getId().equals(cartRequest.getProductVariantId()));
             if (isAdded) {
-                return new ApiResponse("Product already added.", 409);
+                throw new ProductAlreadyInCartException("Product already added.");
             }
         }
 
         Optional<Product> product = productRepository.findById(cartRequest.getProductId());
         if (!product.isPresent()) {
-            return new ApiResponse("Product Id cannot found.", 404);
+            throw new ProductNotFoundException("Product Id cannot found.");
         }
 
         Optional<ProductVariant> productVariant = productVariantRepository.findById(cartRequest.getProductVariantId());
         if (!productVariant.isPresent()) {
-            return new ApiResponse("Product Variant Id cannot be found.", 404);
+            throw new ProductNotFoundException("Product Variant Id cannot be found.");
         }
 
         if (productVariant.get().getProduct().getId() != product.get().getId()) {
-            return new ApiResponse("Product variants does not belong to that product.", 400);
+            throw new ProductNotFoundException("Product variants does not belong to that product.");
         }
 
         CartItem cartItem = new CartItem();
         cartItem.setCart(cart);
         cartItem.setProduct(product.get());
         cartItem.setProductVariant(productVariant.get());
-        cartItem.setQuantity(cartRequest.getQuantity());
 
         if (!isCartItemAvailableInProductVariant(cartItem, productVariant.get())) {
-            return new ApiResponse("Order Quantity exceeds stock", 409);
+            throw new ExcessStockAmountException("Order Quantity exceeds stock");
+        } else {
+            cartItem.setQuantity(1);
         }
 
         cart.getCartItems().add(cartItem);
@@ -143,17 +149,19 @@ public class CartService {
         return new ApiResponse("Product added to cart.", 200);
     }
 
+
+
     @Transactional
     public ApiResponse updateCartItemQuantity(UUID userId, UUID cartItemId, int newQuantity) {
         String redisKey = "cart:" + userId;
         Optional<CartItem> cartItem = cartItemRepository.findById(cartItemId);
         if (!cartItem.isPresent()) {
-            return new ApiResponse("Cart item id is not found.", 404);
+            throw new CartItemNotFoundException("Cart item id is not found.");
         }
         ProductVariant productVariant = cartItem.get().getProductVariant();
         int stockQuantity = cartItem.get().getProductVariant().getStockQuantity();
         if (newQuantity > stockQuantity || stockQuantity <= 0) {
-            return new ApiResponse("Order item exceed stock quantity.", 400);
+            throw new ExcessStockAmountException("Order item exceed stock quantity.");
         }
 
         CartItemDto cartItemDto = convertCartItemToCartItemDto(cartItem.get());
@@ -171,10 +179,10 @@ public class CartService {
 
 
     @Transactional
-    public ApiResponse removeItemFromCart(UUID userId, UUID cartItemId) {
+    public ApiResponse removeItemFromCart(UUID userId, UUID cartItemId) throws Exception {
         Optional<CartItem> cartItem = cartItemRepository.findById(cartItemId);
         if (!cartItem.isPresent()) {
-            return new ApiResponse("Cart item id cannot found", 404);
+            throw new Exception("Cart item id cannot found");
         }
 
         Optional<Client> client = clientRepository.findById(userId);
@@ -182,7 +190,7 @@ public class CartService {
         boolean removed = cart.getCartItems().remove(cartItem.get()); //use link list, iterate big o n, remove constant
 
         if (!removed) {
-            return new ApiResponse("Cart item not found in cart", 400);
+            throw new Exception("Cart item not found in cart");
         }
         cartItemRepository.delete(cartItem.get());
 
@@ -209,7 +217,7 @@ public class CartService {
         ProductVariantDto productVariantDto = convertToDtoListHelper.convertProductVariantDto(productVariant);
         cartItemDto.setProductVariantDto(productVariantDto);
         cartItemDto.setQuantity(cartItem.getQuantity());
-        cartItemDto.setPrimaryProductDisplayDto(convertToDtoListHelper.getPrimaryProductDisplayDetail(product));
+        cartItemDto.setProductDisplayDto(convertToDtoListHelper.getProductDisplayDetail(productVariant));
         return cartItemDto;
     }
 
@@ -224,7 +232,7 @@ public class CartService {
         if (!cartItem.getProductVariant().getId().equals(productVariant.getId())) {
             return false;
         }
-        if (productVariant.getStockQuantity() == 0 || cartItem.getQuantity() > productVariant.getStockQuantity()) {
+        if (productVariant.getStockQuantity() == 0) {
             return false;
         }
         return true;

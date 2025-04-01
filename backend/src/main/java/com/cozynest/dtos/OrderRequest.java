@@ -8,9 +8,8 @@ import java.util.List;
 @Data
 public class OrderRequest {
 
-    @NotEmpty(message = "Product cannot be empty.")
-    @Size(min = 1, max = 100, message = "Product sizes should be between 1 to 100.")
-    private List<OrderProductDto> productDtoList;
+    @NotEmpty(message = "Order Cart Items List cannot be empty.")
+    private List<OrderCartItemDto> orderCartItemDtoList;
 
     private String DiscountCode;
 

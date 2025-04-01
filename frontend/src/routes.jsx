@@ -16,6 +16,8 @@ import { ProductPage } from './pages/ProductPage.jsx';
 import { ProductEntirePage } from './pages/ProductEntirePage.jsx';
 import { fetchFavoriteList } from './api/fetchFavoriteList.js';
 import { FavoritesPage } from './pages/FavoritesPage.jsx';
+import { CartEntirePage } from './pages/CartEntirePage.jsx';
+import { fetchCartList } from './api/fetchCartList.js';
 
 export const router = createBrowserRouter([
     {
@@ -65,5 +67,10 @@ export const router = createBrowserRouter([
         path: "/user/favorite",
         element: <FavoritesPage />,
         loader: fetchFavoriteList
+    },
+    {
+        path: "/user/cart",
+        element: <CartEntirePage />,
+        loader: fetchCartList
     }
 ])

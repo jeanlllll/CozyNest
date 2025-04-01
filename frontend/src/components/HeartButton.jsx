@@ -25,7 +25,7 @@ export const HeartButton = ({ productId }) => {
     }
 
     return (
-        <div className={`absolute top-1.5 right-1.5 bg-buttonMain ${isAlreadyInFavoriteList ? "opacity-100" : "opacity-50 hover:opacity-100"} p-2 rounded-full flex items-center justify-center 
+        <div className={`absolute top-1.5 right-1.5 bg-buttonMain ${isAlreadyInFavoriteList ? "opacity-100" : "opacity-30 hover:opacity-100"} p-2 rounded-full flex items-center justify-center 
         cursor-pointer drop-shadow-xl`}
             onClick={handleHeartButtonOnClick}
         >

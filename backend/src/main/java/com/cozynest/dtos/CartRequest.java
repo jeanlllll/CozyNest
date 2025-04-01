@@ -15,7 +15,4 @@ public class CartRequest {
     @NotNull(message = "ProductVariantId cannot be blank")
     private UUID productVariantId;
 
-    @NotNull(message = "Quantity cannot be blank")
-    private Integer quantity;
-
 }

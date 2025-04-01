@@ -6,13 +6,10 @@ import lombok.Data;
 import java.util.UUID;
 
 @Data
-public class OrderProductDto {
+public class OrderCartItemDto {
 
-    @NotBlank(message = "Product Id cannot be blank.")
-    private UUID productId;
-
-    @NotBlank(message = "Product Variant Id cannot be blank.")
-    private UUID productVariantId;
+    @NotBlank(message = "Cart item Id cannot be blank.")
+    private UUID cartItemId;
 
     @NotBlank(message = "Quantity cannot be blank.")
     @Min(value = 1, message = "Quantity must be at least 1.")

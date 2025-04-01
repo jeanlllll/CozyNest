@@ -10,6 +10,8 @@ import com.cozynest.entities.products.product.ProductTranslation;
 import com.cozynest.entities.products.product.ProductVariant;
 import com.cozynest.entities.profiles.Address;
 import com.cozynest.repositories.LanguageRepository;
+import com.cozynest.repositories.ProductDisplayRepository;
+import com.cozynest.repositories.ProductVariantRepository;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -23,6 +25,9 @@ public class ConvertToDtoListHelper {
 
     @Autowired
     LanguageRepository languageRepository;
+
+    @Autowired
+    ProductDisplayRepository productDisplayRepository;
 
     public List<ProductTranslationDto> getProductTranslationDtoList(Product product) {
         List<ProductTranslationDto> productTranslationDtoList = new ArrayList<>();
@@ -56,17 +61,10 @@ public class ConvertToDtoListHelper {
         return productDisplayDtoList;
     }
 
-    public ProductDisplayDto getPrimaryProductDisplayDetail(Product product) {
-        List<ProductDisplay> productDisplays = product.getProductDisplays();
-
-        if (productDisplays != null) {
-            for (ProductDisplay productDisplay : productDisplays) {
-                if (productDisplay.getIsPrimary()) {
-                    return new ProductDisplayDto(productDisplay);
-                }
-            }
-        }
-        return null;
+    public ProductDisplayDto getProductDisplayDetail(ProductVariant productVariant) {
+        UUID productDisplayId = productVariant.getProductDisplayId();
+        ProductDisplay productDisplay = productDisplayRepository.findById(productDisplayId).get();
+        return new ProductDisplayDto(productDisplay);
     }
 
     public ProductVariantDto convertProductVariantDto(ProductVariant productVariant) {

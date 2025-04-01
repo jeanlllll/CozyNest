@@ -23,5 +23,5 @@ public class CartItemDto {
     private String categoryType;
     private ProductVariantDto ProductVariantDto;
     private Integer quantity;
-    private ProductDisplayDto primaryProductDisplayDto;
+    private ProductDisplayDto ProductDisplayDto;
 }

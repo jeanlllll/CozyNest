@@ -6,6 +6,7 @@ import { resetProductPageGlobalState, setLargeImageDisplay, setLeftImageSelected
 import { useDispatch, useSelector } from "react-redux";
 import { ReviewSection } from "../components/product/ReviewSection";
 import { setFavoriteList } from "../store/features/favoriteSlice";
+import { AlertCom } from "../components/AlertCom";
 
 export const ProductPage = () => {
 
@@ -36,19 +37,25 @@ export const ProductPage = () => {
         loadFavorites();
     }, [dispatch, isLoggedIn, favoritesList])
 
+    const alert = useSelector((state) => state.productPageGlobalState.alert);
+
     return (
         <div className="w-full h-auto flex justify-center items-center font-inter">
-            <div className="container mt-20">
+            <div className="container mt-10 flex flex-col justify-center items-center">
+
+                <div className="w-300 mb-9">
+                    {alert.status !== "" && <AlertCom message={alert.message} type={alert.type} />}
+                </div>
+
 
                 {/* product detail */}
                 <div className="w-full flex flex-row h-130">
-
                     {/* left images area */}
                     <LeftImageSection productDisplayDtoList={productDisplayDtoList} />
 
                     {/* right product Intro area */}
                     <div className="basis-1/2 px-23 py-5 flex">
-                        <RightProductIntroSection data={data} />
+                        <RightProductIntroSection data={data} isEnglish={isEnglish}/>
                     </div>
 
                 </div>
@@ -60,11 +67,8 @@ export const ProductPage = () => {
                         <div className="mt-2">{data.description}</div>
                     </div>
 
-                    {/* guess you like */}
                     <div className="border border-gray-300 px-15 pb-12 w-350 pt-8 rounded-lg mt-12">
                         <ReviewSection data={data} />
-
-                        
                     </div>
 
                 </div>

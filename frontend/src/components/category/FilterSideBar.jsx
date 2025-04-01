@@ -1,5 +1,5 @@
 import { PriceSlider } from "./PriceSlider"
-import { CustomButton } from "../CustomButton"
+import { CustomBottomCategroy } from "./CustomBottomCategory";
 import { updateCategoryTypes, updateSizes } from "../../store/features/filtersSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
@@ -58,7 +58,7 @@ export const FilterSideBar = ({ categoryTypeList, sizeList, category, isEnglish 
                     {categoryTypeList.map((type) => {
                         return (
                             <label for={type} className="flex items-center gap-2.5 cursor-pointer mt-0.5">
-                                <CustomButton value={type} color={"black"}
+                                <CustomBottomCategroy value={type} color={"black"}
                                     isChecked={filters.categoryTypes.includes(type) ? true : false}
                                     onChange={() => handleCategoryTypesOnChange(type)} />
                                 <div className=" text-gray-600 captialize cursor-pointer">
@@ -92,7 +92,7 @@ export const FilterSideBar = ({ categoryTypeList, sizeList, category, isEnglish 
                     {sizeList.map((size) => {
                         return (
                             <label for={size} className="flex items-center gap-2.5 cursor-pointer mt-0.5">
-                                <CustomButton value={size} color={"black"}
+                                <CustomBottomCategroy value={size} color={"black"}
                                     isChecked={filters.sizes.includes(size) ? true : false}
                                     onChange={() => handleSizesOnChange(size)} />
                                 <div className=" text-gray-600 captialize cursor-pointer">
@@ -148,7 +148,7 @@ export const FilterSideBar = ({ categoryTypeList, sizeList, category, isEnglish 
                                 return (
                                     <div className="grid-cols-4 w-full">
                                         <label for={type} className="flex items-center text-sm cursor-pointer">
-                                            <CustomButton value={type} color={"gray"}
+                                            <CustomBottomCategroy value={type} color={"gray"}
                                                 isChecked={filters.categoryTypes.includes(type) ? true : false}
                                                 onChange={() => handleCategoryTypesOnChange(type)}
                                             />
@@ -173,7 +173,7 @@ export const FilterSideBar = ({ categoryTypeList, sizeList, category, isEnglish 
                                 return (
                                     <div className="grid-cols-4 w-full">
                                         <label for={size} className="flex items-center text-sm cursor-pointer">
-                                            <CustomButton value={size} color={"gray"}
+                                            <CustomBottomCategroy value={size} color={"gray"}
                                                 isChecked={filters.sizes.includes(size) ? true : false}
                                                 onChange={() => handleSizesOnChange(size)} />
                                             <div className=" text-gray-600 captialize cursor-pointer ml-1 pl-1 pr-4">

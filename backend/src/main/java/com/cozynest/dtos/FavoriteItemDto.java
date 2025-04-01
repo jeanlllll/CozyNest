@@ -17,9 +17,10 @@ public class FavoriteItemDto {
 
     private UUID productId;
     private List<ProductTranslationDto> productTranslationDtoList;
-    private float price;
+    private String category;
+    private String categoryTypes;
+    private float productPrice;
     private Boolean isOutOfStock;
     private List<ProductDisplayDto> ProductDisplayDto;
     private LocalDateTime addDateTime;
-    private List<ProductVariantDto> productVariantDtoList;
 }

@@ -2,12 +2,9 @@ package com.cozynest.controllers;
 
 import com.cozynest.Helper.CheckAuthenticationHelper;
 import com.cozynest.auth.repositories.ShopUserRepository;
-import com.cozynest.dtos.ApiResponse;
 import com.cozynest.dtos.FavoriteItemDto;
 import com.cozynest.services.FavoriteService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.crossstore.ChangeSetPersister;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,24 +25,32 @@ public class FavoriteController {
     CheckAuthenticationHelper checkAuthenticationHelper;
 
     @GetMapping
-    public List<FavoriteItemDto> getFavoriteItem(@RequestParam(value = "page", required = true) int page,
-                                                 @RequestParam(value = "size", required = true) int size) {
+    public ResponseEntity<?> getFavoriteItem() {
         UUID userId = checkAuthenticationHelper.getUserIdViaAuthentication();
-        return favoriteService.getUserFavoriteItemList(userId, page, size);
+        List<FavoriteItemDto> favoriteItemDtoList = favoriteService.getUserFavoriteItemList(userId);
+        return ResponseEntity.ok(favoriteItemDtoList);
     }
 
     @PostMapping("/add")
-    public ResponseEntity<?> addToFavorite(@RequestParam(value = "productId") UUID productId) throws ChangeSetPersister.NotFoundException {
-        UUID userId = checkAuthenticationHelper.getUserIdViaAuthentication();
-        ApiResponse response = favoriteService.addToFavorite(userId, productId);
-        return new ResponseEntity<>(response.getMessage(), HttpStatus.valueOf(response.getStatus()));
+    public ResponseEntity<?> addToFavorite(@RequestParam(value = "productId") UUID productId) throws Exception {
+        try {
+            UUID userId = checkAuthenticationHelper.getUserIdViaAuthentication();
+            List<FavoriteItemDto> favoriteItemDtoList = favoriteService.addToFavorite(userId, productId);
+            return ResponseEntity.ok(favoriteItemDtoList);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @PostMapping("/remove")
     public ResponseEntity<?> removeFromFavorite(@RequestParam(value = "productId") UUID productId) {
-        UUID userId = checkAuthenticationHelper.getUserIdViaAuthentication();
-        ApiResponse response = favoriteService.removeFromFavorite(userId, productId);
-        return new ResponseEntity<>(response.getMessage(), HttpStatus.valueOf(response.getStatus()));
+        try {
+            UUID userId = checkAuthenticationHelper.getUserIdViaAuthentication();
+            List<FavoriteItemDto> favoriteItemDtoList = favoriteService.removeFromFavorite(userId, productId);
+            return ResponseEntity.ok(favoriteItemDtoList);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
 

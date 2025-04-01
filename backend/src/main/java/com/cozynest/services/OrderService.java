@@ -1,15 +1,12 @@
 package com.cozynest.services;
 
+import com.cozynest.Exceptions.CartItemNotFoundException;
 import com.cozynest.Exceptions.ProductNotFoundException;
 import com.cozynest.auth.entities.Client;
-import com.cozynest.auth.entities.ShopUser;
 import com.cozynest.auth.repositories.ClientRepository;
 import com.cozynest.auth.repositories.ShopUserRepository;
 import com.cozynest.auth.services.EmailService;
-import com.cozynest.dtos.AddressDto;
-import com.cozynest.dtos.OrderCancellationEmailDetail;
-import com.cozynest.dtos.OrderProductDto;
-import com.cozynest.dtos.OrderRequest;
+import com.cozynest.dtos.*;
 import com.cozynest.entities.orders.discount.Discount;
 import com.cozynest.entities.orders.discount.DiscountType;
 import com.cozynest.entities.orders.order.*;
@@ -22,18 +19,14 @@ import com.cozynest.entities.profiles.Address;
 import com.cozynest.entities.profiles.cart.Cart;
 import com.cozynest.entities.profiles.cart.CartItem;
 import com.cozynest.repositories.*;
-import com.stripe.exception.SignatureVerificationException;
 import com.stripe.exception.StripeException;
-import com.stripe.model.*;
 import com.stripe.model.checkout.Session;
-import com.stripe.net.Webhook;
-import com.stripe.param.RefundCreateParams;
 import com.stripe.param.checkout.SessionCreateParams;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import jakarta.validation.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -84,6 +77,9 @@ public class OrderService {
     @Autowired
     EmailService emailService;
 
+    @Autowired
+    CartItemRepository cartItemRepository;
+
     @Transactional
     public Map<String, String> createCheckOutSession(OrderRequest orderRequest, UUID clientId) throws StripeException {
 
@@ -91,8 +87,8 @@ public class OrderService {
 
         Client client = clientRepository.findById(clientId).get();
 
-        // 1. check productId exist, productVariant belongs to productId, stock quantity is enough and finally count total price
-        float originalAmount = checkProductQuantityNCalPrice(orderRequest.getProductDtoList());
+        // 1.check cartItem exists in cart Items list and product quantity is enough or not and cal the price
+        float originalAmount = checkProductQuantityNCalPrice(orderRequest.getOrderCartItemDtoList());
         totalPrice = originalAmount;
 
         // 2. check whether discount use and match discount usage requirement
@@ -103,27 +99,33 @@ public class OrderService {
         }
         totalPrice -= discountAmount;
 
-        // 3. check transportation fee
+        // 3. check promotion Discount Amount;
+        List<OrderCartItemDto> orderCartItemDtoList = orderRequest.getOrderCartItemDtoList();
+        float promotionDiscountPercent = checkPromotionDiscountAmount(orderCartItemDtoList);
+        float promotionDiscountAmount = totalPrice - totalPrice * promotionDiscountPercent;
+        totalPrice -= promotionDiscountAmount;
+
+        // 4. check transportation fee
         DeliveryMethod methodEnum = DeliveryMethod.valueOf(orderRequest.getDeliveryMethod());
         Delivery delivery = deliveryRepository.findByDeliveryMethod(methodEnum);
         float transportation_fee = checkTransportationFee(delivery, totalPrice);
         totalPrice -= transportation_fee;
 
-        // 4. create order entity in database
+        // 5. create order entity in database
         Order order = new Order();
-        List<OrderProductDto> orderProductDtoList = orderRequest.getProductDtoList();
+        List<OrderCartItemDto> orderProductDtoList = orderRequest.getOrderCartItemDtoList();
         removeProductFromCart(orderProductDtoList, clientId);
         List<OrderItem> orderItems = convertOrderProductDtoListToOrderItemList(orderProductDtoList, order);
 
 
-        // 4. convert address dto to string
+        // 6. convert address dto to string
         String address = getAddressStringFromAddressDto(orderRequest.getShippingInfoDto().getAddress(), client);
 
-        // 5. create order entity
+        // 7. create order entity
         order.setOrderDate(LocalDateTime.now());
         order.setOriginalAmount(originalAmount);
         order.setTotalAmount(totalPrice);
-        order.setDiscountAmount(discountAmount);
+        order.setPromotionDiscountAmount(promotionDiscountAmount);
         order.setTransportationAmount(transportation_fee);
         order.setOrderStatus(OrderStatus.PRE_ORDER);
         order.setDiscountAmount(discountAmount);
@@ -187,61 +189,57 @@ public class OrderService {
 
     }
 
-    private boolean checkStockAvailability(List<OrderItem> orderItemList) {
-        for (OrderItem orderItem : orderItemList) {
-            UUID productVariantId = orderItem.getProductVariant().getId();
-            ProductVariant productVariant = productVariantRepository.findById(productVariantId)
-                    .orElseThrow(() -> new EntityNotFoundException("Product Variant not found."));
-            if (productVariant.getStockQuantity() < orderItem.getQuantity()) {
-                return false;
-            }
+    /* check promotion Discount here --- buy 3 items get 10% off */
+    private float checkPromotionDiscountAmount(List<OrderCartItemDto> orderCartItemDtoList) {
+        if (orderCartItemDtoList.size() > 3) {
+            return 0.9F;
         }
-        return true;
+        else return 1.0F;
     }
 
-    private void removeProductFromCart(List<OrderProductDto> orderProductDtoList, UUID clientId) {
+    private void removeProductFromCart(List<OrderCartItemDto> orderProductDtoList, UUID clientId) {
+
+        Set<UUID> cartItemIdSet = new HashSet<>();
+        orderProductDtoList.stream().forEach(orderCartItemDto -> cartItemIdSet.add(orderCartItemDto.getCartItemId()));
+
         Client client = clientRepository.findById(clientId).get();
-
-        if (client.getCart() == null) {
-            Cart cart = new Cart();
-            cart.setClient(client);
-            client.setCart(cart);
-            clientRepository.save(client);
-        }
-
-        List<CartItem> cartItemsList = client.getCart().getCartItems();
-
-        Map<UUID, CartItem> cartItemMap = new HashMap<>();
-        cartItemsList.stream().forEach(cartItem -> cartItemMap.put(cartItem.getId(), cartItem));
-
-        cartItemsList.removeIf(cartItem -> orderProductDtoList.stream()
-                .anyMatch(orderProductDto -> orderProductDto.getProductId().equals(cartItem.getProduct().getId())));
+        List<CartItem> cartItemList = client.getCart().getCartItems();
+        cartItemList.removeIf(cartItem -> cartItemIdSet.contains(cartItem.getId()));
     }
 
-    private float checkProductQuantityNCalPrice(List<OrderProductDto> productDtoList) {
+    private float checkProductQuantityNCalPrice(List<OrderCartItemDto> orderCartItemDtoList) {
         float totalPrice = 0;
-        for (OrderProductDto productDto : productDtoList) {
-            // 1. check whether product exist (by productId)
-            Optional<Product> product = productRepository.findById(productDto.getProductId());
-            if (!product.isPresent()) {
-                throw new ProductNotFoundException("Product Id " + productDto.getProductId() + " is not found.");
+        for (OrderCartItemDto cartItemDto : orderCartItemDtoList) {
+
+            // 1. check whether cart items exists in cart items list
+            Optional<CartItem> cartItem = cartItemRepository.findById(cartItemDto.getCartItemId());
+            if (!cartItem.isPresent()) {
+                throw new CartItemNotFoundException("Cart item cannot be found cart item list");
             }
 
-            // 2. check whether product variant id belongs to the product
-            ProductVariant productVariant = productVariantRepository.findById(productDto.getProductVariantId()).
-                    orElseThrow(() -> new EntityNotFoundException("Proudct Variant not found"));
-
-            if (!productVariant.getProduct().getId().equals(productDto.getProductId())) {
-                throw new EntityNotFoundException("Product variant Id does not belong to that product.");
+            // 2. check whether product exist (by productId)
+            Product product = cartItem.get().getProduct();
+            if (product == null) {
+                throw new ProductNotFoundException("Product Id " + product.getId() + " is not found.");
             }
 
-            // 3. check whether product variant stock quantity is enough
-            if (productVariant.getStockQuantity() < productDto.getQuantity()) {
+            // 3. check whether product variant id belongs to the product
+            ProductVariant productVariant = cartItem.get().getProductVariant();
+            if (productVariant == null) {
+                throw new ProductNotFoundException("Product Variant Id " + product.getId() + " is not found.");
+            }
+
+            // 4. check whether product variant stock quantity is enough
+            if (cartItem.get().getQuantity() <= 0 && productVariant.getStockQuantity() < cartItem.get().getQuantity()) {
                 throw new IllegalStateException("Quantity excess stock quantity.");
             }
 
+            if (cartItemDto.getQuantity() != cartItem.get().getQuantity()) {
+                cartItem.get().setQuantity(cartItemDto.getQuantity());
+            }
+
             // 4. calculate total price
-            totalPrice += product.get().getPrice() * productDto.getQuantity();
+            totalPrice += product.getPrice() * cartItemDto.getQuantity();
         }
 
         return totalPrice;
@@ -257,17 +255,16 @@ public class OrderService {
         }
     }
 
-    private List<OrderItem> convertOrderProductDtoListToOrderItemList(List<OrderProductDto> orderProductDtoList, Order order) {
+    private List<OrderItem> convertOrderProductDtoListToOrderItemList(List<OrderCartItemDto> orderCartItemDtoList, Order order) {
         List<OrderItem> orderItemsList = new ArrayList<>();
-        for (OrderProductDto orderProductDto : orderProductDtoList) {
-            ProductVariant productVariant = productVariantRepository.findByIdForUpdate(orderProductDto.getProductVariantId());
-
-            Product product = productRepository.findById(orderProductDto.getProductId())
-                    .orElseThrow(() -> new EntityNotFoundException("Product not found."));
+        for (OrderCartItemDto orderCartItemDto : orderCartItemDtoList) {
+            CartItem cartItem = cartItemRepository.findById(orderCartItemDto.getCartItemId()).get();
+            Product product = cartItem.getProduct();
+            ProductVariant productVariant = cartItem.getProductVariant();
 
             OrderItem orderItem = OrderItem.builder()
                     .order(order)
-                    .quantity(orderProductDto.getQuantity())
+                    .quantity(orderCartItemDto.getQuantity())
                     .product(product)
                     .productVariant(productVariant)
                     .build();

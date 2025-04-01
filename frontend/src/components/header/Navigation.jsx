@@ -72,27 +72,32 @@ export const Navigation = ({ needSearchBar, needCategory }) => {
                             }}>
                             <HeartIcon />
                         </div>
+                        <div className="cursor-pointer hover:scale-105" 
+                            onClick={() => {
+                            navigate("/user/cart");
+                        }}>
                         <ShoppingBagIcon />
                     </div>
                 </div>
             </div>
+        </div>
 
-            {/* ------------------------------------------------------------------------------------ */}
+            {/* ------------------------------------------------------------------------------------ */ }
 
-            {/* Mobile Header */}
-            <div className="sm:hidden flex justify-between">
-                <div className="font-protest justify-left text-3xl font-bold text-white drop-shadow-xl cursor-pointer"
-                    onClick={() => navigate("/")}
-                >CozyNest</div>
-                <div className="flex flex-row">
-                    <div className="mr-3">
-                        {needSearchBar && <SearchBar />}
-                    </div>
-                    <div className="flex items-center">
-                        <Menus needCategory={needCategory} category={category} />
-                    </div>
-                </div>
+    {/* Mobile Header */ }
+    <div className="sm:hidden flex justify-between">
+        <div className="font-protest justify-left text-3xl font-bold text-white drop-shadow-xl cursor-pointer"
+            onClick={() => navigate("/")}
+        >CozyNest</div>
+        <div className="flex flex-row">
+            <div className="mr-3">
+                {needSearchBar && <SearchBar />}
+            </div>
+            <div className="flex items-center">
+                <Menus needCategory={needCategory} category={category} />
             </div>
         </div>
+    </div>
+        </div >
     )
 }

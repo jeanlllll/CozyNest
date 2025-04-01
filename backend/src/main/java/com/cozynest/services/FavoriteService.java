@@ -23,9 +23,6 @@ import java.util.UUID;
 public class FavoriteService {
 
     @Autowired
-    FavoriteRedisService favoriteRedisService;
-
-    @Autowired
     FavoriteRepository favoriteRepository;
 
     @Autowired
@@ -39,64 +36,41 @@ public class FavoriteService {
 
     final int LIMIT_FAVORITES_ITEMS = 50;
 
-    public List<FavoriteItemDto> getUserFavoriteItemList(UUID clientId, int page, int size) {
-        String redisKey = "favorite:" + clientId;
-
-        //use redisKey to fetch from redis
-        List<FavoriteItemDto> favoriteItemDtoList = favoriteRedisService.getPagedFavoritesItems(clientId, page, size);
-
-        // if redis found that key, return the list
-        if (favoriteItemDtoList != null && !favoriteItemDtoList.isEmpty()) {
-            return favoriteItemDtoList;
-        }
-
-        // if redis does not found that key, retrieve list form database
-        Favorite favorite = favoriteRepository.findByClient_Id(clientId);
-        if (favorite == null) {
-            // If there is no favorite record for this user, return an empty list.
-            return new ArrayList<>();
-        }
-
+    public List<FavoriteItemDto> getUserFavoriteItemList(UUID clientId) {
+        Client client = clientRepository.findById(clientId).get();
+        Favorite favorite = client.getFavorite();
         List<FavoriteItem> favoriteItemList = favorite.getFavoriteItems();
-        List<FavoriteItemDto> favoriteItemDtosList = new ArrayList<>();
-
-        convertFavoriteItemListToFavoriteItemDtoList(favoriteItemList, favoriteItemDtosList);
-
-        // Sort by addDateTime (most recent first)
-        favoriteItemDtosList.sort((a, b) -> b.getAddDateTime().compareTo(a.getAddDateTime()));
-
-        // add to redis
-        favoriteRedisService.saveFavoriteItemList(clientId, favoriteItemDtosList);
-        return favoriteItemDtosList;
+        return convertFavoriteItemListToDtoListNSort(favoriteItemList);
     }
 
     @Transactional
-    public ApiResponse addToFavorite(UUID clientId, UUID productId) throws ChangeSetPersister.NotFoundException {
+    public List<FavoriteItemDto> addToFavorite(UUID clientId, UUID productId) throws Exception {
 
-        Favorite favorite = favoriteRepository.findByClient_Id(clientId);
+        Client client = clientRepository.findById(clientId).get();
+        Favorite favorite = client.getFavorite();
 
         if (favorite == null) {
             favorite = new Favorite();
-            Client client = clientRepository.findById(clientId)
-                    .orElseThrow(() -> new ChangeSetPersister.NotFoundException());
             favorite.setClient(client);
             favorite.setFavoriteItems(new ArrayList<>());
+            client.setFavorite(favorite);
+            clientRepository.save(client);
         }
 
         if (favorite.getFavoriteItems().size() >= LIMIT_FAVORITES_ITEMS) {
-            return new ApiResponse("Favorites items cannot be more than " + LIMIT_FAVORITES_ITEMS, 400);
+            throw new Exception("Favorite list exceeds the allowed limit of " + LIMIT_FAVORITES_ITEMS + " items.");
         }
 
 
         if (favorite.getFavoriteItems() != null &&
                 favorite.getFavoriteItems().stream()
                         .anyMatch(item -> item.getProduct().getId().equals(productId))) {
-            return new ApiResponse("Product already added.", 409);
+            throw new Exception("Product already in favorites.");
         }
 
         Optional<Product> product = productRepository.findById(productId);
         if (!product.isPresent()) {
-            return new ApiResponse("Product Id cannot found.", 404);
+            throw new Exception("Product not found.");
         }
 
         List<FavoriteItem> favoriteItemList = favorite.getFavoriteItems();
@@ -112,16 +86,13 @@ public class FavoriteService {
         favorite.getFavoriteItems().add(favoriteItem);
         favoriteRepository.save(favorite);
 
-        FavoriteItemDto favoriteItemDto = convertToDto(favoriteItem);
-        favoriteRedisService.addToFavorite(clientId, favoriteItemDto);
-
-        return new ApiResponse("Product added to favorite.", 200);
+        return convertFavoriteItemListToDtoListNSort(favorite.getFavoriteItems());
     }
 
     @Transactional
-    public ApiResponse removeFromFavorite(UUID clientId, UUID productId) {
+    public List<FavoriteItemDto> removeFromFavorite(UUID clientId, UUID productId) throws Exception {
         if (!productRepository.findById(productId).isPresent()) {
-            return new ApiResponse("Product Id cannot found", 404);
+            throw new Exception("Product not found.");
         }
 
         Favorite favorite = favoriteRepository.findByClient_Id(clientId);
@@ -129,16 +100,17 @@ public class FavoriteService {
         List<FavoriteItem> favoriteItemList = favorite.getFavoriteItems();
         favoriteRepository.save(favorite);
 
-        List<FavoriteItemDto> favoriteItemDtosList = new ArrayList<>();
-        convertFavoriteItemListToFavoriteItemDtoList(favorite.getFavoriteItems(), favoriteItemDtosList);
-
-        // Sort by addDateTime (most recent first)
-        favoriteItemDtosList.sort((a, b) -> b.getAddDateTime().compareTo(a.getAddDateTime()));
-
-        favoriteRedisService.saveFavoriteItemList(clientId, favoriteItemDtosList);
-        return new ApiResponse("Product removed from favorite.", 200);
+        return convertFavoriteItemListToDtoListNSort(favorite.getFavoriteItems());
     }
 
+
+    private List<FavoriteItemDto> convertFavoriteItemListToDtoListNSort(List<FavoriteItem> favoriteItemList) {
+        List<FavoriteItemDto> favoriteItemDtosList = new ArrayList<>();
+        convertFavoriteItemListToFavoriteItemDtoList(favoriteItemList, favoriteItemDtosList);
+        // Sort by addDateTime (most recent first)
+        favoriteItemDtosList.sort((a, b) -> b.getAddDateTime().compareTo(a.getAddDateTime()));
+        return favoriteItemDtosList;
+    }
 
     private void convertFavoriteItemListToFavoriteItemDtoList(List<FavoriteItem> favoriteItemList, List<FavoriteItemDto> favoriteItemDtosList) {
         for (FavoriteItem favoriteItem : favoriteItemList) {
@@ -154,11 +126,14 @@ public class FavoriteService {
 
         List<ProductTranslationDto> productTranslationDtoList = convertToDtoListHelper.getProductTranslationDtoList(product);
         favoriteItemDto.setProductTranslationDtoList(productTranslationDtoList);
-        favoriteItemDto.setPrice(product.getPrice());
+        favoriteItemDto.setProductPrice(product.getPrice());
         favoriteItemDto.setIsOutOfStock(product.getIsOutOfStock());
 
         favoriteItemDto.setProductDisplayDto(convertToDtoListHelper.getProductDisplayDtoList(product));
         favoriteItemDto.setAddDateTime(favoriteItem.getAddDateTime());
+
+        favoriteItemDto.setCategory(product.getCategory().getCode());
+        favoriteItemDto.setCategoryTypes(product.getCategoryType().getCode());
 
         List<ProductVariant> productVariantList = product.getProductVariants();
         List<ProductVariantDto> productVariantDtoList = new ArrayList<>();
@@ -167,8 +142,6 @@ public class FavoriteService {
             productVariantDtoList.add(productVariantDto);
         }
 
-        favoriteItemDto.setProductVariantDtoList(productVariantDtoList);
         return favoriteItemDto;
     }
-
 }

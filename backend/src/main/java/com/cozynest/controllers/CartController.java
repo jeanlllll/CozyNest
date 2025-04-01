@@ -9,7 +9,6 @@ import com.cozynest.dtos.CartRequest;
 import com.cozynest.services.CartService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -39,13 +38,14 @@ public class CartController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<?> addToCart(@Valid @RequestBody CartRequest cartRequest, BindingResult result) throws ChangeSetPersister.NotFoundException {
+    public ResponseEntity<?> addToCart(@Valid @RequestBody CartRequest cartRequest, BindingResult result) throws Exception {
         ResponseEntity errorResponse = bindingResultHelper.convertBindErrorToResponse(result);
-        if (errorResponse != null ) return errorResponse;
+        if (errorResponse != null) return errorResponse;
         UUID userId = checkAuthenticationHelper.getUserIdViaAuthentication();
         ApiResponse response = cartService.addToCart(userId, cartRequest);
         return ResponseEntity.status(response.getStatus()).body(response.getMessage());
     }
+
 
     @PatchMapping("/update-quantity/{cartItemId}")
     public ResponseEntity<?> updateCartItemQuantity(@PathVariable UUID cartItemId,
@@ -69,7 +69,7 @@ public class CartController {
     }
 
     @DeleteMapping("/remove/{cartItemId}")
-    public ResponseEntity<?> removeCartItem(@PathVariable UUID cartItemId) {
+    public ResponseEntity<?> removeCartItem(@PathVariable UUID cartItemId) throws Exception {
         UUID userId = checkAuthenticationHelper.getUserIdViaAuthentication();
         ApiResponse response = cartService.removeItemFromCart(userId, cartItemId);
         return ResponseEntity.status(response.getStatus()).body(response.getMessage());

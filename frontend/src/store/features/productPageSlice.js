@@ -4,11 +4,12 @@ export const initialState = {
     colorSelected: "",
     colorSelectedProductDisplayId: "",
     largeImageDisplay: "",
-    sizeSelected: "",
+    sizeNProductVariantIdSelected: { size: "", productVariantId: "" },
     leftImageSelected: "",
     genderSelected: "",
     sizeAvailableListForF: [],
-    sizeAvailableListForM: []
+    sizeAvailableListForM: [],
+    alert: {message: "", type: ""},
 }
 
 export const productPageSlice = createSlice({
@@ -30,8 +31,11 @@ export const productPageSlice = createSlice({
         setSizeAvailableListForM: (state, action) => {
             state.sizeAvailableListForM = action.payload;
         },
-        setSizeSelected: (state, action) => {
-            state.sizeSelected = action.payload;
+        setSizeNProductVariantIdSelected: (state, action) => {
+            state.sizeNProductVariantIdSelected = action.payload;
+        },
+        resetSizeNProductVariantIdSelected: (state) => {
+            state.sizeNProductVariantIdSelected = { size: "", productVariantId: "" }
         },
         setLeftImageSelected: (state, action) => {
             state.leftImageSelected = action.payload;
@@ -39,19 +43,25 @@ export const productPageSlice = createSlice({
         setGenderSelected: (state, action) => {
             state.genderSelected = action.payload;
         },
+        setProductVariantIdSelected: (state, action) => {
+            state.genderSelected = action.payload;
+        },
+        setAlert: (state, action) => {
+            state.alert = action.payload;
+        },
         resetProductPageGlobalState: (state) => {
             state.colorSelected = "",
                 state.colorSelectedProductDisplayId = "",
                 state.largeImageDisplay = "",
-                state.sizeAvailableMap = new Map(),
-                state.sizeSelected = "",
+                state.sizeNProductVariantIdSelected = { size: "", productVariantId: "" },
                 state.genderSelected = "",
                 state.sizeAvailableListForF= [],
-                state.sizeAvailableListForM= []
+                state.sizeAvailableListForM= [],
+                state.alert= {message: "", type: ""}
         }
     }
 })
 
 export const { setColorSelected, setColorSelectedProductDisplayId, setLargeImageDisplay, setSizeAvailableListForF, setSizeAvailableListForM,
-    setSizeSelected, setLeftImageSelected, setGenderSelected, resetProductPageGlobalState } = productPageSlice.actions;
+    setSizeNProductVariantIdSelected, setLeftImageSelected, setGenderSelected, setAlert, resetProductPageGlobalState, resetSizeNProductVariantIdSelected } = productPageSlice.actions;
 export default productPageSlice.reducer;

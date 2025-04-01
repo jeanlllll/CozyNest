@@ -36,3 +36,23 @@ export const productColor = {
     "pink": "bg-productPink",
     "cream": "bg-productCream"
 }
+
+export const colorChinese = {
+    "dark gray": "深灰色",
+    "purple": "紫色",
+    "blue": "藍色",
+    "light green": "淺綠色",
+    "light gray": "淺灰色",
+    "taupe": "灰褐色",
+    "brown": "棕色",
+    "dark green": "深綠色",
+    "white": "白色",
+    "gray": "灰色",
+    "pink": "粉紅色",
+    "cream": "奶油色"
+  };
+
+export const genderChinese = {
+    F: "女",
+    M: "男"
+}

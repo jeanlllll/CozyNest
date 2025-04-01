@@ -11,15 +11,16 @@ export const transferToColorSizeMap = (productVariantDtoList) => {
         const size = productVariant.size;
         const gender = productVariant.gender;
         const displayId = productVariant.productDisplayId;
+        const productVariantId = productVariant.id;
 
         if (!productVariant.isAvailable) {
             return;
         }
 
         if (colorMap.has(color)) {
-            colorMap.get(color).push({ size, displayId, gender });
+            colorMap.get(color).push({ size, displayId, gender, productVariantId });
         } else {
-            colorMap.set(color, [{ size, displayId, gender }]);
+            colorMap.set(color, [{ size, displayId, gender, productVariantId }]);
         }
     })
 

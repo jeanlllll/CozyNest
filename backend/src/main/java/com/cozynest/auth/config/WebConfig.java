@@ -48,6 +48,7 @@ public class WebConfig {
                         .requestMatchers("/api/home/**").permitAll()
                         .requestMatchers("/api/csrf/**").permitAll()
                         .requestMatchers("/api/product/**").permitAll()
+                        .requestMatchers("/api/discountCode/**").permitAll()
                         .requestMatchers("/api/oauth2/google/**").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "swagger-ui/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()

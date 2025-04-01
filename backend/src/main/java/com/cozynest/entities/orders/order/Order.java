@@ -46,6 +46,8 @@ public class Order {
     @JoinColumn(name="discount_id")
     private Discount discount;
 
+    private Float promotionDiscountAmount;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItems;
 

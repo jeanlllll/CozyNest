@@ -41,13 +41,11 @@ export const CategoryPage = (request) => {
     const favoritesList = useSelector((state) => state.favorite.favoritesList);
 
     useEffect(() => {
-        const loadFavorites = async () => {
-            if (favoritesList === null && isLoggedIn) {
-                const favoritesList = await fetchFavoriteList();
-                dispatch(setFavoriteList(favoritesList));
-            }
+        if (isLoggedIn && (!favoritesList || favoritesList.length === 0)) {
+            fetchFavoriteList().then((list) => {
+                dispatch(setFavoriteList(list))
+            })
         }
-        loadFavorites();
     }, [dispatch, isLoggedIn, favoritesList])
 
     useEffect(() => {

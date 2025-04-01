@@ -28,5 +28,21 @@ export const removeFavoriteUrl = (productId) => {
     return `/api/favorites/remove?productId=${productId}`
 }
 
+export const addItemToCartUrl = "/api/cart/add"
+
+export const getCartListUrl = "/api/cart"
+
+export const updateCartItemUrl = (cartItemId) => {
+    return `/api/cart/update-quantity/${cartItemId}`
+}
+
+export const deleteCartItemUrl = (cartItemId) => {
+    return `/api/cart/remove/${cartItemId}`
+}
+
+export const getDiscountCodeUrl = (discountCode) => {
+    return `/api/discountCode?discountCode=${discountCode}`
+}
+
 
 
