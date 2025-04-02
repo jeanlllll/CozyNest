@@ -18,6 +18,8 @@ import { fetchFavoriteList } from './api/fetchFavoriteList.js';
 import { FavoritesPage } from './pages/FavoritesPage.jsx';
 import { CartEntirePage } from './pages/CartEntirePage.jsx';
 import { fetchCartList } from './api/fetchCartList.js';
+import { CheckoutEntirePage } from './pages/CheckoutEntirePage.jsx';
+import { fetchUserProfileInfo } from './api/fetchUserProfile.js';
 
 export const router = createBrowserRouter([
     {
@@ -52,8 +54,8 @@ export const router = createBrowserRouter([
             },
             {
                 path: ":categoryType/:productName/:productId/:language",
-                element: <ProductEntirePage/>,
-                loader: async ({params}) => {
+                element: <ProductEntirePage />,
+                loader: async ({ params }) => {
                     return fetchProductByProductId(params.productId, params.language);
                 }
             }
@@ -64,13 +66,23 @@ export const router = createBrowserRouter([
         element: <Oauth2CallbackPage />
     },
     {
-        path: "/user/favorite",
-        element: <FavoritesPage />,
-        loader: fetchFavoriteList
-    },
-    {
-        path: "/user/cart",
-        element: <CartEntirePage />,
-        loader: fetchCartList
+        path: "/user",
+        children: [
+            {
+                path: "favorite",
+                element: <FavoritesPage />,
+                loader: fetchFavoriteList
+            },
+            {
+                path: "/user/cart",
+                element: <CartEntirePage />,
+                loader: fetchCartList
+            },
+            {
+                path: "/user/checkout",
+                element: <CheckoutEntirePage />,
+                loader: fetchUserProfileInfo
+            }
+        ]
     }
 ])

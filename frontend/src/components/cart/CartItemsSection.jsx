@@ -10,10 +10,16 @@ import { patchCartItemQuantity } from "../../api/patchCartItemQuantity"
 import { useEffect, useState } from "react";
 import { setOrderItemsList } from "../../store/features/orderSlice";
 
-export const CartItemsSection = () => {
+export const CartItemsSection = ({data}) => {
 
     const dispatch = useDispatch();
     const cartItemList = useSelector((state) => state.cart.cartItemsList);
+    const orderItemsList = useSelector((state) => state.order.orderItemsList)
+
+    useEffect(() => {
+        dispatch(setCartItemsList(data));
+    }, [data, dispatch])
+
     const language = useSelector((state) => state.language.language);
     const isEnglish = language === "en";
     const showAlertCartItemIdList = useSelector((state) => state.cart.showAlertCartItemIdList)
@@ -22,10 +28,14 @@ export const CartItemsSection = () => {
         if (value <= 0) return;
         const response = await patchCartItemQuantity(cartItemId, value)
         if (response.status === 200) {
-            const newList = cartItemList.map((item) =>
+            const newCartList = cartItemList.map((item) =>
                 item.cartItemId === cartItemId ? { ...item, quantity: value } : item
             )
-            dispatch(setCartItemsList(newList))
+            dispatch(setCartItemsList(newCartList))
+            const newOrderList = orderItemsList.map((item) => 
+                item.cartItemId === cartItemId ? { ...item, quantity: value } : item
+            )
+            dispatch(setOrderItemsList(newOrderList))
             const newShowAlertCartItemIdList = showAlertCartItemIdList.filter((id) => id !== cartItemId)
             dispatch(setShowAlertCartItemIdList(newShowAlertCartItemIdList))
         } else if (response.status === 400) {
@@ -35,7 +45,6 @@ export const CartItemsSection = () => {
     }
 
     const orderItemList = useSelector((state) => state.order.orderItemsList);
-
 
 
     useEffect(() => {

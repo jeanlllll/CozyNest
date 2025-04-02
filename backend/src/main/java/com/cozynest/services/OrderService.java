@@ -32,6 +32,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderService {
@@ -72,13 +73,16 @@ public class OrderService {
     @Value("${Stripe.payment.cancel.url}")
     String STRIPE_PAYMENT_CANCEL_URL;
 
-    private final int FREE_STANDARD_TRANSPORTATION_FEE_MIN = 350;
+    private final int FREE_STANDARD_TRANSPORTATION_FEE_MIN = 300;
 
     @Autowired
     EmailService emailService;
 
     @Autowired
     CartItemRepository cartItemRepository;
+
+    @Autowired
+    CartRedisService cartRedisService;
 
     @Transactional
     public Map<String, String> createCheckOutSession(OrderRequest orderRequest, UUID clientId) throws StripeException {
@@ -88,28 +92,32 @@ public class OrderService {
         Client client = clientRepository.findById(clientId).get();
 
         // 1.check cartItem exists in cart Items list and product quantity is enough or not and cal the price
-        float originalAmount = checkProductQuantityNCalPrice(orderRequest.getOrderCartItemDtoList());
+        float originalAmount = checkProductQuantityNCalPrice(orderRequest.getOrderCartItemDtoList(), clientId);
         totalPrice = originalAmount;
+        System.out.println(originalAmount);
 
-        // 2. check whether discount use and match discount usage requirement
-        Discount discount = discountRepository.findByDiscountCode(orderRequest.getDiscountCode());
-        float discountAmount = 0;
-        if (discount != null) {
-            discountAmount = checkDiscountAmount(originalAmount, discount);
-        }
-        totalPrice -= discountAmount;
-
-        // 3. check promotion Discount Amount;
+        // 2. check promotion Discount Amount;
         List<OrderCartItemDto> orderCartItemDtoList = orderRequest.getOrderCartItemDtoList();
         float promotionDiscountPercent = checkPromotionDiscountAmount(orderCartItemDtoList);
         float promotionDiscountAmount = totalPrice - totalPrice * promotionDiscountPercent;
         totalPrice -= promotionDiscountAmount;
+        System.out.println(promotionDiscountAmount);
+
+        // 3. check whether discount use and match discount usage requirement
+        Discount discount = discountRepository.findByDiscountCode(orderRequest.getDiscountCode());
+        float discountAmount = 0;
+        if (discount != null) {
+            discountAmount = checkDiscountAmount(originalAmount-promotionDiscountAmount, discount);
+        }
+        totalPrice -= discountAmount;
+        System.out.println(discountAmount);
 
         // 4. check transportation fee
         DeliveryMethod methodEnum = DeliveryMethod.valueOf(orderRequest.getDeliveryMethod());
         Delivery delivery = deliveryRepository.findByDeliveryMethod(methodEnum);
         float transportation_fee = checkTransportationFee(delivery, totalPrice);
-        totalPrice -= transportation_fee;
+        totalPrice += transportation_fee;
+        System.out.println(transportation_fee);
 
         // 5. create order entity in database
         Order order = new Order();
@@ -207,8 +215,9 @@ public class OrderService {
         cartItemList.removeIf(cartItem -> cartItemIdSet.contains(cartItem.getId()));
     }
 
-    private float checkProductQuantityNCalPrice(List<OrderCartItemDto> orderCartItemDtoList) {
+    private float checkProductQuantityNCalPrice(List<OrderCartItemDto> orderCartItemDtoList, UUID userId) {
         float totalPrice = 0;
+        List<CartItemDto> cartItemDtos = cartRedisService.getCartList(userId);
         for (OrderCartItemDto cartItemDto : orderCartItemDtoList) {
 
             // 1. check whether cart items exists in cart items list
@@ -238,8 +247,13 @@ public class OrderService {
                 cartItem.get().setQuantity(cartItemDto.getQuantity());
             }
 
-            // 4. calculate total price
+            cartItemDtos = cartItemDtos.stream().filter(dto -> dto.getCartItemId().equals(cartItemDto.getCartItemId())).collect(Collectors.toList());
+
+            // 5. calculate total price
             totalPrice += product.getPrice() * cartItemDto.getQuantity();
+
+            //6. update new cart item list to redis
+            cartRedisService.saveCartItemsList(userId, cartItemDtos);
         }
 
         return totalPrice;

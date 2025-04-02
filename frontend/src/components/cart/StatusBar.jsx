@@ -12,14 +12,14 @@ export const StatusBar = ({status}) => {
 
             <div className="w-120 border-t translate-y-1/2 border-gray-400"></div>
 
-            <div className={`flex flex-row items-center ${status === "checkout"? "text-buttonMain" : "text-gray-500"}`}>
+            <div className={`flex flex-row items-center ${status === "checkout"? "text-buttonMain font-bold" : "text-gray-500"}`}>
             {status === "checkout" ? <div><TaskAltIcon/></div> : <div><CheckCircleOutlineIcon/></div>}
                 <div className="">CheckOut</div>
             </div>
 
             <div className="w-125  border-t translate-y-1/2 border-gray-400"></div>
 
-            <div className={`flex flex-row items-center ${status === "paymentSummary"? "text-buttonMain" : "text-gray-500"}`}>
+            <div className={`flex flex-row items-center ${status === "paymentSummary"? "text-buttonMain font-bold" : "text-gray-500"}`}>
             {status === "paymentSummary" ? <div><TaskAltIcon/></div> : <div><CheckCircleOutlineIcon/></div>}
                 <div className="">Payment Summary</div>
             </div>

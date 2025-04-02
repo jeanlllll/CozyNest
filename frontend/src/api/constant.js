@@ -44,5 +44,9 @@ export const getDiscountCodeUrl = (discountCode) => {
     return `/api/discountCode?discountCode=${discountCode}`
 }
 
+export const getUserProfileUrl = "/api/client/profile"
+
+export const postOrderUrl = "/api/orders"
+
 
 
