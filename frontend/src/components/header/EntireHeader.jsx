@@ -2,14 +2,14 @@ import { LanguageLoginHeader } from "./LanguageLoginHeader"
 import { Navigation } from "./Navigation"
 import { PromotionBar } from "./PromotionBar"
 
-export const EntireHeader = ({needSearchBar, needCategory, }) => {
+export const EntireHeader = ({needSearchBar, needCategory, needPromotionBar}) => {
     return (
         <>
             {/* Desktop Header */}
             <div className="hidden sm:block sm:w-full">
                 <LanguageLoginHeader />
                 <Navigation needSearchBar={needSearchBar} needCategory={needCategory}/>
-                <PromotionBar/>
+                {needPromotionBar && <PromotionBar/>}
             </div>
 
             {/* Mobile Header */}

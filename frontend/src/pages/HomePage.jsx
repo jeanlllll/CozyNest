@@ -36,7 +36,7 @@ export const HomePage = () => {
                 <section className="lg:h-dvh flex flex-col lg:snap-start">
                     {/* Header */}
                     <div className="relative z-20">
-                        <EntireHeader needSearchBar={true} needCategory={true}/>
+                        <EntireHeader needSearchBar={true} needCategory={true} needPromotionBar={true}/>
                     </div>
 
                     {/* Hero Section */}

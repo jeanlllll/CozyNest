@@ -2,6 +2,7 @@ package com.cozynest.services;
 
 import com.cozynest.Exceptions.CartItemNotFoundException;
 import com.cozynest.Exceptions.ProductNotFoundException;
+import com.cozynest.Helper.RoundNumberToTwoDecimalHelper;
 import com.cozynest.auth.entities.Client;
 import com.cozynest.auth.repositories.ClientRepository;
 import com.cozynest.auth.repositories.ShopUserRepository;
@@ -29,6 +30,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -84,6 +87,9 @@ public class OrderService {
     @Autowired
     CartRedisService cartRedisService;
 
+    @Autowired
+    RoundNumberToTwoDecimalHelper roundNumberToTwoDecimalHelper;
+
     @Transactional
     public Map<String, String> createCheckOutSession(OrderRequest orderRequest, UUID clientId) throws StripeException {
 
@@ -131,12 +137,12 @@ public class OrderService {
 
         // 7. create order entity
         order.setOrderDate(LocalDateTime.now());
-        order.setOriginalAmount(originalAmount);
-        order.setTotalAmount(totalPrice);
-        order.setPromotionDiscountAmount(promotionDiscountAmount);
-        order.setTransportationAmount(transportation_fee);
+        order.setOriginalAmount(roundNumberToTwoDecimalHelper.roundNumberToTwoDecimalFloatNumber(originalAmount));
+        order.setTotalAmount(roundNumberToTwoDecimalHelper.roundNumberToTwoDecimalFloatNumber(totalPrice));
+        order.setPromotionDiscountAmount(roundNumberToTwoDecimalHelper.roundNumberToTwoDecimalFloatNumber(promotionDiscountAmount));
+        order.setTransportationAmount(roundNumberToTwoDecimalHelper.roundNumberToTwoDecimalFloatNumber(transportation_fee));
         order.setOrderStatus(OrderStatus.PRE_ORDER);
-        order.setDiscountAmount(discountAmount);
+        order.setDiscountAmount(roundNumberToTwoDecimalHelper.roundNumberToTwoDecimalFloatNumber(discountAmount));
         order.setClient(client);
         order.setAddress(address);
         order.setDiscount(discount);
@@ -172,7 +178,7 @@ public class OrderService {
                 .setMode(SessionCreateParams.Mode.PAYMENT)
                 .addLineItem(lineItem)
                 .putMetadata("orderId", order.getId().toString())
-                .setSuccessUrl(STRIPE_PAYMENT_SUCCESS_URL) //if stripe payment success, front end will return to this
+                .setSuccessUrl(STRIPE_PAYMENT_SUCCESS_URL + "?session_id={CHECKOUT_SESSION_ID}") //if stripe payment success, front end will return to this
                 .setCancelUrl(STRIPE_PAYMENT_CANCEL_URL) //if stripe payment fail, front end will return to this
                 .build();
 
@@ -182,17 +188,17 @@ public class OrderService {
         Payment payment = new Payment();
         payment.setOrder(order);
         payment.setPaymentIntentId(session.getPaymentIntent());
-        payment.setAmount(totalPrice);
+        payment.setAmount(roundNumberToTwoDecimalHelper.roundNumberToTwoDecimalFloatNumber(totalPrice));
         payment.setCurrency(Currency.HKD);
         payment.setPaymentStatus(PaymentStatus.PENDING);
         payment.setCreatedAt(LocalDateTime.now());
+        payment.setSessionId(session.getId());
         order.setPayment(payment);
         paymentRepository.save(payment);
         orderRepository.save(order);
 
         return Map.of(
-                "checkoutUrl", session.getUrl(),
-                "sessionId", session.getId()
+                "checkoutUrl", session.getUrl()
         );
 
     }

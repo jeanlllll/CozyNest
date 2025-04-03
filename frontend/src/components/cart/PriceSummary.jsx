@@ -147,7 +147,7 @@ export const PriceSummary = ({ needButton, needTransportationFee }) => {
 
             <div className="flex flex-row justify-between border-t border-gray-600 py-4">
                 <div className="justify-start font-bold">Total</div>
-                <div className="justify-end  font-bold">{new Intl.NumberFormat('en-US', { minimumFractionDigits: 1 }).format(totalOriginalPrice - promotionAmount - discountAmount + transportationFee)}</div>
+                <div className="justify-end  font-bold">{totalOriginalPrice !== 0 ? new Intl.NumberFormat('en-US', { minimumFractionDigits: 1 }).format(totalOriginalPrice - promotionAmount - discountAmount + transportationFee) : 0.0}</div>
             </div>
 
             {needButton && <div className="flex flex-row w-full gap-5 mt-3">

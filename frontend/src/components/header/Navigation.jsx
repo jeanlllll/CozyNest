@@ -8,7 +8,6 @@ import { useSelector } from "react-redux"
 import { Navigate, useNavigate, useParams } from "react-router"
 import { resetFilters } from "../../store/features/filtersSlice"
 import { useDispatch } from "react-redux"
-import { resetFavoriteList, resetFavoritePage, setFavoritePage } from "../../store/features/favoriteSlice"
 
 export const Navigation = ({ needSearchBar, needCategory }) => {
     const language = useSelector((state) => state.language.language);

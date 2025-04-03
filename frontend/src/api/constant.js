@@ -48,5 +48,9 @@ export const getUserProfileUrl = "/api/client/profile"
 
 export const postOrderUrl = "/api/orders"
 
+export const getOrderIdStatusUrl = (sessionId) => {
+    return `/api/payment/session/${sessionId}`
+}
+
 
 

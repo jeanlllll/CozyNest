@@ -59,6 +59,7 @@ export const CheckoutPage = () => {
             const response = await postOrder(orderCartItemDtoList, shippingInfoDto, deliveryMethod, discountCode);
 
             if (response.status === 200) {
+                const { checkoutUrl } = response.data;
                 window.location.href = response.data.checkoutUrl;
                 dispatch(resetOrderDetail);
             } else {

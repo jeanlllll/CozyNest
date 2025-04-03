@@ -32,7 +32,7 @@ public class StatelessCSRFFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        if (request.getRequestURI().endsWith("/api/webhook")) {
+        if (request.getRequestURI().endsWith("/webhook")) {
             filterChain.doFilter(request, response);
             return;
         }

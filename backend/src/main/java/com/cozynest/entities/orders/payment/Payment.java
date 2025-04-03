@@ -23,6 +23,7 @@ public class Payment {
     @JoinColumn(name = "shop_order_id")
     private Order order;
 
+    @Column(nullable = false, unique = true)
     private String paymentIntentId;
 
     @Column(nullable = false)
@@ -44,5 +45,8 @@ public class Payment {
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
+
+    @Column(nullable = false, unique = true)
+    private String sessionId;
 
 }

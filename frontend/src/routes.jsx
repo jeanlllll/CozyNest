@@ -20,6 +20,8 @@ import { CartEntirePage } from './pages/CartEntirePage.jsx';
 import { fetchCartList } from './api/fetchCartList.js';
 import { CheckoutEntirePage } from './pages/CheckoutEntirePage.jsx';
 import { fetchUserProfileInfo } from './api/fetchUserProfile.js';
+import { getOrderPaymentStatus } from './api/getOrderPaymentStatus.js';
+import { PaymentSummaryPage } from './pages/PaymentSummaryPage.jsx';
 
 export const router = createBrowserRouter([
     {
@@ -82,7 +84,23 @@ export const router = createBrowserRouter([
                 path: "/user/checkout",
                 element: <CheckoutEntirePage />,
                 loader: fetchUserProfileInfo
+            },
+            {
+                path: "/user/payment",
+                element: <PaymentSummaryPage />,
+                loader: async ({ request }) => {
+                    const url = new URL(request.url);
+                    const sessionId = url.searchParams.get("session_id");
+
+                    if (!sessionId || sessionId === "null") {
+                        console.warn("Missing or invalid session_id in URL");
+                        return { error: "Invalid session ID" };
+                    }
+                    
+                    return getOrderPaymentStatus(sessionId);
+                }
             }
         ]
-    }
+    },
+
 ])
