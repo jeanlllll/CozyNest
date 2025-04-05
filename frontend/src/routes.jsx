@@ -1,5 +1,5 @@
 import React from 'react';
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, useParams } from "react-router-dom";
 import { HomePage } from "./pages/HomePage.jsx";
 import { ShopApplicationWrapper } from "./pages/ShopApplicationWrapper.jsx";
 import { fetchTrendingProduct } from "./api/fetchTrendingProduct.js";
@@ -22,6 +22,8 @@ import { CheckoutEntirePage } from './pages/CheckoutEntirePage.jsx';
 import { fetchUserProfileInfo } from './api/fetchUserProfile.js';
 import { getOrderPaymentStatus } from './api/getOrderPaymentStatus.js';
 import { PaymentSummaryPage } from './pages/PaymentSummaryPage.jsx';
+import { OrderDetailPage } from './pages/OrderDetailPage.jsx';
+import { getOrderDetailById } from './api/getOrderDetailById.js';
 
 export const router = createBrowserRouter([
     {
@@ -96,8 +98,16 @@ export const router = createBrowserRouter([
                         console.warn("Missing or invalid session_id in URL");
                         return { error: "Invalid session ID" };
                     }
-                    
+
                     return getOrderPaymentStatus(sessionId);
+                }
+            },
+            {
+                path: "/user/order/:orderId",
+                element: <OrderDetailPage />,
+                loader: async ({ params, request }) => {
+                    const {orderId} = params;
+                    return getOrderDetailById(orderId);
                 }
             }
         ]

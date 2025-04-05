@@ -1,8 +1,10 @@
 package com.cozynest.Exceptions;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
 @RestControllerAdvice //@ControllerAdvice + @ResponseBody
 public class GlobalExceptionHandler {
@@ -35,6 +37,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DiscountCodeExpireException.class)
     public ResponseEntity<?>  handleDiscountCodeExpire(Exception ex) {
         return ResponseEntity.status(410).body(ex.getMessage()); //410 - gone http status
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<?>  handleEntityNotFound(Exception ex) {
+        return ResponseEntity.status(404).body(ex.getMessage());
     }
 
     @ExceptionHandler(Exception.class)

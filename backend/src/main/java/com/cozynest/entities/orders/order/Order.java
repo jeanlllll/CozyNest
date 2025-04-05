@@ -40,6 +40,7 @@ public class Order {
     @JoinColumn(name="client_id")
     private Client client;
 
+    @Column(nullable = false)
     private String address;
 
     @ManyToOne
@@ -57,6 +58,9 @@ public class Order {
     @ManyToOne
     @JoinColumn(name="delivery_id")
     private Delivery delivery;
+
+    @Column(nullable = false)
+    private String receiver;
 
     @Column(nullable = false)
     private String phoneNumber;

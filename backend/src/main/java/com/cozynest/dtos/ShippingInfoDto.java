@@ -1,10 +1,18 @@
 package com.cozynest.dtos;
 
+import com.cozynest.auth.entities.Client;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.UUID;
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ShippingInfoDto {
 
     @NotBlank
@@ -13,7 +21,6 @@ public class ShippingInfoDto {
     @NotBlank
     String phoneNumber;
 
-    @NotNull
-    AddressDto address;
+    AddressDto addressDto;
 
 }

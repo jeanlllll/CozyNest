@@ -45,7 +45,8 @@ export const CheckoutPage = () => {
         const shippingInfoDto = {
             receiver: formData.receiver,
             phoneNumber: formData.phoneNumber,
-            address: {
+            addressDto: {
+                addressId: formData.adddressId,
                 floorNBuilding: formData.floorNBuilding, 
                 street: formData.street,
                 city: formData.city,

@@ -85,7 +85,12 @@ public class ProductService {
 
         List<ProductVariant> productVariantList = product.getProductVariants();
         List<ProductVariantDto> productVariantDtoList = productVariantList.stream()
-                .map(productVariant -> new ProductVariantDto(productVariant)).collect(Collectors.toList());
+                .map(productVariant ->
+                    {
+                        ProductDisplayDto productDisplayDto = new ProductDisplayDto(productVariant.getProductDisplay());
+                        return new ProductVariantDto(productVariant);
+                    })
+                .collect(Collectors.toList());
         productResponse.setProductVariantDtoList(productVariantDtoList);
 
         //logN (b tree) + m, m is the item in list

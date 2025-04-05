@@ -1,11 +1,10 @@
 import { setSizeNProductVariantIdSelected } from "../../store/features/productPageSlice";
 import { useDispatch } from "react-redux";
 
-export const SizeButton = ({isAvailable, key, size, sizeSelected, onClickFunc, productVariantId}) => {
+export const SizeButton = ({isAvailable, size, sizeSelected, onClickFunc, productVariantId}) => {
 
     return (
         <div
-            key={key}
             className={`relative w-18 py-2 rounded-md text-white text-center mr-3 drop-shadow-lg
                                         ${isAvailable ? "bg-buttonMain hover:bg-gray-800 cursor-pointer" :
                     "bg-gray-400 opacity-50 cursor-not-allowed"} ${sizeSelected === size? "ring-2 ring-offset-2 ring-gray-800": ""}`}

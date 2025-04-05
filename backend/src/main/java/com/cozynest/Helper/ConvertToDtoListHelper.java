@@ -61,9 +61,8 @@ public class ConvertToDtoListHelper {
         return productDisplayDtoList;
     }
 
-    public ProductDisplayDto getProductDisplayDetail(ProductVariant productVariant) {
-        UUID productDisplayId = productVariant.getProductDisplayId();
-        ProductDisplay productDisplay = productDisplayRepository.findById(productDisplayId).get();
+    public ProductDisplayDto getProductDisplayDetailFromProductVariant(ProductVariant productVariant) {
+        ProductDisplay productDisplay = productVariant.getProductDisplay();
         return new ProductDisplayDto(productDisplay);
     }
 

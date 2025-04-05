@@ -52,5 +52,9 @@ export const getOrderIdStatusUrl = (sessionId) => {
     return `/api/payment/session/${sessionId}`
 }
 
+export const getOrderDetailByIdUrl = (orderId) => {
+    return `/api/orders/${orderId}`
+}
+
 
 

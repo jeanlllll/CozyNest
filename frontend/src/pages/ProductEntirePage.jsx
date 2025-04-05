@@ -5,7 +5,7 @@ import { ProductPage } from "./ProductPage"
 export const ProductEntirePage = () => {
     return (
         <div className="font-inter">
-            <EntireHeader needSearchBar={false} needCategory={false}/>
+            <EntireHeader needSearchBar={false} needCategory={false} needPromotionBar={true}/>
             <ProductPage />
             <EntireFooter />
         </div>

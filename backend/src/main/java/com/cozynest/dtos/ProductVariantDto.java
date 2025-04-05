@@ -1,5 +1,6 @@
 package com.cozynest.dtos;
 
+import com.cozynest.entities.products.product.ProductDisplay;
 import com.cozynest.entities.products.product.ProductVariant;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,6 +32,7 @@ public class ProductVariantDto {
             isAvailable = false;
         }
         this.gender = productVariant.getGender();
-        this.productDisplayId = productVariant.getProductDisplayId();
+        this.productDisplayId = productVariant.getProductDisplay().getId();
     }
+
 }

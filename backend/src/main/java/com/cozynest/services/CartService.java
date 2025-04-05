@@ -6,6 +6,7 @@ import com.cozynest.auth.entities.Client;
 import com.cozynest.auth.repositories.ClientRepository;
 import com.cozynest.dtos.*;
 import com.cozynest.entities.products.product.Product;
+import com.cozynest.entities.products.product.ProductDisplay;
 import com.cozynest.entities.products.product.ProductVariant;
 import com.cozynest.entities.profiles.cart.Cart;
 import com.cozynest.entities.profiles.cart.CartItem;
@@ -217,7 +218,10 @@ public class CartService {
         ProductVariantDto productVariantDto = convertToDtoListHelper.convertProductVariantDto(productVariant);
         cartItemDto.setProductVariantDto(productVariantDto);
         cartItemDto.setQuantity(cartItem.getQuantity());
-        cartItemDto.setProductDisplayDto(convertToDtoListHelper.getProductDisplayDetail(productVariant));
+
+        ProductDisplay productDisplay = productVariant.getProductDisplay();
+        ProductDisplayDto productDisplayDto = new ProductDisplayDto(productDisplay);
+        cartItemDto.setProductDisplayDto(productDisplayDto);
         return cartItemDto;
     }
 

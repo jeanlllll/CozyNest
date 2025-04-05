@@ -2,6 +2,7 @@ package com.cozynest.services;
 
 import com.cozynest.Exceptions.CartItemNotFoundException;
 import com.cozynest.Exceptions.ProductNotFoundException;
+import com.cozynest.Helper.ConvertToDtoListHelper;
 import com.cozynest.Helper.RoundNumberToTwoDecimalHelper;
 import com.cozynest.auth.entities.Client;
 import com.cozynest.auth.repositories.ClientRepository;
@@ -15,9 +16,9 @@ import com.cozynest.entities.orders.payment.Currency;
 import com.cozynest.entities.orders.payment.Payment;
 import com.cozynest.entities.orders.payment.PaymentStatus;
 import com.cozynest.entities.products.product.Product;
+import com.cozynest.entities.products.product.ProductDisplay;
 import com.cozynest.entities.products.product.ProductVariant;
 import com.cozynest.entities.profiles.Address;
-import com.cozynest.entities.profiles.cart.Cart;
 import com.cozynest.entities.profiles.cart.CartItem;
 import com.cozynest.repositories.*;
 import com.stripe.exception.StripeException;
@@ -25,13 +26,10 @@ import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import jakarta.validation.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -90,6 +88,48 @@ public class OrderService {
     @Autowired
     RoundNumberToTwoDecimalHelper roundNumberToTwoDecimalHelper;
 
+    @Autowired
+    ConvertToDtoListHelper convertToDtoListHelper;
+
+    public OrderResponseDto getOrderByOrderId(UUID orderId) {
+        Optional<Order> foundOrder = orderRepository.findById(orderId);
+        if (!foundOrder.isPresent()) {
+            throw new EntityNotFoundException("Cannot find orderId");
+        }
+        Order order = foundOrder.get();
+        List<OrderProductDto> orderProductDtoList = getOrderProductDtoListFromOrder(order);
+        Payment payment = order.getPayment();
+        Delivery delivery = order.getDelivery();
+
+        LocalDate shippingDate = order.getDeliveryDate() == null? null : order.getDeliveryDate().toLocalDate();
+        LocalDate paymentDate = payment.getPaymentDate() == null? null : payment.getPaymentDate().toLocalDate();
+
+        OrderResponseDto orderResponseDto = OrderResponseDto.builder()
+                .orderId(order.getId())
+                .orderDate(order.getOrderDate().toLocalDate())
+                .paymentStatus(String.valueOf(payment.getPaymentStatus()))
+                .paymentDate(paymentDate)
+                .orderStatus(String.valueOf(order.getOrderStatus()))
+                .trackingNumber(order.getShipmentTrackingNumber())
+                .shippingDate(shippingDate)
+                .orderProductDtoList(orderProductDtoList)
+                .receiver(order.getReceiver())
+                .phoneNumber(order.getPhoneNumber())
+                .shippingAddress(order.getAddress())
+                .paymentMethod(payment.getPaymentMethod())
+                .paymentStatus(String.valueOf(payment.getPaymentStatus()))
+                .shippingMethod(String.valueOf(delivery.getDeliveryMethod()))
+                .originalPrice(order.getOriginalAmount())
+                .promotionPrice(order.getPromotionDiscountAmount())
+                .discountCodeUsed(order.getDiscount().getDiscountCode())
+                .discountPrice(order.getDiscountAmount())
+                .transportationPrice(order.getTransportationAmount())
+                .totalPrice(order.getTotalAmount())
+                .build();
+
+        return orderResponseDto;
+    }
+
     @Transactional
     public Map<String, String> createCheckOutSession(OrderRequest orderRequest, UUID clientId) throws StripeException {
 
@@ -133,7 +173,7 @@ public class OrderService {
 
 
         // 6. convert address dto to string
-        String address = getAddressStringFromAddressDto(orderRequest.getShippingInfoDto().getAddress(), client);
+        String address = getAddressStringFromAddressDto(orderRequest.getShippingInfoDto().getAddressDto(), client);
 
         // 7. create order entity
         order.setOrderDate(LocalDateTime.now());
@@ -143,6 +183,7 @@ public class OrderService {
         order.setTransportationAmount(roundNumberToTwoDecimalHelper.roundNumberToTwoDecimalFloatNumber(transportation_fee));
         order.setOrderStatus(OrderStatus.PRE_ORDER);
         order.setDiscountAmount(roundNumberToTwoDecimalHelper.roundNumberToTwoDecimalFloatNumber(discountAmount));
+        order.setReceiver(orderRequest.getShippingInfoDto().getReceiver());
         order.setClient(client);
         order.setAddress(address);
         order.setDiscount(discount);
@@ -201,6 +242,32 @@ public class OrderService {
                 "checkoutUrl", session.getUrl()
         );
 
+    }
+
+    private List<OrderProductDto> getOrderProductDtoListFromOrder(Order order) {
+        List<OrderItem> orderItemList = order.getOrderItems();
+        List<OrderProductDto> orderProductDtoList = new ArrayList<>();
+
+        for (OrderItem orderItem : orderItemList) {
+            Product product = orderItem.getProduct();
+            List<ProductTranslationDto> productTranslationDtoList = convertToDtoListHelper.getProductTranslationDtoList(product);
+            ProductVariant productVariant = orderItem.getProductVariant();
+            ProductDisplayDto productDisplayDto = convertToDtoListHelper.getProductDisplayDetailFromProductVariant(productVariant);
+
+            OrderProductDto orderProductDto =  OrderProductDto.builder()
+                    .productId(product.getId())
+                    .productTranslationDtoList(productTranslationDtoList)
+                    .productDisplayDto(productDisplayDto)
+                    .color(productVariant.getColor())
+                    .gender(productVariant.getGender())
+                    .size(productVariant.getSize())
+                    .quantity(orderItem.getQuantity())
+                    .productTotalPrice(orderItem.getQuantity() * product.getPrice())
+                    .build();
+            orderProductDtoList.add(orderProductDto);
+        }
+
+        return orderProductDtoList;
     }
 
     /* check promotion Discount here --- buy 3 items get 10% off */

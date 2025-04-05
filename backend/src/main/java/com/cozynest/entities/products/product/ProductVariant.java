@@ -32,6 +32,8 @@ public class ProductVariant {
     private Product product;
 
     private Character gender;
-    
-    private UUID productDisplayId;
+
+    @ManyToOne
+    @JoinColumn(name="product_display_id")
+    private ProductDisplay productDisplay;
 }

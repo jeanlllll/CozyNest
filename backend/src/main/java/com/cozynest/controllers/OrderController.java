@@ -3,6 +3,7 @@ package com.cozynest.controllers;
 import com.cozynest.Helper.BindingResultHelper;
 import com.cozynest.Helper.CheckAuthenticationHelper;
 import com.cozynest.dtos.OrderRequest;
+import com.cozynest.dtos.OrderResponseDto;
 import com.cozynest.services.OrderService;
 import com.stripe.exception.StripeException;
 import jakarta.validation.Valid;
@@ -35,4 +36,9 @@ public class OrderController {
         return ResponseEntity.ok(paymentMap);
     }
 
+    @GetMapping("{orderId}")
+    public ResponseEntity<OrderResponseDto> getOrderByOrderId(@PathVariable UUID orderId) {
+        OrderResponseDto orderResponseDto = orderService.getOrderByOrderId(orderId);
+        return ResponseEntity.ok(orderResponseDto);
+    }
 }
