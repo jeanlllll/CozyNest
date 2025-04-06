@@ -7,6 +7,7 @@ import favoriteReducer from "./features/favoriteSlice";
 import loginReducer from "./features/loginStatusSlice";
 import orderReducer from "./features/orderSlice";
 import cartReducer from "./features/CartItemsSlice";
+import chatReducer from "./features/chatHistory";
 
 export const store = configureStore({
     reducer:{
@@ -18,5 +19,6 @@ export const store = configureStore({
         login: loginReducer,
         order: orderReducer,
         cart: cartReducer,
+        chat: chatReducer,
     }
 });

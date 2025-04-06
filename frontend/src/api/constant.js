@@ -56,5 +56,8 @@ export const getOrderDetailByIdUrl = (orderId) => {
     return `/api/orders/${orderId}`
 }
 
+export const sendChatMessageUrl = "/api/ai/chat"
+
+export const getChatHistoryUrl = (sessionId) => `/api/ai/history?sessionId=${sessionId}`
 
 

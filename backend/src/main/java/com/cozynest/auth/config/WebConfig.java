@@ -15,6 +15,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CsrfFilter;
+import org.springframework.web.client.RestTemplate;
 
 
 import static org.springframework.security.config.Customizer.withDefaults;
@@ -47,6 +48,7 @@ public class WebConfig {
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers("/api/home/**").permitAll()
                         .requestMatchers("/api/csrf/**").permitAll()
+                        .requestMatchers("/api/ai/**").permitAll()
                         .requestMatchers("/api/payment/**").hasAuthority("CLIENT")
                         .requestMatchers("/api/product/**").permitAll()
                         .requestMatchers("/api/discountCode/**").permitAll()
@@ -66,5 +68,10 @@ public class WebConfig {
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
     }
 }
