@@ -1,16 +1,13 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { setMinPrice, setMaxPrice } from "../../store/features/filtersSlice";
-import { useEffect } from "react";
-import { fitlersToStringParams } from "../../Helper/filtersToStringParams";
-import { useNavigate } from "react-router";
 
 export const PriceSlider = ({ category, filters, isEnglish }) => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
+  const priceUpdateTimeoutRef = useRef(null);
 
-  const [localMinPrice, setLocalMinPrice] = useState(0);
-  const [localMaxPrice, setLocalMaxPrice] = useState(300);
+  const [localMinPrice, setLocalMinPrice] = useState(filters.minPrice);
+  const [localMaxPrice, setLocalMaxPrice] = useState(filters.maxPrice);
 
   const handleChangeOnMin = (e) => {
     const newMin = Number(e.target.value);
@@ -32,15 +29,41 @@ export const PriceSlider = ({ category, filters, isEnglish }) => {
     }
   };
 
-  const handleSliderRelease = () => {
-    dispatch(setMinPrice(localMinPrice));
-    dispatch(setMaxPrice(localMaxPrice));
-  }
-
+  // Only update Redux state with debouncing
   useEffect(() => {
-    const queryString = fitlersToStringParams({ category, filters });
-    navigate(`/category/${category}?${queryString}`);
+    if (priceUpdateTimeoutRef.current) {
+      clearTimeout(priceUpdateTimeoutRef.current);
+    }
+
+    priceUpdateTimeoutRef.current = setTimeout(() => {
+      dispatch(setMinPrice(localMinPrice));
+      dispatch(setMaxPrice(localMaxPrice));
+    }, 300);
+
+    return () => {
+      if (priceUpdateTimeoutRef.current) {
+        clearTimeout(priceUpdateTimeoutRef.current);
+      }
+    };
+  }, [localMinPrice, localMaxPrice, dispatch]);
+
+  // Sync with external price changes
+  useEffect(() => {
+    if (filters.minPrice !== localMinPrice) {
+      setLocalMinPrice(filters.minPrice);
+    }
+    if (filters.maxPrice !== localMaxPrice) {
+      setLocalMaxPrice(filters.maxPrice);
+    }
   }, [filters.minPrice, filters.maxPrice]);
+
+  // Handle mobile input validation
+  const handleMobileInput = (e, setter) => {
+    const value = e.target.value;
+    if (value === '' || (Number(value) >= 0 && Number(value) <= 300)) {
+      setter(Number(value) || 0);
+    }
+  };
 
   return (
     <>
@@ -61,7 +84,6 @@ export const PriceSlider = ({ category, filters, isEnglish }) => {
             max="300"
             value={localMinPrice}
             onChange={handleChangeOnMin}
-            onMouseUp={handleSliderRelease}
             className="absolute top-0 w-full h-10 appearance-none bg-transparent z-20 cursor-pointer
             pointer-events-none
             [&::-webkit-slider-thumb]:pointer-events-auto
@@ -79,7 +101,6 @@ export const PriceSlider = ({ category, filters, isEnglish }) => {
             max="300"
             value={localMaxPrice}
             onChange={handleChangeOnMax}
-            onMouseUp={handleSliderRelease}
             className="absolute top-0 w-full h-10 appearance-none bg-transparent z-20 cursor-pointer
             pointer-events-none
             [&::-webkit-slider-thumb]:pointer-events-auto
@@ -97,29 +118,25 @@ export const PriceSlider = ({ category, filters, isEnglish }) => {
         <span className="pr-2 text-gray-600 flex items-center">HKD</span>
 
         <input
-          type="text"
+          type="number"
           name="minPrice"
-          onChange={(e) => setLocalMinPrice(Number(e.target.value))}
-          onBlur={handleSliderRelease}
-          placeholder={`${localMinPrice}`}
+          onChange={(e) => handleMobileInput(e, setLocalMinPrice)}
+          value={localMinPrice}
           className="w-16 px-2 border border-gray-300 text-sm focus:outline-none focus:border-2 focus:border-gray-700 hover:outline-gray-700 rounded"
           min={0}
           max={300}
-          maxLength={3}
         />
 
         <span className="px-3 flex items-center">{isEnglish ? "to" : "至"}</span>
 
         <input
-          type="text"
+          type="number"
           name="maxPrice"
-          onChange={(e) => setLocalMaxPrice(Number(e.target.value))}
-          onBlur={handleSliderRelease}
-          placeholder={`${localMaxPrice}`}
-          className="w-16 px-2  border border-gray-300 text-sm focus:outline-none focus:border-2 focus:border-gray-700 hover:outline-gray-700 rounded"
+          onChange={(e) => handleMobileInput(e, setLocalMaxPrice)}
+          value={localMaxPrice}
+          className="w-16 px-2 border border-gray-300 text-sm focus:outline-none focus:border-2 focus:border-gray-700 hover:outline-gray-700 rounded"
           min={0}
           max={300}
-          maxLength={3}
         />
       </div >
 

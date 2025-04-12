@@ -9,7 +9,7 @@ import { Navigate, useNavigate, useParams } from "react-router"
 import { resetFilters } from "../../store/features/filtersSlice"
 import { useDispatch } from "react-redux"
 
-export const Navigation = ({ needSearchBar, needCategory }) => {
+export const Navigation = ({ needCategory }) => {
     const language = useSelector((state) => state.language.language);
     const [isEnglish, setIsEnglish] = useState(false);
     const navigate = useNavigate();
@@ -40,7 +40,7 @@ export const Navigation = ({ needSearchBar, needCategory }) => {
 
                 {/* Navigation Links */}
                 <div className="flex items-center justify-center font-inter text-lg font-bold text-white w-1/3 space-x-12">
-                    <span className={`cursor-pointer mr-12 drop-shadow-sm hover:scale-105  ${category === "men" ? "text-black" : ""}`}
+                    <span className={`cursor-pointer mr-12 drop-shadow-sm hover:scale-105 ${category === "men" ? "text-black" : ""}`}
                         onClick={() => handleCategoryOnClick("men")}
                     >
                         {isEnglish ? 'Men' : '男裝'}
@@ -60,11 +60,14 @@ export const Navigation = ({ needSearchBar, needCategory }) => {
                 <div className="flex justify-end items-center w-1/2 md:w-1/3 space-x-12">
 
                     <div className="flex items-center space-x-10">
-                        {/* Search Bar */}
-                        {needSearchBar && <SearchBar />}
 
                         {/* Icons */}
-                        <ProfileIcon />
+                        <div className="cursor-pointer hover:scale-105"
+                            onClick={() => {
+                                navigate("/user/profile");
+                            }}>
+                            <ProfileIcon />
+                        </div>
                         <div className="cursor-pointer hover:scale-105"
                             onClick={() => {
                                 navigate("/user/favorite");
@@ -89,9 +92,6 @@ export const Navigation = ({ needSearchBar, needCategory }) => {
             onClick={() => navigate("/")}
         >CozyNest</div>
         <div className="flex flex-row">
-            <div className="mr-3">
-                {needSearchBar && <SearchBar />}
-            </div>
             <div className="flex items-center">
                 <Menus needCategory={needCategory} category={category} />
             </div>

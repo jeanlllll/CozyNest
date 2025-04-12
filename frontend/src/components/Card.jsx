@@ -18,7 +18,7 @@ export const Card = ({ product, productImage, isEnglish }) => {
             <div className="relative">
 
                 {/* Link wraps the image */}
-                <Link to={`/category/${category}/${categoryTypes}/${linkEnName}${linkZnName}/${product.productId}/${languageCode}`}>
+                <Link to={`/category/${category}/${categoryTypes}/${linkEnName}${linkZnName}/${product.productId}/${languageCode}`} target="_blank">
                     {/* product Image */}
                     <img src={productImage} className="cursor-pointer" />
                 </Link>

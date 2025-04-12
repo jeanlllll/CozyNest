@@ -4,10 +4,10 @@ import filtersReducer from "./features/filtersSlice";
 import productPageReducer from "./features/productPageSlice";
 import reviewReducer from "./features/reviewSlice";
 import favoriteReducer from "./features/favoriteSlice";
-import loginReducer from "./features/loginStatusSlice";
 import orderReducer from "./features/orderSlice";
 import cartReducer from "./features/CartItemsSlice";
 import chatReducer from "./features/chatHistory";
+import authReducer from "./features/authSlice";
 
 export const store = configureStore({
     reducer:{
@@ -16,9 +16,9 @@ export const store = configureStore({
         productPageGlobalState: productPageReducer,
         review: reviewReducer,
         favorite: favoriteReducer,
-        login: loginReducer,
         order: orderReducer,
         cart: cartReducer,
         chat: chatReducer,
+        auth: authReducer
     }
 });

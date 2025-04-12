@@ -3,25 +3,40 @@ import { GoogleMailIcon } from "../assets/icons/GoogleMailIcon"
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom"
 import { fetchGoogleOauth2Url } from "../api/fetchGoogleOauth2Url";
+import { usePageMeta } from "../components/usePageMeta";
+import { postRegisterRequest } from "../api/postRegisterRequest";
 
 export const RegisterPage = () => {
     const language = useSelector((state) => state.language.language);
     const isEnglish = language === 'en';
     const navigate = useNavigate();
 
-    useEffect(() => {
-        document.title = isEnglish ? "CozyNest | Register" : "CozyNest | 注冊";
+    usePageMeta({ titleEn: "Register", titleZh: "注冊", isEnglish: isEnglish });
 
-        const favicon = document.querySelector("link[rel='icon']");
-        if (favicon) {
-            favicon.href = "/images/cozyNestLogo.png";
-          }
-    }, [isEnglish])
+    const [email, setEmail] = useState("");
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
+    const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [subscribe, setSubscribe] = useState("");
 
     const handleGoogleRegister = async () => {
         try {
             const { oauth_url } = await fetchGoogleOauth2Url();
             window.location.href = oauth_url;
+        } catch (error) {
+            console.log("error")
+        }
+    }
+
+    const handleGoogleManualRegister = async () => {
+        try {
+            const response = await postRegisterRequest({firstName, lastName, email, password, confirmPassword, subscribe});
+            if (response.status === 200) {
+                navigate("/user/verify-email", {state: {email: email}})
+            } else {
+                alert(response.data)
+            }
         } catch (error) {
             console.log("error")
         }
@@ -57,6 +72,7 @@ export const RegisterPage = () => {
                                 <label for="firstName" className="text-lg font-semibold">{isEnglish ? "First Name" : "名字"}</label>
                                 <input id="firstName" type="text"
                                     placeholder="Peter"
+                                    onChange={(e) => setFirstName(e.target.value)}
                                     className="w-full px-3 py-2 mt-0.5 border border-gray-300 h-14"
                                 />
                             </div>
@@ -64,6 +80,7 @@ export const RegisterPage = () => {
                                 <label for="lastName" className="text-lg font-semibold">{isEnglish ? "Last Name" : "姓氏"}</label>
                                 <input id="lastName" type="text"
                                     placeholder="Chan"
+                                    onChange={(e) => setLastName(e.target.value)}
                                     className="w-full px-2 py-2 mt-0.5 border border-gray-300 h-14"
                                 />
                             </div>
@@ -75,6 +92,7 @@ export const RegisterPage = () => {
                             <label for="email" className="text-lg font-semibold">{isEnglish ? "Email" : "電郵"}</label>
                             <input id="email" type="email"
                                 placeholder="example@gamil.com"
+                                onChange={(e) => setEmail(e.target.value)}
                                 className="w-full px-3 py-2 mt-0.5 border border-gray-300 h-14"
                             />
                         </div>
@@ -84,6 +102,7 @@ export const RegisterPage = () => {
                             <label for="password" className="text-lg font-semibold">{isEnglish ? "Password" : "密碼"}</label>
                             <input id="password" name="email" type="password"
                                 placeholder="password"
+                                onChange={(e) => setPassword(e.target.value)}
                                 className="w-full px-3 py-2 mt-0.5 border border-gray-300 h-14"
                             />
                         </div>
@@ -93,6 +112,7 @@ export const RegisterPage = () => {
                             <label for="confirmPassword" className="text-lg font-semibold">{isEnglish ? "Confirm Password" : "確認密碼"}</label>
                             <input id="confirmPassword" name="email" type="password"
                                 placeholder="password"
+                                onChange={(e) => setConfirmPassword(e.target.value)}
                                 className="w-full px-3 py-2 mt-0.5 border border-gray-300 h-14"
                             />
                         </div>
@@ -105,6 +125,7 @@ export const RegisterPage = () => {
                                     id="newsletter"
                                     type="checkbox"
                                     name="newsletter"
+                                    onChange={(e) => setSubscribe(e.target.checked)}
                                     className="mt-1 accent-purple-500" defaultChecked
                                 />
 
@@ -117,7 +138,9 @@ export const RegisterPage = () => {
 
 
                         <button className="drop-shadow-lg mt-6 bg-black rounded-lg w-full p-2 flex items-center justify-center font-bold text-lg text-white cursor-pointer font-inter
-                            hover:bg-gray-800">
+                            hover:bg-gray-800"
+                            onClick={() => handleGoogleManualRegister()}
+                        >
                             {isEnglish ? "Submit" : "提交"}
                         </button>
 

@@ -17,8 +17,7 @@ public class SubscriptionService {
     @Autowired
     SubscriptionRepository subscriptionRepository;
 
-    public ResponseEntity<?> addToSubscription(SubscriptionRequest subscriptionRequest) {
-        String email = subscriptionRequest.getEmail();
+    public ResponseEntity<?> addToSubscription(String email) {
         //if email is null
         if (email == null ||  email.trim().isEmpty()) {
             return ResponseEntity.badRequest().body("Email cannot be blank.");

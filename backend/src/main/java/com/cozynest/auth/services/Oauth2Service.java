@@ -66,7 +66,9 @@ public class Oauth2Service {
                 "&redirect_uri=" + URLEncoder.encode(redirect_url, StandardCharsets.UTF_8) +
                 "&response_type=code" +
                 "&scope=" + URLEncoder.encode(String.join(" ", scope), StandardCharsets.UTF_8) +
-                "&state=" + URLEncoder.encode(oauthState, StandardCharsets.UTF_8);
+                "&state=" + URLEncoder.encode(oauthState, StandardCharsets.UTF_8) +
+                "&prompt=select_account";
+
         Map<String, String> responseBody = new HashMap<>();
         responseBody.put("oauth_url", googleAuthUrl);
         return responseBody;

@@ -1,7 +1,9 @@
 package com.cozynest.controllers;
 
 import com.cozynest.Helper.CheckAuthenticationHelper;
+import com.cozynest.auth.dtos.ReviewPostResponse;
 import com.cozynest.dtos.*;
+import com.cozynest.entities.products.product.Product;
 import com.cozynest.repositories.ProductRepository;
 import com.cozynest.services.ProductService;
 import com.cozynest.services.ReviewService;
@@ -83,11 +85,19 @@ public class ProductController {
 
     /*----------------------------------review------------------------------------------*/
     @PostMapping("/{productId}/review")
-    public ResponseEntity<String> postReview(@PathVariable UUID productId,
-                                             @RequestBody ReviewRequest reviewRequest) {
+    public ResponseEntity<ReviewPostResponse> postReview(@PathVariable UUID productId,
+                                                         @RequestBody ReviewRequest reviewRequest) throws Exception {
         UUID userId = checkAuthenticationHelper.getUserIdViaAuthentication();
-        ApiResponse apiResponse = reviewService.postReview(productId, reviewRequest, userId);
-        return ResponseEntity.status(apiResponse.getStatus()).body(apiResponse.getMessage());
+        Page<ReviewDto> reviewDtoPage = reviewService.postReview(productId, reviewRequest, userId);
+        Product product = productRepository.findById(productId).get();
+        Float avgRating = product.getAvgRating();
+        Integer reviewCount = product.getReviewCount();
+        ReviewPostResponse reviewPostResponse = ReviewPostResponse.builder()
+                .reviewDtoPage(reviewDtoPage)
+                .avgRating(avgRating)
+                .reviewCount(reviewCount)
+                .build();
+        return ResponseEntity.ok(reviewPostResponse);
     }
 
     @GetMapping("/{productId}/review/{reviewId}")

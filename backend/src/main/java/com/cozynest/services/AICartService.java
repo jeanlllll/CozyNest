@@ -61,16 +61,8 @@ public class AICartService {
             try {
                 // First check if it's a JSON array
                 JsonNode jsonNode = objectMapper.readTree(storedHistoryJson);
-                if (jsonNode.isArray()) {
-                    // If it's an array, deserialize as a list
-                    chatHistory = objectMapper.readValue(storedHistoryJson, 
-                        new TypeReference<LinkedList<ChatMessageDto>>() {});
-                } else {
-                    // If it's not an array, clear and initialize with default message
-                    System.out.println("Found invalid chat history format in Redis, resetting: " + storedHistoryJson);
-                    chatHistory = new LinkedList<>();
-                    chatHistory.add(new ChatMessageDto("assistant", "Hello and welcome to CozyNest! 😊 How can I assist you today?"));
-                }
+                //deserialize from json to linked list
+                chatHistory = objectMapper.readValue(storedHistoryJson, new TypeReference<LinkedList<ChatMessageDto>>() {});
             } catch (Exception e) {
                 // If parsing fails, log and use default
                 System.err.println("Error parsing chat history from Redis: " + e.getMessage() + ", Data: " + storedHistoryJson);
@@ -91,7 +83,7 @@ public class AICartService {
         // Add system prompt at the beginning for the API call
         List<Map<String, String>> formattedMessages = new ArrayList<>();
         // Add system prompt first
-        String safeSystemPrompt = systemPrompt != null ? systemPrompt : "You are a helpful shopping assistant for CozyNest, an online home furniture store.";
+        String safeSystemPrompt = systemPrompt != null ? systemPrompt : "You are a helpful shopping assistant for CozyNest, an online store selling pajama.";
         formattedMessages.add(Map.of("role", "system", "content", safeSystemPrompt));
         
         // Then add the chat history
@@ -113,10 +105,6 @@ public class AICartService {
                 "store", false
         );
 
-        // Log request details for debugging
-        System.out.println("AI API Request - URL: " + aiApiUrl);
-        System.out.println("AI API Request - Messages count: " + formattedMessages.size());
-        
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.set("Authorization", "Bearer " + apiKey);
@@ -134,14 +122,9 @@ public class AICartService {
                     new ParameterizedTypeReference<Map<String, Object>>() {}
             );
             
-            // Log response details
-            System.out.println("AI API Response - Status code: " + response.getStatusCode());
-            
             // Add null checking and error handling for the API response
             Map<String, Object> responseBody = response.getBody();
             String aiReply;
-            
-            System.out.println("AI API Response - Body: " + responseBody);
             
             // Extract the reply from the OpenAI response format
             try {

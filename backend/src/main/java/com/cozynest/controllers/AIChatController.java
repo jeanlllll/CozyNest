@@ -3,12 +3,12 @@ package com.cozynest.controllers;
 import com.cozynest.dtos.ChatMessageDto;
 import com.cozynest.dtos.ChatRequest;
 import com.cozynest.services.AICartService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,24 +21,11 @@ public class AIChatController {
     AICartService aiCartService;
 
     @PostMapping("/chat")
-    public ResponseEntity<?> chatWithAgent(@RequestBody ChatRequest chatRequest) {
+    public ResponseEntity<?> chatWithAgent(@Valid @RequestBody ChatRequest chatRequest) {
         try {
-            // Validate input
-            if (chatRequest == null) {
-                return ResponseEntity.badRequest().body(Map.of("error", "Request body cannot be null"));
-            }
-            
             String userMessage = chatRequest.getMessage();
             String sessionId = chatRequest.getSessionId();
-            
-            if (userMessage == null || userMessage.trim().isEmpty()) {
-                return ResponseEntity.badRequest().body(Map.of("error", "Message cannot be empty"));
-            }
-            
-            if (sessionId == null || sessionId.trim().isEmpty()) {
-                return ResponseEntity.badRequest().body(Map.of("error", "Session ID cannot be empty"));
-            }
-            
+
             // Get AI reply
             String aiReply = aiCartService.getAIReply(userMessage, sessionId);
             

@@ -91,6 +91,28 @@ public class OrderService {
     @Autowired
     ConvertToDtoListHelper convertToDtoListHelper;
 
+    public List<ProfileOrder> getProfileOrderList(UUID userId) {
+        Client client = clientRepository.findById(userId).get();
+        List<Order> orderList = client.getOrders();
+        List<ProfileOrder> profileOrderList = new ArrayList<>();
+
+        for (Order order : orderList) {
+            Payment payment = order.getPayment();
+            LocalDate paymentDate = payment.getPaymentDate() == null? null : payment.getPaymentDate().toLocalDate();
+            ProfileOrder profileOrder = ProfileOrder.builder()
+                    .orderId(order.getId())
+                    .orderDate(order.getOrderDate().toLocalDate())
+                    .orderStatus(String.valueOf(order.getOrderStatus()))
+                    .paymentStatus(String.valueOf(payment.getPaymentStatus()))
+                    .paymentDate(paymentDate)
+                    .totalPrice(order.getTotalAmount())
+                    .build();
+            profileOrderList.add(profileOrder);
+        }
+        return profileOrderList;
+    }
+
+
     public OrderResponseDto getOrderByOrderId(UUID orderId) {
         Optional<Order> foundOrder = orderRepository.findById(orderId);
         if (!foundOrder.isPresent()) {

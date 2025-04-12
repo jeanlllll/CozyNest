@@ -2,13 +2,14 @@ import { useState } from "react";
 import { StarRating } from "../starRating/StarRating"; // Your custom component
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
-import {postProductReview} from "../../api/postProductReview";
+import { postProductReview } from "../../api/postProductReview";
 import { useParams } from "react-router";
 
 
-export const ReviewModal = ({ isOpen, onClose }) => {
+export const ReviewModal = ({ isOpen, onClose, setReviewList, setAvgRating, setTotalReviewPage }) => {
     const [comment, setComment] = useState("");
-    const rating = useSelector((state) => state.review.rating);
+    const [rating, setRating] = useState(0);
+    const { productId } = useParams();
 
     useEffect(() => {
         if (typeof window !== "undefined") {
@@ -27,22 +28,30 @@ export const ReviewModal = ({ isOpen, onClose }) => {
 
     const handleSubmitReview = async () => {
         try {
-            const {productId} = useParams();
+            if (rating === 0 || comment.trim() === "") {
+                alert("Please provide a rating and comment before submitting.");
+                return;
+            }
+            console.log(rating, comment, productId)
             const response = await postProductReview(rating, comment, productId);
             if (response.status === 200) {
+                setReviewList(response.data.reviewDtoPage.content);
+                setAvgRating(response.data.avgRating)
+                setComment("");
+                setRating(0);
+                setTotalReviewPage(Math.ceil(response.data.reviewCount / 3))
                 alert("Review Added");
             } else {
                 alert("Something went wrong. Please try again.");
             }
         } catch (error) {
-            console.error("Failed to submit review", error);
             alert("Failed to submit review. Please try again later.");
         }
     }
 
     return (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
-            <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6 relative">
+            <div className="bg-white rounded-xl shadow-xl w-full max-w-xs sm:max-w-md p-6 relative">
                 {/* Close Button */}
                 <button
                     className="absolute top-2 right-3 text-gray-500 hover:text-black text-4xl cursor-pointer"
@@ -56,7 +65,7 @@ export const ReviewModal = ({ isOpen, onClose }) => {
                 {/* Rating */}
                 <div className="mb-4">
                     <label className="block mb-1 font-medium">Your Rating</label>
-                    <StarRating rate={rating} isReadOnly={false} />
+                    <StarRating rating={rating} isReadOnly={false} setRating={setRating} />
                 </div>
 
                 {/* Comment Input */}
@@ -75,6 +84,7 @@ export const ReviewModal = ({ isOpen, onClose }) => {
                 <button
                     className="bg-buttonMain text-white px-4 py-2 rounded hover:bg-gray-800 w-full cursor-pointer"
                     onClick={() => {
+                        handleSubmitReview();
                         onClose(); // Close after submit
                     }}
                 >

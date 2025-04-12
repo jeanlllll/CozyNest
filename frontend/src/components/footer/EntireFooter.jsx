@@ -7,6 +7,7 @@ import { RightReservedFooter } from "./RightReservedFooter"
 import { useSelector } from "react-redux"
 import { useState, useEffect } from "react"
 
+
 export const EntireFooter = () => {
     const navigate = useNavigate();
 
@@ -17,12 +18,13 @@ export const EntireFooter = () => {
         setIsEnglish(language === 'en');
     }, [language]);
 
+
     return (
-        <div className="bg-secondPrimary w-full drop-shadow-lg">
+        <div className="bg-secondPrimary w-full drop-shadow-lg font-inter">
 
             {/* Desktop Version */}
 
-            <div className="hidden sm:flex container mx-auto justify-between  mt-7 mb-7">
+            <div className="hidden sm:flex container mx-auto justify-between  mb-7">
                 {/* About Us */}
                 <div className="w-1/4 flex flex-col item-left lg:items-center text-left mt-7 mb-8">
                     <ul className="space-y-3 font-thin">
@@ -96,7 +98,7 @@ export const EntireFooter = () => {
                 <div className="w-full sm:w-1/4 flex flex-col md:items-center text-left mt-0 sm:mt-7 mb-8">
                     <div>
                         <h3 className="font-bold mb-2">{isEnglish ? "Newsletter" : "接收最新消息"}</h3>
-                        <Subscription />
+                        <Subscription isEnglish={isEnglish}/>
                     </div>
                 </div>
 
@@ -105,7 +107,7 @@ export const EntireFooter = () => {
             {/* ---------------------------------------------------------------------------------------------  */}
 
             {/* Mobile Version */}
-            <div className="sm:hidden flex container mx-auto justify-between max-w-[90%] mt-7 mb-7 text-sm">
+            <div className="sm:hidden flex container mx-auto justify-between max-w-[90%] mb-7 text-sm font-inter">
                 {/* About Us */}
                 <div className="w-1/3 flex flex-col item-left text-left mt-7">
                     <ul className="space-y-3 font-thin">
@@ -170,7 +172,7 @@ export const EntireFooter = () => {
                 <div className="w-full sm:w-1/4 flex flex-col text-left mt-0 sm:mt-7 mb-2">
                     <div>
                         <h3 className="font-bold mb-2">{isEnglish ? "Newsletter" : "接收最新消息"}</h3>
-                        <Subscription />
+                        <Subscription isEnglish={isEnglish}/>
                     </div>
                 </div>
             </div>

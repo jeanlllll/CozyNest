@@ -5,18 +5,41 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { useEffect } from "react";
 import { fitlersToStringParams } from "../../Helper/filtersToStringParams";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { WarningIcon } from "../../assets/icons/WarningIcon";
 import { categoryList, categoryTypeChinese } from "../../assets/data/data";
 import { categoryChinese } from "../../assets/data/data";
 
-export const FilterSideBar = ({ categoryTypeList, sizeList, category, isEnglish }) => {
+export const FilterSideBar = ({ categoryTypeList, sizeList, category, isEnglish, isMobile }) => {
     const dispatch = useDispatch();
     const filters = useSelector((state) => state.filters)
     const navigate = useNavigate();
+    const isFirstRender = useRef(true);
+    const navigationTimeoutRef = useRef(null);
+    const previousCategory = useRef(category);
 
     const [showAlertForCategoryTypes, setShowAlertForCategoryTypes] = useState(false);
     const [showAlertForSizes, setShowAlertForSizes] = useState(false);
+
+    // Reset filters when category changes
+    useEffect(() => {
+        if (previousCategory.current !== category) {
+            // Reset to only valid category types for the new category
+            const validTypes = filters.categoryTypes.filter(type => categoryTypeList.includes(type));
+            
+            if (validTypes.length === 0 && categoryTypeList.length > 0) {
+                // If no valid types remain, set to first available type
+                dispatch(updateCategoryTypes(categoryTypeList[0]));
+            } else if (validTypes.length !== filters.categoryTypes.length) {
+                // If some invalid types were removed, update with valid ones
+                dispatch(updateCategoryTypes(validTypes[0]));
+            }
+
+            setShowAlertForCategoryTypes(false);
+            setShowAlertForSizes(false);
+            previousCategory.current = category;
+        }
+    }, [category, categoryTypeList, dispatch]);
 
     const handleCategoryTypesOnChange = (type) => {
         if (filters.categoryTypes.length === 1 && filters.categoryTypes.includes(type)) {
@@ -36,21 +59,47 @@ export const FilterSideBar = ({ categoryTypeList, sizeList, category, isEnglish 
         }
     }
 
+    // Handle navigation with debouncing
     useEffect(() => {
-        setShowAlertForCategoryTypes(false);
-        setShowAlertForSizes(false);
-    }, [category])
+        if (isFirstRender.current) {
+            isFirstRender.current = false;
+            return;
+        }
 
+        if (navigationTimeoutRef.current) {
+            clearTimeout(navigationTimeoutRef.current);
+        }
 
-    useEffect(() => {
-        const queryString = fitlersToStringParams({ category, filters });
-        navigate(`/category/${category}?${queryString}`);
-    }, [filters.categoryTypes, filters.sizes]);
+        navigationTimeoutRef.current = setTimeout(() => {
+            // Ensure only valid category types are included
+            const validCategoryTypes = filters.categoryTypes.filter(type => categoryTypeList.includes(type));
+            
+            if (validCategoryTypes.length === 0 && categoryTypeList.length > 0) {
+                dispatch(updateCategoryTypes(categoryTypeList[0]));
+                return;
+            }
+
+            const queryString = fitlersToStringParams({ 
+                category, 
+                filters: { 
+                    ...filters, 
+                    categoryTypes: validCategoryTypes 
+                } 
+            });
+            navigate(`/category/${category}?${queryString}`);
+        }, 300);
+
+        return () => {
+            if (navigationTimeoutRef.current) {
+                clearTimeout(navigationTimeoutRef.current);
+            }
+        };
+    }, [filters.categoryTypes, filters.sizes, filters.minPrice, filters.maxPrice, filters.sortBy, category]);
 
     return (
         <>
             {/* desktop version */}
-            <div className="hidden sm:block my-6 mx-6">
+            {!isMobile && <div className="hidden sm:block my-6 mx-6">
                 {/* category types*/}
                 <h1 className="text-md font-normal mb-3">{isEnglish ? "Category Types" : "類別"}</h1>
 
@@ -112,10 +161,10 @@ export const FilterSideBar = ({ categoryTypeList, sizeList, category, isEnglish 
                             {isEnglish ? "At least one size must be selected." : "至少選擇一個尺寸"}
                         </div>
                     </div>}
-            </div>
+            </div>}
 
             {/* mobile version */}
-            <div className="sm:hidden">
+            {isMobile && <div className="sm:hidden">
                 
                 {/* category */}
                 <div className="mx-7 rounded-t-lg grid grid-cols-3 overflow-hidden  border-gray-300 drop-shadow-sm">
@@ -193,7 +242,7 @@ export const FilterSideBar = ({ categoryTypeList, sizeList, category, isEnglish 
                         <div className=" pl-1"><PriceSlider category={category} filters={filters} isEnglish={isEnglish} /></div>
                     </div>
                 </div>
-            </div>
+            </div>}
         </>
     )
 }

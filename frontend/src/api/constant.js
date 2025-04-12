@@ -18,6 +18,10 @@ export const getLeaveReviewForProductUrl = (productId) => {
     return `/api/product/${productId}/review`
 }
 
+export const getReviewsByPageNSortUrl = (productId) => {
+    return `/api/product/${productId}/reviews`
+}
+
 export const getFavoriteListUrl = "/api/favorites"
 
 export const addFavoriteUrl = (productId) => {
@@ -44,8 +48,6 @@ export const getDiscountCodeUrl = (discountCode) => {
     return `/api/discountCode?discountCode=${discountCode}`
 }
 
-export const getUserProfileUrl = "/api/client/profile"
-
 export const postOrderUrl = "/api/orders"
 
 export const getOrderIdStatusUrl = (sessionId) => {
@@ -60,4 +62,22 @@ export const sendChatMessageUrl = "/api/ai/chat"
 
 export const getChatHistoryUrl = (sessionId) => `/api/ai/history?sessionId=${sessionId}`
 
+export const getUserProfileUrl = "/api/client/profile"
 
+export const putUserProfileUrl = "/api/client/profile"
+
+export const getProfileOrderUrl = "/api/orders"
+
+export const getCheckIsLoginUrl = "/api/auth/checkLogin"
+
+export const getLogoutUrl = "/api/auth/logout"
+
+export const getSendSubscriptUrl = "/api/subscription/subscribe"
+
+export const postManualLoginUrl = "/api/auth/login"
+
+export const postRegisterUrl = "/api/auth/register"
+
+export const getPostVerifyEMailUrl = "/api/auth/verify-email"
+
+export const getResendVerificationCodeUrl = "/api/auth/forgot-password"

@@ -47,6 +47,7 @@ public class WebConfig {
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers("/api/home/**").permitAll()
+                        .requestMatchers("/api/auth/checkLogin").permitAll()
                         .requestMatchers("/api/csrf/**").permitAll()
                         .requestMatchers("/api/ai/**").permitAll()
                         .requestMatchers("/api/payment/**").hasAuthority("CLIENT")

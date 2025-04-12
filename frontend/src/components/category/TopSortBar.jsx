@@ -1,14 +1,12 @@
 import { useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { setSortBy } from "../../store/features/filtersSlice";
-import { useEffect } from "react";
-import { fitlersToStringParams } from "../../Helper/filtersToStringParams";
 import { DropDownMenu } from "./DropDownMenu";
 
 export const TopSortBar = ({isEnglish, category}) => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const filters = useSelector((state) => state.filters)
+    const filters = useSelector((state) => state.filters);
 
     const sortBy = filters.sortBy;
     
@@ -17,11 +15,6 @@ export const TopSortBar = ({isEnglish, category}) => {
             dispatch(setSortBy(sortCriteria))
         }
     }
-
-    useEffect(() => {
-        const queryString = fitlersToStringParams({ category, filters });
-        navigate(`/category/${category}?${queryString}`);
-    }, [filters.sortBy]);
 
     return (
         < div className = "flex flex-cols items-center mb-8 mt-7 justify-between" >

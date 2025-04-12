@@ -10,6 +10,7 @@ import com.cozynest.auth.helper.VerificationCodeGenerator;
 import com.cozynest.auth.repositories.*;
 import com.cozynest.entities.profiles.favorites.Favorite;
 import com.cozynest.repositories.FavoriteRepository;
+import com.cozynest.services.SubscriptionService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,6 +61,9 @@ public class RegistrationService {
 
     @Autowired
     VerifyEmailService verifyEmailService;
+
+    @Autowired
+    SubscriptionService subscriptionService;
 
     public RegistrationResponse createUser(RegistrationRequest request, HttpServletResponse response, AuthProvider clientProvider) {
 
@@ -157,6 +161,7 @@ public class RegistrationService {
 
             // Return success messages
             if (clientProvider.equals(AuthProvider.MANUAL)) {
+                subscriptionService.addToSubscription(email);
                 // Manual: user needs to verify
                 return new RegistrationResponse(200, "User created. Please verify your code. " +
                         "The email may take 1-2 minutes to arrive.");

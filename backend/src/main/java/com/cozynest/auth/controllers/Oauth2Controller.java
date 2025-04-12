@@ -57,10 +57,10 @@ public class Oauth2Controller {
         System.out.println(lastName);
         //if oauth2 client already register, then login
         if (registrationService.isRegistered(email)) {
-            return loginService.login(email, null, response, AuthProvider.GOOGLE);
+            return loginService.login(email, null, request, response, AuthProvider.GOOGLE);
         } else {
             //if oauth2 client not yet register, then register
-            RegistrationRequest registrationRequest = new RegistrationRequest(firstName, lastName, email, "", "");
+            RegistrationRequest registrationRequest = new RegistrationRequest(firstName, lastName, email, "", "", true);
             RegistrationResponse registrationResponse = registrationService.createUser(registrationRequest, response, AuthProvider.GOOGLE);
             return ResponseEntity.ok(registrationResponse);
         }

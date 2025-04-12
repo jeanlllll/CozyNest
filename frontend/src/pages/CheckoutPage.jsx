@@ -10,7 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { resetCartItemsList } from "../store/features/CartItemsSlice";
 import { resetOrderPriceNDiscount } from "../store/features/orderSlice";
 
-export const CheckoutPage = () => {
+export const CheckoutPage = ({isEnglish}) => {
     const dispatch = useDispatch();
 
     const [isExpand, setIsExpand] = useState(false);
@@ -33,7 +33,8 @@ export const CheckoutPage = () => {
     const orderItemsList = useSelector((state) => state.order.orderItemsList)
     const shippingInfoDto = useSelector((state) => state.order.shippingInfoDto)
     const deliveryMethod = useSelector((state) => state.order.transportationMethod)
-    const discountCode = useSelector((state) => state.order.discountCodeInfo.discountCode)
+    const discountCodeFromRedux = useSelector((state) => state.order.discountCodeInfo)
+    const discountCode = discountCodeFromRedux === null ? "" : discountCodeFromRedux.discountCode
 
     const handleSubmitOnClick = async () => {
         dispatch(setShippingInfo(formData));
@@ -47,12 +48,12 @@ export const CheckoutPage = () => {
             phoneNumber: formData.phoneNumber,
             addressDto: {
                 addressId: formData.adddressId,
-                floorNBuilding: formData.floorNBuilding, 
+                floorNBuilding: formData.floorNBuilding,
                 street: formData.street,
                 city: formData.city,
                 state: formData.state,
                 country: formData.country,
-                postalCode: formData.postalCode 
+                postalCode: formData.postalCode
             }
         };
 
@@ -72,21 +73,21 @@ export const CheckoutPage = () => {
     }
 
     return (
-        <div className="w-full min:h-dvh flex flex-col items-center justify-center mb-20">
+        <div className="w-full min:h-dvh flex flex-col items-center justify-center mb-20 px-10 sm:px-0">
             <div className="container flex-1">
-                <h1 className="font-bold text-3xl mt-13">Checkout</h1>
-                <div className="mt-12">
-                    <StatusBar status={"checkout"} />
+                <h1 className="font-bold text-3xl mt-13">{isEnglish ? "Checkout" : "結帳"}</h1>
+                <div className="mt-3 sm:mt-12">
+                    <StatusBar status={"checkout"} isEnglish={isEnglish} />
                 </div>
 
-                <div className="flex flex-row gap-10 mt-18">
+                <div className="flex flex-col sm:flex-row sm:gap-10 mt-6 sm:mt-18">
                     <div className="basis-5/9">
-                        <CheckoutForm formData={formData} setFormData={setFormData} />
+                        <CheckoutForm formData={formData} setFormData={setFormData} isEnglish={isEnglish} />
                     </div>
                     <div className="basis-4/9">
-                        <div className="border border-buttonMain bg-buttonMain text-white  px-8 py-2 rounded-lg flex flex-row cursor-pointer justify-between" onClick={() => setIsExpand(!isExpand)}>
+                        <div className="mt-10 sm:mt-0 border border-buttonMain bg-buttonMain text-white  px-8 py-2 rounded-lg flex flex-row cursor-pointer justify-between" onClick={() => setIsExpand(!isExpand)}>
                             <div>
-                                View Product List
+                                {isEnglish ? "See All Products" : "查看所有商品"}
                             </div>
                             <div className="">
                                 <KeyboardArrowDownIcon />
@@ -94,15 +95,15 @@ export const CheckoutPage = () => {
                         </div>
 
                         {isExpand && <div className="mt-4">
-                            <ProductListSection />
+                            <ProductListSection isEnglish={isEnglish} />
                         </div>}
 
-                        <div className="border border-gray-300 rounded-lg px-8 py-8 h-115 mt-8">
-                            <PriceSummary needButton={false} needTransportationFee={true} />
+                        <div className="border border-gray-300 rounded-lg px-8 py-8 sm:h-auto mt-8">
+                            <PriceSummary needButton={false} needTransportationFee={true} isEnglish={isEnglish} />
                             <button className="w-full border border-buttonMain bg-buttonMain text-white py-2 flex items-center justify-center rounded-md mt-3 cursor-pointer hover:bg-gray-800"
                                 onClick={() => handleSubmitOnClick()}
                             >
-                                Process To Payment
+                                {isEnglish ? "Process To Payment" : "前往付款"}
                             </button>
                         </div>
 

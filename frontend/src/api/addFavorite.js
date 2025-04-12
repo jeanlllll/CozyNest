@@ -6,6 +6,6 @@ export const addFavoriteFromFavoriteList = async (productId) => {
         const response = await axiosInstance.post(addFavoriteUrl(productId));
         return response.data;
     } catch (error) {
-        return response.data;
+        return error.response.data;
     }
 }

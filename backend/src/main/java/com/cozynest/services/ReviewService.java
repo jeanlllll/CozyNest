@@ -61,15 +61,15 @@ public class ReviewService {
     }
 
     @Transactional
-    public ApiResponse postReview(UUID productId, ReviewRequest reviewRequest, UUID userId) {
+    public Page<ReviewDto> postReview(UUID productId, ReviewRequest reviewRequest, UUID userId) throws Exception {
         Float rating = reviewRequest.getRating();
         if (rating > 5.0 || rating <= 0) {
-            return new ApiResponse("Rating must be between 0.1 and 5.0", 400);
+            throw new Exception("Rating must be between 0.1 and 5.0");
         }
 
         String comment = reviewRequest.getComments();
         if (comment.length() > 300) {
-            return new ApiResponse("Comments cannot exceed 300 characters", 400);
+            throw new Exception("Comments cannot exceed 300 characters");
         }
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException("Product Id cannot found"));
@@ -81,7 +81,7 @@ public class ReviewService {
 
         boolean isManualRegister = client.getClientProviders().contains(AuthProvider.MANUAL);
         if (!shopUser.getIsVerified() && isManualRegister) {
-            return new ApiResponse("Please verify email first.", 401);
+            throw new Exception("Please verify email first.");
         }
 
         Review review = new Review();
@@ -99,7 +99,7 @@ public class ReviewService {
         product.setAvgRating(newAvgRating);
         productRepository.save(product);
 
-        return new ApiResponse("Review added successfully", 200);
+        return getPaginatedReviews(productId, 0, 3, "createdOn", true);
     }
 
     public ReviewDto getReviewById(UUID productId, UUID reviewId) {

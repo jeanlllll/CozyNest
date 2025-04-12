@@ -15,6 +15,8 @@ import { TopSortBar } from "../components/category/TopSortBar";
 import { resetFilters } from "../store/features/filtersSlice";
 import { fetchFavoriteList } from "../api/fetchFavoriteList";
 import { setFavoriteList } from "../store/features/favoriteSlice";
+import { useIsMobile } from "../components/category/useIsMobile";
+import { usePageMeta } from "../components/usePageMeta";
 
 export const CategoryPage = (request) => {
     const language = useSelector((state) => state.language.language);
@@ -37,8 +39,10 @@ export const CategoryPage = (request) => {
     const rowNeededForGrid = page === lastPage ? 'grid-rows-1' : 'grid-rows-3'
     const isNoProductFound = data.totalElements === 0 ? true : false;
 
-    const isLoggedIn = useSelector((state) => state.login.isLoggedIn)
+    const isLoggedIn = useSelector((state) => state.auth.isLogin)
     const favoritesList = useSelector((state) => state.favorite.favoritesList);
+
+    const isMobile = useIsMobile(768);
 
     useEffect(() => {
         if (isLoggedIn && (!favoritesList || favoritesList.length === 0)) {
@@ -46,43 +50,27 @@ export const CategoryPage = (request) => {
                 dispatch(setFavoriteList(list))
             })
         }
-    }, [dispatch, isLoggedIn, favoritesList])
+    }, [dispatch, isLoggedIn])
 
     useEffect(() => {
         dispatch(resetFilters());
+        dispatch(setCategoryTypes(categoryTypeList));
+        dispatch(setSizes(sizeList));
     }, [category]);
 
-    useEffect(() => {
-        if (filters.categoryTypes.length === 0) {
-            dispatch(setCategoryTypes(categoryTypeList));
-        }
-        if (filters.sizes.length === 0) {
-            dispatch(setSizes(sizeList));
-        }
-    }, [dispatch, filters.category, filters.sizes, categoryTypeList, sizeList, language])
+    usePageMeta({titleEn: category.charAt(0).toUpperCase() + category.slice(1), titleZh: categoryChinese[category.toUpperCase()], isEnglish: isEnglish})
 
-    useEffect(() => {
-        if (!category) return;
-        const categoryChineseName = categoryChinese[category.toUpperCase()];
-        const capitalizedCategory = category.charAt(0).toUpperCase() + category.slice(1);
-        document.title = isEnglish ? `CozyNest | ${capitalizedCategory}` : `CozyNest | ${categoryChineseName}`;
-        console.log(language);
-        const favicon = document.querySelector("link[rel='icon']");
-        if (favicon) {
-            favicon.href = "/images/cozyNestLogo.png";
-        }
-    }, [isEnglish, category])
-
+    
     return (
         <div className="w-full h-auto flex justify-center">
             <div className="container flex-col">
 
                 {/* desktop version */}
-                <div className="hidden sm:flex flex-row">
+                {!isMobile && <div className="hidden sm:flex flex-row">
 
                     {/* filter side bar */}
                     <div className="border border-gray-300 h-160 rounded-lg mt-21 mr-15 basis-2/12">
-                        <FilterSideBar categoryTypeList={categoryTypeList} sizeList={sizeList} category={category} isEnglish={isEnglish} />
+                        <FilterSideBar categoryTypeList={categoryTypeList} sizeList={sizeList} category={category} isEnglish={isEnglish} isMobile={isMobile}/>
                     </div>
 
 
@@ -103,13 +91,13 @@ export const CategoryPage = (request) => {
                             })}
                         </div>
                     </div>
-                </div>
+                </div>}
 
                 {/* mobile version */}
-                <div className="sm:hidden">
+                {isMobile && <div className="sm:hidden">
                     <div>
                         <TopSortBar isEnglish={isEnglish} category={category} />
-                        <FilterSideBar categoryTypeList={categoryTypeList} sizeList={sizeList} category={category} isEnglish={isEnglish} />
+                        <FilterSideBar categoryTypeList={categoryTypeList} sizeList={sizeList} category={category} isEnglish={isEnglish} isMobile={isMobile}/>
                     </div>
 
                     {/* product display */}
@@ -125,7 +113,7 @@ export const CategoryPage = (request) => {
                             )
                         })}
                     </div>
-                </div>
+                </div>}
 
                 <div className="mt-6 sm:mt-22 sm:mb-7">
                     <Pagination currentPage={data.number} totalPages={totalPages} category={category} filters={filters} />

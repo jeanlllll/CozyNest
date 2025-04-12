@@ -49,11 +49,12 @@ public class ClientProfileService {
                 .addressList(addressDtoList)
                 .firstName(shopuser.getFirstName())
                 .lastName(shopuser.getLastName())
+                .email(shopuser.getEmail())
                 .build();
     }
 
     @Transactional
-    public ApiResponse updateClientProfile(UUID clientId, ProfileDto profileDto) throws Exception {
+    public ProfileDto updateClientProfile(UUID clientId, ProfileDto profileDto) throws Exception {
         ShopUser shopUser = shopUserRepository.findById(clientId).get();
         shopUser.setFirstName(profileDto.getFirstName());
         shopUser.setLastName(profileDto.getLastName());
@@ -70,12 +71,11 @@ public class ClientProfileService {
 
 
         List<AddressDto> updatedAddressDtoList = profileDto.getAddressList();
-
+        if (updatedAddressDtoList.size() > SORTED_ADDRESS_LIMIT) {
+            throw new IllegalArgumentException("Only " + SORTED_ADDRESS_LIMIT + " address can be stored.");
+        }
         for (AddressDto addressDto : updatedAddressDtoList) {
             if (addressDto.getAddressId() == null) {
-                if (addressList.size() >= SORTED_ADDRESS_LIMIT) {
-                    throw new IllegalArgumentException("Only " + SORTED_ADDRESS_LIMIT + " address can be stored.");
-                }
                 Address address = new Address();
                 address.setClient(client);
                 udpateAddressDtoInAddress(addressDto, address);
@@ -90,11 +90,13 @@ public class ClientProfileService {
         }
 
         for (UUID addressId : addressMap.keySet()) {
+            Address toDelete = addressMap.get(addressId);
             addressRepository.deleteById(addressId);
+            addressList.remove(toDelete);
         }
         clientRepository.save(client);
 
-        return new ApiResponse("Updated Successfully.", 200);
+        return getClientProfile(clientId);
     }
 
     public void udpateAddressDtoInAddress(AddressDto addressDto, Address address) {

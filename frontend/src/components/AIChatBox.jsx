@@ -14,7 +14,8 @@ export const AIChatBox = ({ onClickFunc }) => {
     const [message, setMessage] = useState("");
     const [loading, setLoading] = useState(false);
     const dispatch = useDispatch();
-
+    const langauage = useSelector((state) => state.language.language)
+    const isEnglish = langauage === "en"
     const chatContainerRef = useRef(null);
 
     const handleNewMessageSend = async () => {
@@ -67,17 +68,21 @@ export const AIChatBox = ({ onClickFunc }) => {
     }
 
     return (
-        <div className="fixed bottom-7 right-50 mb-3 mr-3 w-100 h-auto border border-gray-300 bg-white drop-shadow-2xl rounded-xl flex flex-col overflow-hidden font-inter">
+        <div className="fixed bottom-30 sm:bottom-7 sm:right-50 sm:mb-3 sm:mr-3 sm:w-100 h-auto border border-gray-300 bg-white drop-shadow-2xl rounded-xl flex flex-col overflow-hidden font-inter">
 
-            <div className="h-20 bg-secondPrimary flex flex-row drop-shadow-xl justify-between">
+            <div className="sm:h-20 bg-secondPrimary flex flex-row drop-shadow-xl justify-between">
                 <div className="flex flex-row items-center">
                     <div className="ml-6 my-2 h-16 w-16 rounded-full bg-white flex items-center justify-center inset-shadow-sm ">
-                    <svg className="w-11 h-11" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#2C2C2C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <rect x="3" y="11" width="18" height="10" rx="2"></rect> <circle cx="12" cy="5" r="2"></circle> <path d="M12 7v4"></path> <line x1="8" y1="16" x2="8" y2="16"></line> <line x1="16" y1="16" x2="16" y2="16"></line> </g></svg>
+                        <svg className="w-11 h-11" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#2C2C2C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <rect x="3" y="11" width="18" height="10" rx="2"></rect> <circle cx="12" cy="5" r="2"></circle> <path d="M12 7v4"></path> <line x1="8" y1="16" x2="8" y2="16"></line> <line x1="16" y1="16" x2="16" y2="16"></line> </g></svg>
                     </div>
 
                     <div className="ml-4 flex flex-col items-center justify-start ">
-                        <div className="text-buttonMain font-bold">Support Service</div>
-                        <div className="text-gray-700 w-full text-left mt-1">AI Bot</div>
+                        <div className="text-buttonMain font-bold">
+                            {isEnglish ? "Support Service" : "支援服務"}
+                        </div>
+                        <div className="text-gray-700 w-full text-left mt-1">
+                            {isEnglish ? "AI Bot" : "AI 機器人"}
+                        </div>
                     </div>
 
                 </div>
@@ -93,8 +98,8 @@ export const AIChatBox = ({ onClickFunc }) => {
                 {chatHistory.map((message, index) => (
                     <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                         <div className={`max-w-[80%] px-3 py-2 rounded-lg ${message.role === 'user'
-                                ? 'bg-gray-300 text-gray-800 rounded-lg'
-                                : 'bg-gray-100 text-gray-800 rounded-lg'
+                            ? 'bg-gray-300 text-gray-800 rounded-lg'
+                            : 'bg-gray-100 text-gray-800 rounded-lg'
                             }`}>
                             {message.content}
                         </div>

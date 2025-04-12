@@ -2,6 +2,7 @@ import { useNavigate } from "react-router";
 import { useEffect } from "react";
 import { fitlersToStringParams } from "../../Helper/filtersToStringParams";
 import { PageNumberButton } from "./pageNumberButton";
+import { useSelector } from "react-redux";
 
 export const Pagination = ({ currentPage, totalPages, category, filters }) => {
     const navigate = useNavigate();
@@ -16,6 +17,9 @@ export const Pagination = ({ currentPage, totalPages, category, filters }) => {
 
     const pages = [];
 
+    const language = useSelector((state) => state.language.language)
+    const isEnglish = language === "en"
+    
     if (totalPages <= maxVisibleButton) {
         for (let i = 0; i < totalPages; i++) {
             pages.push(<PageNumberButton currentPage={currentPage} pageNumber={i} filters={filters} category={category} />)
@@ -42,7 +46,7 @@ export const Pagination = ({ currentPage, totalPages, category, filters }) => {
                     className="cursor-pointer text-black disabled:text-gray-300"
 
                 >
-                    ← Previous
+                    ← {isEnglish? "Previous" : "上一頁"}
                 </button>
 
                 {/* pages */}
@@ -57,7 +61,7 @@ export const Pagination = ({ currentPage, totalPages, category, filters }) => {
                     disabled={currentPage === totalPages - 1}
                     className="cursor-pointer text-black  disabled:text-gray-300"
                 >
-                    Next →
+                    {isEnglish? "Next" : "下一頁"} →
                 </button>
             </div>
 

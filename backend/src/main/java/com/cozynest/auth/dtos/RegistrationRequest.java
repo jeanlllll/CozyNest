@@ -21,4 +21,6 @@ public class RegistrationRequest {
     private String password;
 
     private String confirmPassword;
+
+    private boolean isSubscribe;
 }

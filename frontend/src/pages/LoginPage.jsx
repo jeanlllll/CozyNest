@@ -1,27 +1,54 @@
-import { useEffect, useState } from "react";
 import { GoogleMailIcon } from "../assets/icons/GoogleMailIcon"
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { fetchGoogleOauth2Url } from "../api/fetchGoogleOauth2Url";
+import { usePageMeta } from "../components/usePageMeta";
+import { postManualLogin } from "../api/postManualLogin";
+import { useState } from "react";
+import { postVerifyEmail } from "../api/postVerifyEmail";
+import { fetchResendVerificationCode } from "../api/fetchResendVerificationCode";
 
 export const LoginPage = () => {
     const language = useSelector((state) => state.language.language);
     const isEnglish = language === 'en';
     const navigate = useNavigate();
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
 
-    useEffect(() => {
-        document.title = isEnglish ? "CozyNest | Login" : "CozyNest | 登入";
-
-        const favicon = document.querySelector("link[rel='icon']");
-        if (favicon) {
-            favicon.href = "/images/cozyNestLogo.png";
-          }
-    }, [isEnglish])
+    usePageMeta({ titleEn: "Login", titleZh: "登入", isEnglish: isEnglish });
 
     const handleGoogleLogin = async () => {
         try {
             const { oauth_url } = await fetchGoogleOauth2Url();
             window.location.href = oauth_url;
+
+        } catch (error) {
+            console.log("error")
+        }
+    }
+
+    const handleForgotPassword = async () => {
+        if (email === "") {
+            alert("Please fill in email first to get the password")
+        }
+        const response = await fetchResendVerificationCode({email}); 
+        if (response === 200) {
+            alert(response.data);
+        } 
+        navigate("/user/verify-email")
+    }
+
+    const handleManualLogin = async () => {
+        try {
+            console.log(email, password)
+            const response = await postManualLogin({email, password});
+            if (response.status === 200) {
+                alert("login successfully.")
+                navigate("/")
+            } else if (response.status === 403 && response.data === "Please verify email first") {
+                alert(response.data)
+                navigate("/user/verify-email")
+            }
         } catch (error) {
             console.log("error")
         }
@@ -64,6 +91,7 @@ export const LoginPage = () => {
                             <label for="email" className="text-lg font-semibold">{isEnglish ? "Email" : "電郵"}</label>
                             <input id="email" type="email"
                                 placeholder="example@gamil.com"
+                                onChange={(e) => setEmail(e.target.value)}
                                 className="w-full px-3 py-2 mt-1 border border-gray-300 h-14"
                             />
                         </div>
@@ -73,16 +101,20 @@ export const LoginPage = () => {
                             <label for="password" className="text-lg font-semibold">{isEnglish ? "Password" : "密碼"}</label>
                             <input id="password" name="email" type="password"
                                 placeholder="password"
+                                onChange={(e) => setPassword(e.target.value)}
                                 className="w-full px-3 py-2 mt-1 border border-gray-300 h-14"
                             />
                         </div>
 
-                        <div className="flex items-center justify-end pr-1 text-gray-400 font-inter text-base cursor-pointer hover:underline">
+                        <div className="flex items-center justify-end pr-1 text-gray-400 font-inter text-base cursor-pointer hover:underline"
+                            onClick={() => handleForgotPassword()}
+                        >
                             {isEnglish ? "Forget password?" : "忘記密碼？"}
                         </div>
 
                         <button className="drop-shadow-lg mt-12 bg-black rounded-lg w-full p-2 flex items-center justify-center font-bold text-lg text-white cursor-pointer font-inter
-                            hover:bg-gray-800">
+                            hover:bg-gray-800"
+                            onClick={() => handleManualLogin()}>
                             {isEnglish ? "Submit" : "提交"}
                         </button>
 

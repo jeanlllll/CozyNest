@@ -3,171 +3,173 @@ import { useSelector } from "react-redux"
 import { setTransportationMethod } from "../../store/features/orderSlice";
 import { useDispatch } from "react-redux";
 
-export const CheckoutForm = ({formData, setFormData}) => {
-
+export const CheckoutForm = ({formData, setFormData, isEnglish}) => {
     const dispatch = useDispatch();
-
     const transportation = useSelector((state) => state.order.transportationMethod)
 
     const handleChange = (e) => {
         const { id, value } = e.target;
         setFormData((prev) => ({ ...prev, [id]: value }))
-        // setErrors((prev) => ({ ...prev, [id]: "" }))
     }
 
+    const inputClassName = "border border-gray-300 rounded px-3 py-2 text-base focus:outline-none focus:ring-1 focus:ring-buttonMain focus:border-buttonMain";
+    const labelClassName = "text-base font-medium mb-1";
 
     return (
-        <div className="flex flex-col text-buttonMain px-20">
+        <div className="flex flex-col text-buttonMain px-4 sm:px-8">
+            <div className="flex flex-col border-b pb-6 sm:pb-8 border-gray-300">
+                <h1 className="text-xl font-bold mb-4 sm:mb-6">{isEnglish ? "Shipping Information" : "送貨資料"}</h1>
 
-            <div className="flex flex-col border-b pb-10 border-gray-300">
-                <h1 className="text-xl font-bold">Shipping Information</h1>
-
-                <div className="flex flex-row gap-5 mt-9">
-                    <div className="flex flex-col gap-1 basis-1/2">
-                        <label htmlFor="receiver" className="text-lg">
-                            Receiver
+                <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
+                    <div className="flex flex-col w-full sm:w-1/2">
+                        <label htmlFor="receiver" className={labelClassName}>
+                            {isEnglish ? "Receiver" : "收件人"}
                         </label>
                         <input
                             type="text"
                             id="receiver"
-                            placeholder="Peter Chan"
-                            className="border border-gray-300 rounded px-2 py-2 text-lg"
+                            placeholder={isEnglish ? "Peter Chan" : "收件人"}
+                            className={inputClassName}
                             value={formData.receiver}
                             onChange={handleChange}
                         />
                     </div>
 
-                    <div className="flex flex-col gap-1 basis-1/2">
-                        <label htmlFor="phoneNumber" className="text-lg">
-                            Phone Number
+                    <div className="flex flex-col w-full sm:w-1/2">
+                        <label htmlFor="phoneNumber" className={labelClassName}>
+                            {isEnglish ? "Phone Number" : "電話號碼"}
                         </label>
                         <input
                             type="text"
                             id="phoneNumber"
-                            placeholder="Phone Number"
-                            className="border border-gray-300 rounded px-2 py-2 text-lg"
+                            placeholder={isEnglish ? "Phone Number" : "電話號碼"}
+                            className={inputClassName}
                             value={formData.phoneNumber}
                             onChange={handleChange}
                         />
                     </div>
-
                 </div>
 
-                <div className="flex flex-row gap-5 mt-3">
-                    <div className="flex flex-col gap-1 basis-1/2">
-                        <label htmlFor="floorNBuilding" className="text-lg">
-                            Floor and Building
+                <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mt-4">
+                    <div className="flex flex-col w-full sm:w-1/2">
+                        <label htmlFor="floorNBuilding" className={labelClassName}>
+                            {isEnglish ? "Floor and Building" : "樓層及大廈"}
                         </label>
                         <input
                             type="text"
                             id="floorNBuilding"
-                            placeholder="Floor and Building"
-                            className="border border-gray-300 rounded px-2 py-2 text-lg"
+                            placeholder={isEnglish ? "Floor and Building" : "樓層及大廈"}
+                            className={inputClassName}
                             value={formData.floorNBuilding}
                             onChange={handleChange}
                         />
                     </div>
 
-                    <div className="flex flex-col gap-1 basis-1/2">
-                        <label htmlFor="street" className="text-lg">
-                            Street
+                    <div className="flex flex-col w-full sm:w-1/2">
+                        <label htmlFor="street" className={labelClassName}>
+                            {isEnglish ? "Street" : "街道"}
                         </label>
                         <input
                             type="text"
                             id="street"
-                            placeholder="Street"
-                            className="border border-gray-300 rounded px-2 py-2 text-lg"
+                            placeholder={isEnglish ? "Street" : "街道"}
+                            className={inputClassName}
                             value={formData.street}
                             onChange={handleChange}
                         />
                     </div>
                 </div>
 
-                <div className="flex flex-row gap-5 mt-3">
-                    <div className="flex flex-col gap-1 basis-1/2">
-                        <label htmlFor="city" className="text-lg">
-                            City
+                <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mt-4">
+                    <div className="flex flex-col w-full sm:w-1/2">
+                        <label htmlFor="city" className={labelClassName}>
+                            {isEnglish ? "City" : "城市"}
                         </label>
                         <input
                             type="text"
                             id="city"
-                            placeholder="City"
-                            className="border border-gray-300 rounded px-2 py-2 text-lg"
+                            placeholder={isEnglish ? "City" : "城市"}
+                            className={inputClassName}
                             value={formData.city}
                             onChange={handleChange}
                         />
                     </div>
 
-                    <div className="flex flex-col gap-1 basis-1/2">
-                        <label htmlFor="State" className="text-lg">
-                            State/Province
+                    <div className="flex flex-col w-full sm:w-1/2">
+                        <label htmlFor="state" className={labelClassName}>
+                            {isEnglish ? "State/Province" : "州/省"}
                         </label>
                         <input
                             type="text"
                             id="state"
-                            placeholder="State"
-                            className="border border-gray-300 rounded px-2 py-2 text-lg"
+                            placeholder={isEnglish ? "State" : "州/省"}
+                            className={inputClassName}
                             value={formData.state}
                             onChange={handleChange}
                         />
                     </div>
                 </div>
 
-                <div className="flex flex-row gap-5 mt-3">
-                    <div className="flex flex-col gap-1 basis-1/2">
-                        <label htmlFor="country" className="text-lg">
-                            Country
+                <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mt-4">
+                    <div className="flex flex-col w-full sm:w-1/2">
+                        <label htmlFor="country" className={labelClassName}>
+                            {isEnglish ? "Country" : "國家"}
                         </label>
                         <input
                             type="text"
                             id="country"
-                            placeholder="Country"
-                            className="border border-gray-300 rounded px-2 py-2 text-lg"
+                            placeholder={isEnglish ? "Country" : "國家"}
+                            className={inputClassName}
                             value={formData.country}
                             onChange={handleChange}
                         />
                     </div>
 
-                    <div className="flex flex-col gap-1 basis-1/2">
-                        <label htmlFor="postalCode" className="text-lg">
-                            Postal Code
+                    <div className="flex flex-col w-full sm:w-1/2">
+                        <label htmlFor="postalCode" className={labelClassName}>
+                            {isEnglish ? "Postal Code" : "郵政編碼"}
                         </label>
-                        <input type="text"
+                        <input
+                            type="text"
                             id="postalCode"
-                            placeholder="Postal"
-                            className="border border-gray-300 rounded px-2 py-2 text-lg"
+                            placeholder={isEnglish ? "Postal Code" : "郵政編碼"}
+                            className={inputClassName}
                             value={formData.postalCode}
                             onChange={handleChange}
                         />
                     </div>
-
                 </div>
             </div>
 
-
-            <div className="mt-10 cursor-pointer">
-                <h1 className="text-xl font-bold">Delivery Method</h1>
-                <div className="flex flex-row gap-12 mt-10">
-                    <div className="basis-1/2" onClick={() => dispatch(setTransportationMethod("STANDARD"))}>
-                        <div className={`flex flex-col gap-1 rounded-lg border  ${transportation === "STANDARD" ? "outline border-buttonMain" : "border-gray-300"} px-10 py-5`}>
-                            <h1 className="text-lg font-medium">Standard</h1>
-                            <div className={`mb-3 text-gray-700"}`}>3-10 business days</div>
-                            <div>HKD 20</div>
+            <div className="mt-6 sm:mt-8">
+                <h1 className="text-xl font-bold mb-4 sm:mb-6">{isEnglish ? "Delivery Method" : "送貨方式"}</h1>
+                <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
+                    <div className="w-full sm:w-1/2" onClick={() => dispatch(setTransportationMethod("STANDARD"))}>
+                        <div className={`flex flex-col gap-2 rounded-lg border p-4 sm:p-6 transition-colors duration-200
+                            ${transportation === "STANDARD" ? "border-2 border-buttonMain" : "border-gray-300 hover:border-gray-400"}`}>
+                            <h2 className="text-lg font-medium">{isEnglish ? "Standard" : "標準"}</h2>
+                            <div className="text-gray-600">{isEnglish ? "3-10 business days" : "3-10 個工作天"}</div>
+                            <div className="font-medium">HKD 20</div>
                         </div>
                     </div>
 
-                    <div className=" basis-1/2" onClick={() => dispatch(setTransportationMethod("EXPRESS"))}>
-                        <div className={`flex flex-col gap-1 rounded-lg border  ${transportation === "EXPRESS" ? "outline border-buttonMain" : "border-gray-300"} px-10 py-5`}>
-                            <h1 className="text-lg font-medium">Express</h1>
-                            <div className={`mb-3 "text-gray-700"`}>2-4 business days</div>
-                            <h1>HKD 40</h1>
+                    <div className="w-full sm:w-1/2" onClick={() => dispatch(setTransportationMethod("EXPRESS"))}>
+                        <div className={`flex flex-col gap-2 rounded-lg border p-4 sm:p-6 transition-colors duration-200
+                            ${transportation === "EXPRESS" ? "border-2 border-buttonMain" : "border-gray-300 hover:border-gray-400"}`}>
+                            <h2 className="text-lg font-medium">{isEnglish ? "Express" : "快遞"}</h2>
+                            <div className="text-gray-600">{isEnglish ? "2-4 business days" : "2-4 個工作天"}</div>
+                            <div className="font-medium">HKD 40</div>
                         </div>
                     </div>
                 </div>
 
-                <div className="mt-3 text-md font-semibold">Amount exceeds HKD300. Standard shipping is free.</div>
+                <div className="mt-4 text-sm text-gray-600">
+                    {isEnglish 
+                        ? "Amount exceeds HKD300. Standard shipping is free." 
+                        : "金額超過港幣300元。標準運送免費。"
+                    }
+                </div>
             </div>
         </div>
-
     )
 }

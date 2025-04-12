@@ -25,6 +25,8 @@ public class ProfileDto {
     @NotBlank(message = "Phone number cannot be blank.")
     String phoneNumber;
 
+    String email;
+
     @NotEmpty(message = "Address List cannot be blank.")
     @Size(min = 1, max = 5, message = "Address list must contain between 1 and 5 addresses.")
     List<AddressDto> addressList;

@@ -7,6 +7,9 @@ import { useEffect } from "react"
 import { setFavoriteList, resetFavoritePage } from "../store/features/favoriteSlice"
 import { PaginationFav } from "../components/category/PaginationFav"
 import { useMemo } from "react"
+import { usePageMeta } from "../components/usePageMeta"
+import { WindowScrollToTopButton } from "../components/sideButtons/WindowScrollToTopButton"
+import { AIAgentButton } from "../components/sideButtons/AiAgentButton"
 
 export const FavoritesPage = () => {
 
@@ -19,6 +22,8 @@ export const FavoritesPage = () => {
     const language = useSelector((state) => state.language.language);
     const isEnglish = language === 'en';
     const currentPage = useSelector((state) => state.favorite.favoritePage)
+
+    usePageMeta({titleEn: "Favorites", titleZh: "我的最愛", isEnglish: isEnglish })
 
     useEffect(() => {
         dispatch(setFavoriteList(data));
@@ -55,13 +60,16 @@ export const FavoritesPage = () => {
 
     return (
         <div className="min-h-dvh h-dvh flex flex-col font-inter">
-            <div>
-                <EntireHeader needSearchBar={false} />
+            <div className="relative z-20">
+                <EntireHeader needCategory={true} needPromotionBar={true} />
             </div>
 
-            <div className="flex-1 w-full flex items-center justify-center mt-15">
+            <div className="flex-1 w-full flex items-center justify-center mt-8 sm:mt-12 relative z-10">
                 <div className=" container flex flex-col items-center  justify-center">
-                    {data.length > 0 && <div className={`grid ${gridRow} grid-cols-4 gap-10`}>
+                    <div className="mb-3 sm:mb-9 text-3xl font-bold text-buttonMain">
+                        {isEnglish? "Favorites" : "我的最愛"}
+                    </div>
+                    {data.length > 0 && <div className={`grid px-8 sm:px-0 ${gridRow} sm:grid-cols-4 gap-10`}>
                         {itemsToDisplay.map((item) => {
                             const productUrl = item.productDisplayDto.find((dto) => dto.isPrimary === true).url;
                             return (
@@ -70,8 +78,8 @@ export const FavoritesPage = () => {
                         })}
                     </div>}
 
-                    {data.length === 0 &&
-                        <div className="text-gray-600 flex justify-end flex-col justify-center text-center">
+                    {favoriteList.length === 0 &&
+                        <div className="text-gray-600 flex flex-col justify-center text-center">
                             <h1 className="font-bold text-lg">No items in Favorites Yet.</h1>
                             <div>
                                 <button className="mt-4 px-6 py-1.5 text-lg bg-buttonMain text-white rounded-md cursor-pointer"
@@ -80,7 +88,7 @@ export const FavoritesPage = () => {
                             </div>
                         </div>}
 
-                    {(displayList.length !== 0 || data.length !== 0) && <div className="mt-17 mb-4">
+                    {(favoriteList.length !== 0) && <div className="mt-17 mb-4">
                         <PaginationFav totalPage={totalPage} />
                     </div>}
 
@@ -90,7 +98,11 @@ export const FavoritesPage = () => {
             <div>
                 <EntireFooter />
             </div>
-
+            
+            <div className="relative z-30">
+                <WindowScrollToTopButton />
+                <AIAgentButton />
+            </div>
         </div >
     )
 }

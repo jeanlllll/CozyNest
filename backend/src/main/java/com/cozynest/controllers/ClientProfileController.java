@@ -37,17 +37,17 @@ public class ClientProfileController {
     }
 
     @PutMapping
-    public ResponseEntity<String> postProfile(@Valid @RequestBody ProfileDto profileDto, BindingResult result) throws Exception {
+    public ResponseEntity<ProfileDto> postProfile(@Valid @RequestBody ProfileDto profileDto, BindingResult result) throws Exception {
         ResponseEntity errorResponse = bindingResultHelper.convertBindErrorToResponse(result);
         if (errorResponse != null ) return errorResponse;
         try {
             UUID userId = checkAuthenticationHelper.getUserIdViaAuthentication();
-            ApiResponse apiResponse = clientProfileService.updateClientProfile(userId, profileDto);
-            return ResponseEntity.status(apiResponse.getStatus()).body(apiResponse.getMessage());
+            ProfileDto upatedProfileDto = clientProfileService.updateClientProfile(userId, profileDto);
+            return ResponseEntity.ok(upatedProfileDto);
         } catch (IllegalAccessException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
 
     }

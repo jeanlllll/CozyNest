@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import { Link } from "react-router";
 
-export const TrendingProductsSection = ({ category, products, language, categoryChinese }) => {
+export const TrendingProductsSection = ({ category, products, language, categoryChinese, isEnglish }) => {
 
     const scrollContainerRef = useRef(null);
     const [atStart, setAtStart] = useState(true);
@@ -47,7 +47,7 @@ export const TrendingProductsSection = ({ category, products, language, category
     return (
         <div>
             {/*--------desktop version--------*/}
-            <div className="px-6 relative hidden lg:block">
+            <div className="px-6 mt-3 relative hidden lg:block">
 
                 <div className="flex justify-between">
                     {/* Section Title*/}
@@ -75,22 +75,23 @@ export const TrendingProductsSection = ({ category, products, language, category
                             product?.productDisplayDtoList?.[0]?.url; //if found more than 1 isPrimary Key product, get the first one
 
                         //get product name
-                        const productName = product.productTranslationDtoList.find((item) => item.languageCode === language)?.productName || "Unnamed Product";
+                        const productNameInEn = product.productTranslationDtoList.find((item) => item.languageCode === "en")?.productName || "Unnamed Product";
+                        const productNameInZh = product.productTranslationDtoList.find((item) => item.languageCode === "zh-hk")?.productName || "Unnamed Product";
 
+                        const categoryTypes = product.categoryTypes.toLowerCase();
                         return (
                             <div key={product.productId} className="drop-shadow-md rounded-lg">
-{/* 
-                                <Link to={`/category/${category}/${categoryTypes}/${linkEnName}${linkZnName}/${product.productId}/${language}`}> */}
+
+                                <Link to={`/category/${category.toLowerCase()}/${categoryTypes}/${productNameInEn}${productNameInZh}/${product.productId}/${language}`}>
                                     {/* product Image */}
-                                    <img src={productImage} alt={productName} className="w-full h-auto rounded-lg hover:scale-105 mb-2 cursor-pointer" />
-                                {/* </Link> */}
+                                    <img src={productImage} alt={isEnglish ? productNameInEn : productNameInZh} className="w-full h-auto rounded-lg hover:scale-105 mb-2 cursor-pointer" />
 
-
-                                {/* product Info */}
-                                <div className="">
-                                    <p className="text-lg font-semibold">{productName}</p>
-                                    <p className="text-gray-500">HKD {product.productPrice}</p>
-                                </div>
+                                    {/* product Info */}
+                                    <div className="">
+                                        <p className="text-lg font-semibold">{isEnglish ? productNameInEn : productNameInZh}</p>
+                                        <p className="text-gray-500">HKD {product.productPrice}</p>
+                                    </div>
+                                </Link>
 
                             </div>
 
@@ -126,8 +127,10 @@ export const TrendingProductsSection = ({ category, products, language, category
                         const productImage = product.productDisplayDtoList.find((img) => img.isPrimary)?.url ||
                             product?.productDisplayDtoList?.[0]?.url; //if found more than 1 isPrimary Key product, get the first one
 
-                        //get product name
-                        const productName = product.productTranslationDtoList.find((item) => item.languageCode === language)?.productName || "Unnamed Product";
+                        const productNameInEn = product.productTranslationDtoList.find((item) => item.languageCode === "en")?.productName || "Unnamed Product";
+                        const productNameInZh = product.productTranslationDtoList.find((item) => item.languageCode === "zh-hk")?.productName || "Unnamed Product";
+
+                        const categoryTypes = product.categoryTypes.toLowerCase();
 
                         return (
                             <>
@@ -136,17 +139,16 @@ export const TrendingProductsSection = ({ category, products, language, category
 
                                         {/* product Image */}
                                         <div className="relative">
-
-                                            <div className="snap-center w-80 h-80 px-2 pt-3 ">
-                                                <img src={productImage} alt={productName}
-                                                    className="rounded-lg hover:scale-105 cursor-pointer border border-gray-200 drop-shadow-lg" />
-                                            </div>
-
-
-                                            <div className="text-center font-inter">
-                                                <p className="text-lg font-bold">{productName}</p>
-                                                <p className="text-gray-500">HKD {product.productPrice}</p>
-                                            </div>
+                                            <Link to={`/category/${category.toLowerCase()}/${categoryTypes}/${productNameInEn}${productNameInZh}/${product.productId}/${language}`}>
+                                                <div className="snap-center w-80 h-80 px-2 pt-3 ">
+                                                    <img src={productImage} alt={isEnglish ? productNameInEn : productNameInZh}
+                                                        className="rounded-lg hover:scale-105 cursor-pointer border border-gray-200 drop-shadow-lg" />
+                                                </div>
+                                                <div className="text-center font-inter">
+                                                    <p className="text-lg font-bold">{isEnglish ? productNameInEn : productNameInZh}</p>
+                                                    <p className="text-gray-500">HKD {product.productPrice}</p>
+                                                </div>
+                                            </Link>
                                         </div>
                                     </div>
                                 </div>

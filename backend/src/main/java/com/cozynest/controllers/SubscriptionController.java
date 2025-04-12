@@ -9,14 +9,14 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/subscription")
-public class Subscription {
+public class SubscriptionController {
 
     @Autowired
     SubscriptionService subscriptionService;
 
     @PostMapping("/subscribe")
     public ResponseEntity<?> subscribe(@Valid @RequestBody SubscriptionRequest subscriptionRequest) {
-        return subscriptionService.addToSubscription(subscriptionRequest);
+        return subscriptionService.addToSubscription(subscriptionRequest.getEmail());
     }
 
     @PutMapping("/unsubscribe")

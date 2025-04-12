@@ -81,6 +81,7 @@ public class VerifyEmailService {
         if (isCodeMatch && !isCodeExpire) {
             generateTokenToCookie(email, response, user);
             user.setIsVerified(true);
+            shopUserRepository.save(user);
             return new ResponseEntity<>("Verified successfully", HttpStatus.OK);
         } else if (isCodeMatch && isCodeExpire) {
             return new ResponseEntity<>("Verification Code expire, please request a new one.", HttpStatus.GONE);

@@ -4,6 +4,7 @@ import com.cozynest.auth.entities.*;
 import com.cozynest.auth.helper.CookieGenerateHelper;
 import com.cozynest.auth.helper.JwtUtil;
 import com.cozynest.auth.repositories.ShopUserRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +52,7 @@ public class LoginService {
     private int refresh_token_expiration;
 
     @Transactional
-    public ResponseEntity<?> login(String email, String password, HttpServletResponse response, AuthProvider loginProvider) {
+    public ResponseEntity<?> login(String email, String password, HttpServletRequest request, HttpServletResponse response, AuthProvider loginProvider) {
         ShopUser user = shopUserRepository.findByEmail(email);
 
         // 1. Check if the user exists
@@ -79,7 +80,7 @@ public class LoginService {
         }
 
         // 5. Generate JWT tokens and set cookies
-        generateAndSetTokens(response, user);
+        generateAndSetTokens(request, response, user);
 
         return new ResponseEntity<>("Login successfully", HttpStatus.OK);
     }
@@ -142,7 +143,7 @@ public class LoginService {
         }
     }
 
-    private void generateAndSetTokens(HttpServletResponse response, ShopUser user) {
+    private void generateAndSetTokens(HttpServletRequest request, HttpServletResponse response, ShopUser user) {
         Set<AuthAuthority> authAuthorities = user.getAuthorities();
         List<String> authorities = authAuthorities.stream()
                 .map(authAuthority -> authAuthority.getRoleCode()).collect(Collectors.toList());
@@ -152,6 +153,7 @@ public class LoginService {
         String refreshToken = jwtUtil.generateRefreshToken(email, authorities);
         cookieGenerateHelper.generateCookieToResponse("access_token", accessToken, access_token_expiration/1000, true, response);
         cookieGenerateHelper.generateCookieToResponse("refresh_token", refreshToken, refresh_token_expiration/1000, true, response);
+        cookieGenerateHelper.clearOauthStateInCookie(request, response);
     }
 
 

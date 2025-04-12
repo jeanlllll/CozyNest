@@ -20,6 +20,7 @@ public class ProductResponse {
     private String name;
     private String description;
     private Float avgRating;
+    private Integer reviewCount;
     private Boolean isNewArrival;
     private CategoryDto categoryDto;
     private CategoryTypeDto categoryTypeDto;

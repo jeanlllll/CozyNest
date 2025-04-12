@@ -70,7 +70,7 @@ public class ProductService {
         productResponse.setPrice(product.getPrice());
         productResponse.setAvgRating(product.getAvgRating());
         productResponse.setIsNewArrival(product.getIsNewArrival());
-
+        productResponse.setReviewCount(product.getReviewCount());
         ProductTranslationId productTranslationId = new ProductTranslationId(productId, languageId);
         ProductTranslation productTranslation = productTranslationRepository.findById(productTranslationId)
                 .orElseThrow(() -> new ProductTranslationNotFoundException("Product translation not found"));

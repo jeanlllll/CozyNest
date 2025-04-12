@@ -11,7 +11,7 @@ export const CategoryEntirePage = (request) => {
             <div className="relative z-10">
                 <CategoryPage request={request}/>
             </div>
-            <div>
+            <div className="mt-8">
                 <EntireFooter />
             </div>
         </div>

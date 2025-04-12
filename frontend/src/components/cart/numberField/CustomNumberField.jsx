@@ -12,13 +12,13 @@ export const CustomNumberField = ({ value, onChangeFunc, cartItemId }) => {
 
   return (
     <div>
-      <div className="h-10 flex flex-row">
+      <div className="h-8 sm:h-10 flex flex-row">
         <div className="w-10 border bg-buttonMain border-buttonMain flex items-center justify-center  cursor-pointer text-white"
           onClick={() => onChangeFunc({ cartItemId, value: value - 1 })}>
           <MinusIcon />
         </div>
 
-        <div className="w-13 border-t border-b border-buttonMain flex items-center justify-center text-md">
+        <div className="w-10 sm:w-13 border-t border-b border-buttonMain flex items-center justify-center text-md">
           {value}
         </div>
 
