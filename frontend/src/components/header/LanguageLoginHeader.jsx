@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { postLogooutRequest } from "../../api/postLogoutRequest";
 import { setIsLogin } from "../../store/features/authSlice";
 import { useDispatch } from "react-redux";
+import { setFavoriteList } from "../../store/features/favoriteSlice";
 
 export const LanguageLoginHeader = () => {
     const language = useSelector((state) => state.language.language);
@@ -16,10 +17,11 @@ export const LanguageLoginHeader = () => {
         if (response.status === 200) {
             localStorage.clear();
             dispatch(setIsLogin(false));
-            alert("Logout successfully.");
+            dispatch(setFavoriteList(null));
+            alert(language === 'en' ? "Logout successfully." : "登出成功。");
             navigate("/");
         } else {
-            alert("Logout faild.");
+            alert(language === 'en' ? "Logout failed." : "登出失敗。");
         } 
     }
 

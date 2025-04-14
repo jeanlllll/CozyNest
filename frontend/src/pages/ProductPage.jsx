@@ -2,7 +2,7 @@ import { useLoaderData } from "react-router"
 import { useEffect, useState } from "react";
 import { LeftImageSection } from "../components/product/LeftImageSection";
 import { RightProductIntroSection } from "../components/product/RightProductIntroSection";
-import { resetProductPageGlobalState, setLargeImageDisplay, setLeftImageSelected } from "../store/features/productPageSlice";
+import { resetProductPageGlobalState, setLargeImageDisplay, setLeftImageSelected, setAlert } from "../store/features/productPageSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { ReviewSection } from "../components/product/ReviewSection";
 import { setFavoriteList } from "../store/features/favoriteSlice";
@@ -11,6 +11,9 @@ import { usePageMeta } from "../components/usePageMeta";
 import { fetchProductByProductId } from "../api/fetchProductByProductId";
 import { WindowScrollToTopButton } from "../components/sideButtons/WindowScrollToTopButton"
 import { AIAgentButton } from "../components/sideButtons/AiAgentButton"
+import { fetchFavoriteList } from "../api/fetchFavoriteList";
+import { addFavoriteFromFavoriteList } from "../api/addFavorite";
+import { removeFavoriteFromFavoriteList } from "../api/removeFavorite";
 
 export const ProductPage = () => {
 
@@ -45,13 +48,19 @@ export const ProductPage = () => {
 
     useEffect(() => {
         const loadFavorites = async () => {
-            if (favoritesList === null && isLoggedIn) {
-                const favoritesList = await fetchFavoriteList();
-                dispatch(setFavoriteList(favoritesList));
+            try {
+                if (isLoggedIn) {
+                    console.log("Fetching favorites list...");
+                    const favorites = await fetchFavoriteList();
+                    console.log("Fetched favorites:", favorites);
+                    dispatch(setFavoriteList(favorites));
+                }
+            } catch (error) {
+                console.error("Error loading favorites:", error);
             }
         }
         loadFavorites();
-    }, [dispatch, isLoggedIn, favoritesList])
+    }, [dispatch, isLoggedIn]);
 
     useEffect(() => {
         const loadNewLangProduct = async () => {
@@ -67,6 +76,48 @@ export const ProductPage = () => {
 
     usePageMeta({ titleEn: data.name, titleZh: data.name, isEnglish: isEnglish });
 
+    const handleAddToFavorite = async () => {
+        if (!isLoggedIn) {
+            dispatch(setAlert({
+                status: "warning",
+                message: isEnglish ? "Please login first" : "請先登入"
+            }));
+            return;
+        }
+
+        try {
+            const isInFavorites = favoritesList.some(favorite => favorite.productId === data.productId);
+            
+            if (isInFavorites) {
+                await removeFavoriteFromFavoriteList(data.productId);
+                const updatedFavorites = favoritesList.filter(favorite => favorite.productId !== data.productId);
+                dispatch(setFavoriteList(updatedFavorites));
+                dispatch(setAlert({
+                    status: "success",
+                    message: isEnglish ? "Removed from favorites" : "已從收藏清單中移除"
+                }));
+            } else {
+                await addFavoriteFromFavoriteList(data.productId);
+                const newFavorite = {
+                    productId: data.productId,
+                    name: data.name,
+                    price: data.price,
+                    imageUrl: productDisplayDtoList[0].url
+                };
+                dispatch(setFavoriteList([...favoritesList, newFavorite]));
+                dispatch(setAlert({
+                    status: "success",
+                    message: isEnglish ? "Added to favorites" : "已加入收藏清單"
+                }));
+            }
+        } catch (error) {
+            console.error("Error updating favorites:", error);
+            dispatch(setAlert({
+                status: "error",
+                message: isEnglish ? "Failed to update favorites" : "更新收藏清單失敗"
+            }));
+        }
+    };
 
     return (
         <div className="w-full h-auto flex justify-center items-center font-inter">
@@ -83,7 +134,11 @@ export const ProductPage = () => {
                 <div className="w-full flex flex-row h-130">
                     {/* left images area */}
                     <div className="basis-1/2 flex justify-end">
-                        <LeftImageSection productDisplayDtoList={productDisplayDtoList} />
+                        <LeftImageSection 
+                            productDisplayDtoList={productDisplayDtoList}
+                            productId={data.productId}
+                            onAddToFavorite={handleAddToFavorite}
+                        />
                     </div>
 
 
@@ -112,7 +167,13 @@ export const ProductPage = () => {
             {/* mobile version */}
             <div className="sm:hidden">
                 <div className="flex flex-col">
-                    <div className="px-4"><LeftImageSection productDisplayDtoList={productDisplayDtoList} /></div>
+                    <div className="px-4">
+                        <LeftImageSection 
+                            productDisplayDtoList={productDisplayDtoList}
+                            productId={data.productId}
+                            onAddToFavorite={handleAddToFavorite}
+                        />
+                    </div>
                     <div className="mt-8 mx-10"><RightProductIntroSection data={data} isEnglish={isEnglish} avgRating={avgRating}/></div>
                     <div className="mt-15 border border-gray-300 px-8 mx-10 pt-7 pb-8 rounded-lg">
                         <div className="font-bold">{isEnglish ? "Product Description" : "產品描述"}</div>

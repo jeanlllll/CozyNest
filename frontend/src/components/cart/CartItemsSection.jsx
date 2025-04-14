@@ -129,7 +129,7 @@ export const CartItemsSection = ({ data }) => {
                             <div className="col-span-1 text-center">HKD {item.productPrice}</div>
                             <div className="col-span-1 flex justify-between items-center px-4">
                                 <span>HKD {new Intl.NumberFormat('en-US').format(item.productPrice * item.quantity)}</span>
-                                <button onClick={() => handleDeletecartItemEvent({ cartItemId })} className="text-gray-500">
+                                <button onClick={() => handleDeletecartItemEvent({ cartItemId })} className="text-gray-500 cursor-pointer">
                                     <DeleteForeverRoundedIcon />
                                 </button>
                             </div>
@@ -168,7 +168,7 @@ export const CartItemsSection = ({ data }) => {
                                     <div className="flex-1">
                                         <div className="flex justify-between items-start">
                                             <div className="font-medium text-sm mb-1">{productName}</div>
-                                            <button onClick={() => handleDeletecartItemEvent({ cartItemId })} className="text-gray-500 p-1">
+                                            <button onClick={() => handleDeletecartItemEvent({ cartItemId })} className="text-gray-500 p-1 cursor-pointer">
                                                 <DeleteForeverRoundedIcon className="text-xl" />
                                             </button>
                                         </div>

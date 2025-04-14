@@ -11,12 +11,15 @@ import { useState } from "react";
 import { addProductToCart } from "../../api/addProductToCart";
 import { categoryChinese } from "../../assets/data/data";
 import { categoryTypeChinese } from "../../assets/data/data";
+import { useNavigate } from "react-router-dom";
 
-export const RightProductIntroSection = ({ data, isEnglish, avgRating }) => {
+export const RightProductIntroSection = ({ data, isEnglish, avgRating, onAddToCart, onAddToFavorite }) => {
 
     const isNoRating = data.reviewList.length === 0;
     const colorSizeMap = transferToColorSizeMap(data.productVariantDtoList);
     const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const isLoggedIn = useSelector((state) => state.auth.isLogin);
 
     const handleColorSelectedEvent = (color, sizeGenderAvailableList, productDisplayId) => {
         dispatch(setSizeNProductVariantIdSelected({ size: "", productVariantId: "" }))
@@ -69,18 +72,50 @@ export const RightProductIntroSection = ({ data, isEnglish, avgRating }) => {
     }
 
     const [showAlertToSelectSize, setShowAlertToSelectSize] = useState(false);
+    const [showAlertToSelectColor, setShowAlertToSelectColor] = useState(false);
+    const [showAlertToSelectGender, setShowAlertToSelectGender] = useState(false);
+
     const handleSubmitOnClick = async () => {
-        const productId = data.productId;
-        if (sizeSelected.size === "" && sizeSelected.productVariantId === "") {
-            setShowAlertToSelectSize(true);
+        if (onAddToCart) {
+            onAddToCart();
             return;
         }
+
+        // Fallback to original logic if no onAddToCart provided
+        const productId = data.productId;
+        let hasError = false;
+
+        // Reset all alerts
+        setShowAlertToSelectSize(false);
+        setShowAlertToSelectColor(false);
+        setShowAlertToSelectGender(false);
+
+        // Validate color selection
+        if (colorSelected === "") {
+            setShowAlertToSelectColor(true);
+            hasError = true;
+        }
+
+        // Validate gender selection for couple category
+        if (isCoupleCategory && genderSelected === "") {
+            setShowAlertToSelectGender(true);
+            hasError = true;
+        }
+
+        // Validate size selection
+        if (sizeSelected.size === "" && sizeSelected.productVariantId === "") {
+            setShowAlertToSelectSize(true);
+            hasError = true;
+        }
+
+        if (hasError) return;
+
         const productVariantId = sizeSelected.productVariantId;
         const response = await addProductToCart({ productId, productVariantId })
         if (response.status === 200) {
-            dispatch(setAlert({ message: "Added successfully.", type: "success" }));
+            dispatch(setAlert({ message: isEnglish ? "Added successfully." : "已成功加入購物車。", type: "success" }));
         } else if (response.status === 400) {
-            dispatch(setAlert({ message: "Product already in cart.", type: "error" }));
+            dispatch(setAlert({ message: isEnglish ? "Product already in cart." : "商品已在購物車中。", type: "error" }));
         }
         setTimeout(() => {
             dispatch(setAlert({ message: "", type: "" }));
@@ -134,11 +169,13 @@ export const RightProductIntroSection = ({ data, isEnglish, avgRating }) => {
                             />
                         ))}
                 </div>
+                {showAlertToSelectColor && <div className="text-buttonMain text-sm mt-2 font-medium">{isEnglish ? "Please select a color first." : "請先選擇顏色。"}</div>}
 
                 <div className="mt-6">
                     {isCoupleCategory && (
                         <div className="pb-3">
                             <GenderSelector isEnglish={isEnglish} />
+                            {showAlertToSelectGender && <div className="text-buttonMain text-sm mt-2 font-medium">{isEnglish ? "Please select gender first." : "請先選擇性別。"}</div>}
                         </div>
                     )}
                     <div className="flex gap-3 sm:mt-3">
@@ -161,7 +198,7 @@ export const RightProductIntroSection = ({ data, isEnglish, avgRating }) => {
                     >
                         {isEnglish ? "Add To Cart" : "加入購物車"}
                     </div>
-                    {showAlertToSelectSize && <div className="text-red-500 text-sm mt-2 text-center">Please select size first.</div>}
+                    {showAlertToSelectSize && <div className="text-buttonMain text-sm mt-2 font-medium">{isEnglish ? "Please select size first." : "請先選擇尺寸。"}</div>}
                 </div>
             </div>
 

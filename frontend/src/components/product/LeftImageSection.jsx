@@ -1,18 +1,32 @@
 import { useDispatch, useSelector } from "react-redux"
 import { HeartIcon } from "../../assets/icons/HeartIcon"
 import { setLargeImageDisplay, setLeftImageSelected } from "../../store/features/productPageSlice"
-import { useEffect } from "react"
 
-export const LeftImageSection = ({ productDisplayDtoList }) => {
+export const LeftImageSection = ({ productDisplayDtoList, productId, onAddToFavorite }) => {
 
     const largeImageDisplay = useSelector((state) => state.productPageGlobalState.largeImageDisplay)
     const leftImageSelected = useSelector((state) => state.productPageGlobalState.leftImageSelected)
+    const favoritesList = useSelector((state) => state.favorite.favoritesList);
     const dispatch = useDispatch();
 
     const handleLeftImageSelectEvent = (productDisplayDto) => {
         dispatch(setLargeImageDisplay(productDisplayDto.url));
         dispatch(setLeftImageSelected(productDisplayDto.id));
     }
+
+    const handleFavoriteClick = (e) => {
+        e.stopPropagation();
+        if (onAddToFavorite) {
+            onAddToFavorite();
+        }
+    }
+
+    const isAlreadyInFavoriteList = Array.isArray(favoritesList) && favoritesList.length > 0 && 
+        favoritesList.some(favorite => favorite.productId === productId);
+
+    console.log('Current productId:', productId);
+    console.log('Favorites List:', favoritesList);
+    console.log('Is in favorites:', isAlreadyInFavoriteList);
 
     return (
         <div>
@@ -36,8 +50,9 @@ export const LeftImageSection = ({ productDisplayDtoList }) => {
                     <img src={largeImageDisplay} alt="" className="w-130 h-130 cursor-pointer"
                         onClick={() => window.open(largeImageDisplay, "_blank")} />
 
-                    <div className="absolute top-2 right-2 bg-buttonMain opacity-50 p-2 rounded-full flex items-center 
-                            justify-center cursor-pointer hover:opacity-100 drop-shadow-xl">
+                    <div className={`absolute top-2 right-2 bg-buttonMain p-2 rounded-full flex items-center 
+                            justify-center cursor-pointer drop-shadow-xl ${isAlreadyInFavoriteList ? 'opacity-100' : 'opacity-30 hover:opacity-100'}`}
+                         onClick={handleFavoriteClick}>
                         <HeartIcon />
                     </div>
                 </div>
@@ -50,8 +65,9 @@ export const LeftImageSection = ({ productDisplayDtoList }) => {
                         <img src={largeImageDisplay} alt="" className="w-auto h-auto cursor-pointer px-7 mt-3 mb-2"
                             onClick={() => window.open(largeImageDisplay, "_blank")} />
 
-                        <div className="absolute top-5 right-9 bg-buttonMain opacity-50 p-2 rounded-full flex items-center 
-                            justify-center cursor-pointer hover:opacity-100 drop-shadow-xl">
+                        <div className={`absolute top-5 right-9 bg-buttonMain p-2 rounded-full flex items-center 
+                            justify-center cursor-pointer drop-shadow-xl ${isAlreadyInFavoriteList ? 'opacity-100' : 'opacity-30 hover:opacity-100'}`}
+                            onClick={handleFavoriteClick}>
                             <HeartIcon />
                         </div>
                     </div>

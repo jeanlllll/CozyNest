@@ -166,7 +166,7 @@ export const PriceSummary = ({ needButton, needTransportationFee, isEnglish }) =
                 
 
                 {needButton &&
-                    <div className="flex flex-col sm:flex-row w-full gap-3 sm:gap-5 mt-4 sm:mt-3">
+                    <div className="flex flex-col sm:flex-row w-full gap-3 sm:gap-5 mt-4 py-4 sm:mt-3">
                         <button
                             className="w-full sm:basis-1/2 bg-buttonMain py-2 sm:py-1.5 text-white hover:bg-gray-800 rounded-md flex justify-center items-center cursor-pointer drop-shadow-lg"
                             onClick={() => navigate("/")}

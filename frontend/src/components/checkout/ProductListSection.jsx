@@ -4,14 +4,16 @@ import { colorChinese } from "../../assets/data/data";
 
 export const ProductListSection = ({ isEnglish }) => {
     const orderList = useSelector((state) => state.order.orderItemsList)
+    // Filter only selected items
+    const selectedOrderList = orderList.filter(item => item.selected)
 
-    if (!orderList || orderList.length === 0) {
+    if (!selectedOrderList || selectedOrderList.length === 0) {
         return <p className="text-gray-600 text-center py-4">{isEnglish ? "Your cart is empty." : "購物車是空的。"}</p>;
     }
 
     return (
         <div className="sm:max-h-[400px] overflow-y-auto overscroll-contain flex flex-col gap-3">
-            {orderList.map((item) => {
+            {selectedOrderList.map((item) => {
                 const productNameInChinese = item.productTranslationDtoList.find((dto) => dto.languageCode === "zh-hk").productName;
                 const productNameInEnglish = item.productTranslationDtoList.find((dto) => dto.languageCode === "en").productName;
                 const productVariantDto = item.productVariantDto;
